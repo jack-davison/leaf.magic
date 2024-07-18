@@ -35,4 +35,6 @@ pak::pak("jack-davison/leaf.magic")
 
 ![](man/figures/webshot.png)
 
+## Code of Conduct
 
+Please note that the leaf.magic project is released with a [Contributor Code of Conduct](https://jack-davison.github.io/leaf.magic/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
