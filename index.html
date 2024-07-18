@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Customisable Icon Markers for leaflet • leaf.magick</title>
+<title>Customisable Icon Markers for leaflet • leaf.magic</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -21,7 +21,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Customisable Icon Markers for leaflet">
 <meta name="description" content="Use modern Icon libraries to construct customisable leaflet marker icons.">
 <meta property="og:description" content="Use modern Icon libraries to construct customisable leaflet marker icons.">
-<meta property="og:image" content="https://jack-davison.github.io/leaf.magick/logo.png">
+<meta property="og:image" content="https://jack-davison.github.io/leaf.magic/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +29,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">leaf.magick</a>
+    <a class="navbar-brand me-2" href="index.html">leaf.magic</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
 
@@ -47,7 +47,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jack-davison/leaf.magick/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jack-davison/leaf.magic/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -57,39 +57,39 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="leafmagick---use-modern-icon-libraries-in-leaflet-markers-">{leaf.magick} - Use Modern Icon Libraries in Leaflet Markers 
-<a class="anchor" aria-label="anchor" href="#leafmagick---use-modern-icon-libraries-in-leaflet-markers-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="leafmagic---use-modern-icon-libraries-in-leaflet-markers-">{leaf.magic} - Use Modern Icon Libraries in Leaflet Markers 
+<a class="anchor" aria-label="anchor" href="#leafmagic---use-modern-icon-libraries-in-leaflet-markers-"></a>
 </h1>
 </div>
 <!-- badges: start -->
 
-<p>The goal of <a href="https://jack-davison.github.io/leaf.magick/">leaf.magick</a> is to overcome the somewhat outdated “Font Awesome” implementation in vanilla R <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> by constructing markers on the fly using <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a> and <a href="https://docs.ropensci.org/magick/" class="external-link">magick</a>. There are three issues <a href="https://jack-davison.github.io/leaf.magick/">leaf.magick</a> sets out to overcome:</p>
+<p>The goal of <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is to overcome the somewhat outdated “Font Awesome” implementation in vanilla R <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> by constructing markers on the fly using <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a> and <a href="https://docs.ropensci.org/magick/" class="external-link">magick</a>. There are three issues <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> sets out to overcome:</p>
 <ul>
 <li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to Font Awesome 4 👎</p></li>
 <li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to a handful of discrete colours 👎</p></li>
 <li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to a single marker size 👎</p></li>
 <li><p>Vanilla <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> doesn’t provide any additional features to construct legends, icon palettes, or such like 👎</p></li>
 </ul>
-<p><a href="https://jack-davison.github.io/leaf.magick/">leaf.magick</a> attempts to solve all of this:</p>
+<p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> attempts to solve all of this:</p>
 <ul>
 <li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> uses up-to-date versions of Font Awesome and Boostrap Icons, powered by <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a> and <a href="https://github.com/rstudio/bsicons" class="external-link">bsicons</a> ✅</p></li>
 <li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> uses <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a> to grab a marker shape, and can therefore colour and resize it however the user desires ✅</p></li>
-<li><p><a href="https://jack-davison.github.io/leaf.magick/">leaf.magick</a> exports functions like <code><a href="reference/addIconLegend.html">addIconLegend()</a></code> to help developers communicate the meanings of icons to users ✅</p></li>
+<li><p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> exports functions like <code><a href="reference/addIconLegend.html">addIconLegend()</a></code> to help developers communicate the meanings of icons to users ✅</p></li>
 </ul>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <a href="https://jack-davison.github.io/leaf.magick/">leaf.magick</a> like so:</p>
+<p>You can install the development version of <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> like so:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jack-davison/leaf.magick"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jack-davison/leaf.magic"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/webshot.png"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/jack-davison/leaf.magick/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/jack-davison/leaf.magic/" class="external-link">Browse source code</a></li>
 </ul>
 </div>
 
@@ -105,7 +105,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing leaf.magick</a></li>
+<li><a href="authors.html#citation">Citing leaf.magic</a></li>
 </ul>
 </div>
 
@@ -119,8 +119,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=leaf.magick" class="external-link"><img src="https://www.r-pkg.org/badges/version/leaf.magick" alt="CRAN status"></a></li>
-<li><a href="https://github.com/jack-davison/leaf.magick/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/jack-davison/leaf.magick/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=leaf.magic" class="external-link"><img src="https://www.r-pkg.org/badges/version/leaf.magic" alt="CRAN status"></a></li>
+<li><a href="https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 

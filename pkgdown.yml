@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-07-18T11:49Z
+last_built: 2024-07-18T12:08Z
 urls:
-  reference: https://jack-davison.github.io/leaf.magick/reference
-  article: https://jack-davison.github.io/leaf.magick/articles
+  reference: https://jack-davison.github.io/leaf.magic/reference
+  article: https://jack-davison.github.io/leaf.magic/articles
