@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(leaf.magick)
+library(leaf.magic)
 
-test_check("leaf.magick")
+test_check("leaf.magic")

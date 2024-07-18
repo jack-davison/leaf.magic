@@ -27,7 +27,7 @@ port_talbot
 \description{
 A subset of fixed monitoring stations which make up the Welsh Air Quality
 Network in Neath Port Talbot, Wales. Data were obtained and correct as of
-July 2024. This dataset is provided for demonstration of \code{leaf.magick}
+July 2024. This dataset is provided for demonstration of \code{leaf.magic}
 functions.
 }
 \examples{

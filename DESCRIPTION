@@ -1,4 +1,4 @@
-Package: leaf.magick
+Package: leaf.magic
 Title: Customisable Icon Markers for 'leaflet'
 Version: 0.0.0.9000
 Authors@R: 
@@ -7,8 +7,8 @@ Authors@R:
 Description: Use modern Icon libraries to construct customisable leaflet
     marker icons.
 License: GPL (>= 3)
-URL: https://jack-davison.github.io/leaf.magick/,
-    https://github.com/jack-davison/leaf.magick
+URL: https://jack-davison.github.io/leaf.magic/,
+    https://github.com/jack-davison/leaf.magic
 Depends: 
     R (>= 2.10)
 Imports: 

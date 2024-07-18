@@ -1,4 +1,4 @@
-# leaf.magick (development version)
+# leaf.magic (development version)
 
 * Initial CRAN submission.
 

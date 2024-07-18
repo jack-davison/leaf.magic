@@ -1,4 +1,4 @@
-url: https://jack-davison.github.io/leaf.magick/
+url: https://jack-davison.github.io/leaf.magic/
 template:
   bootstrap: 5
   bslib:
@@ -9,7 +9,7 @@ template:
     code_font: {google: "JetBrains Mono"}
 
 navbar:
-  title: leaf.magick
+  title: leaf.magic
   structure:
     left:  [intro, reference, news, articles, tutorials]
     right: [search, github]
@@ -34,6 +34,6 @@ reference:
   - addIconLegend
 
 - title: Utilities
-  desc: Other useful objects exported by `{leaf.magick}`.
+  desc: Other useful objects exported by `{leaf.magic}`.
   contents:
   - awesomePalette
