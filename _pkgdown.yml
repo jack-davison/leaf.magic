@@ -32,3 +32,8 @@ reference:
   contents:
   - magicIcons
   - addIconLegend
+
+- title: Utilities
+  desc: Other useful objects exported by `{leaf.magick}`.
+  contents:
+  - awesomePalette

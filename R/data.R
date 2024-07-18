@@ -20,3 +20,14 @@
 #' # view data
 #' port_talbot
 "port_talbot"
+
+#' Palette used by [leaflet::awesomeIcons()]
+#'
+#' [leaflet::awesomeIcons()] takes one of 19 colours, but its "red" colour is not the same as R's base "red" defined in [colors()]. This list maps the awesome colours onto the hex codes they represent.
+#'
+#' @format ## `awesomePalette`
+#' A named list of length 19.
+#'
+#' @examples
+#' unlist(awesomePalette)
+"awesomePalette"
