@@ -12,7 +12,7 @@ You can find the `.R` file that generates the `.Rd` by reading the comment in th
 
 If you want to make a bigger change, it's a good idea to first file an issue and make sure a package author agrees that it’s needed. 
 If you’ve found a bug, please file an issue that illustrates the bug with a minimal 
-[reprex](https://www.tidyverse.org/help/#reprex) (this will also help you write a unit test, if needed).
+[reprex](https://reprex.tidyverse.org/) (this will also help you write a unit test, if needed).
 
 ### Pull request process
 
@@ -26,7 +26,7 @@ If you’ve found a bug, please file an issue that illustrates the bug with a mi
     The title of your PR should briefly describe the change.
     The body of your PR should contain `Fixes #issue-number`.
 
-*  For user-facing changes, add a bullet to the top of `NEWS.md` (i.e. just below the first header). Follow the style described in <https://style.tidyverse.org/news.html>.
+*  For user-facing changes, place a bullet under the appropriate, second-level header; Breaking Changes, New Features, or Bug Fixes.
 
 ### Code/API style
 
