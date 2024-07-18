@@ -10,6 +10,8 @@
 #'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
 #' @param markerColor The color of the teardrop-shaped marker.
 #' @param iconColor The color of the fontawesome icon.
+#' @param markerSize The size of the marker. Defaults to `30`, which is roughly
+#'   the same size as [leaflet::addMarkers()].
 #' @param library One of `"fontawesome"` or `"bootstrap"`, defining the icon
 #'   library of interest. Defaults to `"fontawesome"`.
 #' @inheritParams leaflet::makeIcon
@@ -49,6 +51,7 @@
 magicIcons <- function(icon = "circle",
                        markerColor = NULL,
                        iconColor = NULL,
+                       markerSize = 30L,
                        library = "fontawesome",
                        className = NULL) {
   library <- match.arg(library, c("fontawesome", "bootstrap"))
@@ -57,12 +60,13 @@ magicIcons <- function(icon = "circle",
     dplyr::tibble(
       icon = icon,
       markerColor = markerColor,
-      iconColor = iconColor
+      iconColor = iconColor,
+      markerSize = markerSize
     )
 
   unique_combos <- dplyr::distinct(combinations)
 
-  make_fa_icon <- function(icon, markerColor, iconColor) {
+  make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
     time <- Sys.time() %>% as.numeric()
 
     t_pin <- tempfile(pattern = paste0(time, "pin_"))
@@ -105,22 +109,21 @@ magicIcons <- function(icon = "circle",
 
     magick::image_write(shadow, t_shadow)
 
-    icon_size <- 30
     ratio <- 512 / 384
 
     leaflet::makeIcon(
       iconUrl = t,
-      iconWidth = icon_size,
-      iconHeight = icon_size * ratio,
-      iconAnchorX = icon_size / 2,
-      iconAnchorY = icon_size * ratio,
+      iconWidth = markerSize,
+      iconHeight = markerSize * ratio,
+      iconAnchorX = markerSize / 2,
+      iconAnchorY = markerSize * ratio,
       shadowUrl = t_shadow,
-      shadowWidth = icon_size * 1.2,
-      shadowHeight = icon_size * ratio * 1.1,
-      shadowAnchorX = ((icon_size * 1.2) / 2),
-      shadowAnchorY = (icon_size * ratio * 1.05),
+      shadowWidth = markerSize * 1.2,
+      shadowHeight = markerSize * ratio * 1.1,
+      shadowAnchorX = ((markerSize * 1.2) / 2),
+      shadowAnchorY = (markerSize * ratio * 1.05),
       popupAnchorX = .Machine$double.eps,
-      popupAnchorY = -(icon_size * ratio) * 0.8,
+      popupAnchorY = -(markerSize * ratio) * 0.8,
       className = className
     )
   }

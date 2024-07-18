@@ -8,6 +8,7 @@ magicIcons(
   icon = "circle",
   markerColor = NULL,
   iconColor = NULL,
+  markerSize = 30L,
   library = "fontawesome",
   className = NULL
 )
@@ -20,6 +21,9 @@ magicIcons(
 \item{markerColor}{The color of the teardrop-shaped marker.}
 
 \item{iconColor}{The color of the fontawesome icon.}
+
+\item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
+the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
 
 \item{library}{One of \code{"fontawesome"} or \code{"bootstrap"}, defining the icon
 library of interest. Defaults to \code{"fontawesome"}.}
