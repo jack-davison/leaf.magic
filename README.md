@@ -6,7 +6,7 @@
 [![R-CMD-check](https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing markers on the fly using `{fontawesome}` and `{magick}`. There are three issues `{leaf.magic}` sets out to overcome:
+The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing markers on the fly using `{fontawesome}` or `{bsicons}` and `{magick}`. There are three issues `{leaf.magic}` sets out to overcome:
 
 * `leaflet::awesomeIcons()` is limited to Font Awesome 4 👎
 

@@ -1,0 +1,266 @@
+---
+title: "Getting Started with {leaf.magic}"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{leaf-magic}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup, warning=FALSE}
+library(leaflet)
+library(leaf.magic)
+```
+
+# Purpose
+
+The purpose of `{leaf.magic}` is to extend R `{leaflet}`'s capability to use modern icon sets. While `leaflet::addAwesomeMarkers()` exists, it has a few core disadvantages; markers are a fixed size, can only be one of 19 colours, and pull icons from significantly out of date icon sets.
+
+`{leaf.magic}` uses contemporary R packages - currently `{fontawesome}` and `{bsicons}` - to access up-to-date SVG icon sets, `{magick}` to knit them onto map markers, and then `leaflet::makeIcon()` to translate them into a `{leaflet}`-usable map marker.
+
+Some core advantages of `magicIcons()` over `leaflet::awesomeIcons()` are:
+
+* Markers pull from up-to-date, larger icon sets.
+
+* Markers and icons can be any colour, and can be resized. 
+
+One *disadvantage* is that `magicIcons()` may be slower to create large numbers of icons. Approaches to speeding this up are being discussed.
+
+> If you are interested in speeding up marker drawing, upvote <https://github.com/jack-davison/leaf.magic/issues/4>
+
+# Example Data
+
+In this document we'll use the in-built `port_talbot` dataset, which details the location of some air quality measurement stations around the town of Port Talbot, Wales, UK, some of which are open and some of which have closed. 
+
+We can give this data a look using vanilla `{leaflet}`:
+
+```{r map-basic}
+port_talbot$popup <-
+  paste0(
+    "<strong>",
+    toupper(port_talbot$site),
+    "</strong> (",
+    port_talbot$code,
+    ")<hr>Site Type: ",
+    port_talbot$site_type,
+    "<br>Opened: ",
+    port_talbot$start_date,
+    "<br>Closed: ",
+    port_talbot$end_date
+  )
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(popup = ~popup)
+```
+
+# Simple Example
+
+We can use the `magicIcons()` function to swap out the default markers for some `{leaf.magic}` markers. The important arguments here are `icon`, which is the (in this case) Font Awesome icon of interest^[See `fontawesome::fa_metadata()` for a complete list], `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. 
+
+Note that we have used in-built R colours (`"cadetblue"` and `"gold"`) but we could have used hex-codes instead.
+
+```{r map-simple}
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = magicIcons(
+      icon = "cloud",
+      markerColor = "cadetblue",
+      iconColor = "gold"
+    )
+  )
+```
+
+# Varying Icons
+
+`{leaf.magic}` allows you to vary icons by some other variable. At the moment, this needs to be done manually, and is most easily done by adding a new column to your dataset
+
+> If you are interested in better functions for varying icons by some other variable, upvote <https://github.com/jack-davison/leaf.magic/issues/2>
+
+```{r map-varicon}
+port_talbot$icon <- "x"
+port_talbot$icon[port_talbot$site_type == "Urban Industrial"] <- "industry"
+port_talbot$icon[port_talbot$site_type == "Urban Background"] <- "house"
+port_talbot$icon[port_talbot$site_type == "Urban Traffic"] <- "car"
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = icon,
+      markerColor = "cadetblue",
+      iconColor = "gold"
+    )
+  )
+```
+
+# Varying Colours
+
+The above example can naturally be combined with varying colours, too, through the use of `leaflet::colorFactor()`.
+
+```{r map-varcol-fct}
+catPal <- colorFactor("viridis", port_talbot$site_type)
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = icon,
+      markerColor = "white",
+      iconColor = catPal(site_type)
+    )
+  ) %>%
+  addLegend(
+    pal = catPal,
+    values = port_talbot$site_type,
+    title = "Site Type"
+  )
+```
+
+As the markers themselves can be set to *any* colour, we can even use a continuous scale (e.g., from `leaflet::colorNumeric()`).
+
+```{r map-varcol-num}
+port_talbot$open_year <- as.integer(format(port_talbot$start_date, "%Y"))
+
+palNum <- colorNumeric("viridis", domain = port_talbot$open_year)
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = "cloud",
+      markerColor = palNum(open_year),
+      iconColor = "white"
+    )
+  ) %>%
+  addLegend(
+    pal = palNum,
+    values = port_talbot$open_year,
+    title = "Opening Year",
+    labFormat = labelFormat(big.mark = "")
+  )
+```
+
+# Varying Size
+
+Unlike `leaflet::awesomeIcons()`, `magicIcons()` can be easily re-sized. Much like in `leaflet::addCircleMarkers()`, this can vary with another variable; let's make the closed sites a bit smaller than the open ones with `markerSize`. Note the default is `30L`, which is roughly the same size as the default `leaflet::addMarkers()` marker.
+
+```{r map-varsize}
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = icon,
+      markerColor = "white",
+      markerSize = ifelse(open, 30L, 20L),
+      iconColor = catPal(site_type)
+    )
+  ) %>%
+  addLegend(
+    pal = catPal,
+    values = port_talbot$site_type,
+    title = "Site Type"
+  )
+```
+
+
+# Icon Legends
+
+`{leaf.magic}` provides the `addIconLegend()` function to help construct an icon legend, similar to `leaflet::addLegend()` constructs colour legends.
+
+```{r map-iconlegend}
+site_types <- c("Urban Industrial", "Urban Traffic", "Urban Background")
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = icon,
+      markerColor = palNum(open_year),
+      iconColor = "white"
+    )
+  ) %>%
+  addLegend(
+    pal = palNum,
+    values = port_talbot$open_year,
+    title = "Opening Year",
+    labFormat = labelFormat(big.mark = "")
+  ) %>%
+  addIconLegend(
+    icons = c("industry", "car", "house"),
+    labels = site_types,
+    title = "Site Type"
+  )
+```
+
+Often, the colour of the marker (or icon) and the icon itself will align. In that case, the `colors` argument of `addIconLegend()` can be used to create an efficient, combined legend.
+
+```{r map-iconcollegend}
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = icon,
+      markerColor = "white",
+      iconColor = catPal(site_type)
+    )
+  ) %>%
+  addIconLegend(
+    icons = c("industry", "car", "house"),
+    labels = site_types,
+    colors = catPal(site_types),
+    title = "Site Type"
+  )
+```
+
+# Other Utilities
+
+`{leaf.magic}` exports the `awesomePalette` list, which are hex codes for the colours used in `leaflet::awesomeIcons()`. You could use these if you want to recreate the colour scheme of `awesomeIcons()` with the flexibility of `magicIcons()`.
+
+```{r awesomepal}
+cols <- names(awesomePalette)
+
+breweries91$color <- sample(cols, nrow(breweries91), replace = TRUE)
+
+leaflet(breweries91) %>%
+  addTiles() %>%
+  addAwesomeMarkers(
+    icon = ~ awesomeIcons(
+      icon = "circle",
+      markerColor = color,
+      iconColor = "#FFFFFF",
+      library = "fa"
+    ),
+    group = "Awesome"
+  ) %>%
+  addMarkers(
+    icon = ~ magicIcons(
+      icon = "circle-dot",
+      markerColor = unlist(use.names = FALSE, awesomePalette[color]),
+      iconColor = "#FFFFFF"
+    ),
+    group = "Magic"
+  ) %>%
+  addLayersControl(
+    baseGroups = c("Awesome", "Magic")
+  )
+```
+

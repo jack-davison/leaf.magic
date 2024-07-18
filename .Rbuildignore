@@ -1,4 +1,4 @@
-^leaf\.magick\.Rproj$
+^leaf\.magic\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^_pkgdown\.yml$
@@ -7,3 +7,5 @@
 ^data-raw$
 ^\.github$
 ^\.covrignore$
+^doc$
+^Meta$
