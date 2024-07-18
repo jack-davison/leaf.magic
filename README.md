@@ -12,13 +12,15 @@ The goal of `{leaf.magick}` is to overcome the somewhat outdated "Font Awesome" 
 
 * `leaflet::awesomeIcons()` is limited to a handful of discrete colours 👎
 
+* `leaflet::awesomeIcons()` is limited to a single marker size 👎
+
 * Vanilla `{leaflet}` doesn't provide any additional features to construct legends, icon palettes, or such like 👎
 
 `{leaf.magick}` attempts to solve all of this:
 
 * `magicIcons()` uses up-to-date versions of Font Awesome and Boostrap Icons, powered by `{fontawesome}` and `{bsicons}` ✅
 
-* `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour it using any colour the user desires ✅
+* `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
 
 * `{leaf.magick}` exports functions like `addIconLegend()` to help developers communicate the meanings of icons to users ✅
 
