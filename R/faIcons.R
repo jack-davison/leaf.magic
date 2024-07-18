@@ -185,7 +185,7 @@ addFaLegend <- function(map,
     paste0(html_title,
            paste0(
              purrr::pmap_vec(
-               tibble::tibble(
+               dplyr::tibble(
                  icon = icons,
                  label = labels,
                  color = colors
