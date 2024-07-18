@@ -1,0 +1,21 @@
+Package: leaf.magick
+Title: Customisable Icon Markers for 'leaflet'
+Version: 0.0.0.9000
+Authors@R: 
+    person("Jack", "Davison", , "davison.jack.jd@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-2653-6615"))
+Description: Use the up-to-date Font Awesome library to construct customisable leaflet marker icons.
+License: GPL (>= 3)
+Depends: 
+    R (>= 2.10)
+Imports: 
+    fontawesome,
+    glue,
+    leaflet,
+    magick,
+    magrittr,
+    rsvg
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
