@@ -4,12 +4,19 @@
 \name{leaf.magick-package}
 \alias{leaf.magick}
 \alias{leaf.magick-package}
-\title{leaf.magick: What the Package Does (One Line, Title Case)}
+\title{leaf.magick: Customisable Icon Markers for 'leaflet'}
 \description{
-What the package does (one paragraph).
+Use the up-to-date Font Awesome library to construct customisable leaflet marker icons.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://jack-davison.github.io/leaf.magick/}
+}
+
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Jack Davison \email{davison.jack.jd@gmail.com} (\href{https://orcid.org/0000-0003-2653-6615}{ORCID})
 
 }
 \keyword{internal}

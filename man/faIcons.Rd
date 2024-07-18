@@ -52,7 +52,7 @@ port_talbot \%>\%
     )
   ) \%>\%
   leaflet() \%>\%
-  addTiles() \%>\%
+  addProviderTiles("CartoDB.Voyager") \%>\%
   addMarkers(icon = ~ faIcons(icon, color, "white"),
              popup = ~ site)
 }

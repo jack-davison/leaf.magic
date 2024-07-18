@@ -11,11 +11,13 @@ URL: https://jack-davison.github.io/leaf.magick/
 Depends: 
     R (>= 2.10)
 Imports: 
+    dplyr,
     fontawesome,
     glue,
     leaflet,
     magick,
     magrittr,
+    purrr,
     rsvg
 Encoding: UTF-8
 LazyData: true

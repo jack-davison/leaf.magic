@@ -47,9 +47,9 @@ faIcons <- function(icon = "circle",
                     iconColor = NULL,
                     className = NULL) {
   combinations <-
-    tibble::tibble(icon = icon,
-                   markerColor = markerColor,
-                   iconColor = iconColor)
+    dplyr::tibble(icon = icon,
+                  markerColor = markerColor,
+                  iconColor = iconColor)
 
   unique_combos <- dplyr::distinct(combinations)
 

@@ -3,3 +3,4 @@
 export("%>%")
 export(faIcons)
 importFrom(magrittr,"%>%")
+importFrom(rsvg,rsvg_png)
