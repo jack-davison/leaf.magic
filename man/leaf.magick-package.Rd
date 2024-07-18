@@ -6,12 +6,15 @@
 \alias{leaf.magick-package}
 \title{leaf.magick: Customisable Icon Markers for 'leaflet'}
 \description{
-Use the up-to-date Font Awesome library to construct customisable leaflet marker icons.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+Use modern Icon libraries to construct customisable leaflet marker icons.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://jack-davison.github.io/leaf.magick/}
+  \item \url{https://github.com/jack-davison/leaf.magick}
 }
 
 }

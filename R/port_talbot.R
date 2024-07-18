@@ -20,4 +20,3 @@
 #' # view data
 #' port_talbot
 "port_talbot"
-

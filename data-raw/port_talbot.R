@@ -1,4 +1,3 @@
-
 port_talbot <-
   openair::importMeta("waqn", all = TRUE) |>
   dplyr::filter(grepl("Talbot", site)) |>
@@ -11,9 +10,11 @@ port_talbot <-
   dplyr::mutate(site = gsub("Port Talbot ", "", site)) |>
   dplyr::arrange(desc(start_date)) |>
   dplyr::slice_head(n = 1, by = c(latitude, longitude)) |>
-  dplyr::filter(site != "CO",
-                site != "Prince Street",
-                site != "Prince Street (FDMS only)") |>
+  dplyr::filter(
+    site != "CO",
+    site != "Prince Street",
+    site != "Prince Street (FDMS only)"
+  ) |>
   dplyr::mutate(open = is.na(end_date), .after = site_type)
 
 usethis::use_data(port_talbot, overwrite = TRUE)

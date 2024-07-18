@@ -4,6 +4,6 @@
 
 ## New Features
 
-* `faIcons()` allows users to use any up-to-date Font Awesome icon.
+* `magicIcons()` allows users to use any up-to-date Font Awesome or Bootstrap icon.
 
-* `addFaLegend()` add a legend layer to a `{leaflet}` map with Font Awesome icons. 
+* `addIconLegend()` add a legend layer to a `{leaflet}` map with Font Awesome or Bootstrap icons. 

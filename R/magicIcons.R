@@ -1,15 +1,17 @@
-
-#' Create a set of Font Awesome Markers
+#' Create a set of Font Awesome or Bootstrap Markers
 #'
 #' This function is intended as a more up-to-date implementation of
 #' [leaflet::awesomeIcons()]. Key benefits include having access to modern Font
-#' Awesome icons, and allowing any colour to be used the marker and icon.
+#' Awesome and Bootstrap icons, and allowing any colour to be used the marker
+#' and icon.
 #'
-#' @param icon Name of the Font Awesome icon, passed to [fontawesome::fa()]. A
-#'   full list of available icons can be found using
-#'   [fontawesome::fa_metadata()].
+#' @param icon Name of the Font Awesome icon, passed to [fontawesome::fa()] or
+#'   [bsicons::bs_icon()]. A full list of available icons can be found using
+#'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
 #' @param markerColor The color of the teardrop-shaped marker.
 #' @param iconColor The color of the fontawesome icon.
+#' @param library One of `"fontawesome"` or `"bootstrap"`, defining the icon
+#'   library of interest. Defaults to `"fontawesome"`.
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
@@ -40,16 +42,23 @@
 #'   ) %>%
 #'   leaflet() %>%
 #'   addProviderTiles("CartoDB.Voyager") %>%
-#'   addMarkers(icon = ~ faIcons(icon, color, "white"),
-#'              popup = ~ site)
-faIcons <- function(icon = "circle",
-                    markerColor = NULL,
-                    iconColor = NULL,
-                    className = NULL) {
+#'   addMarkers(
+#'     icon = ~ magicIcons(icon, color, "white"),
+#'     popup = ~site
+#'   )
+magicIcons <- function(icon = "circle",
+                       markerColor = NULL,
+                       iconColor = NULL,
+                       library = "fontawesome",
+                       className = NULL) {
+  library <- match.arg(library, c("fontawesome", "bootstrap"))
+
   combinations <-
-    dplyr::tibble(icon = icon,
-                  markerColor = markerColor,
-                  iconColor = iconColor)
+    dplyr::tibble(
+      icon = icon,
+      markerColor = markerColor,
+      iconColor = iconColor
+    )
 
   unique_combos <- dplyr::distinct(combinations)
 
@@ -62,9 +71,15 @@ faIcons <- function(icon = "circle",
 
     t_shadow <- tempfile(pattern = paste0(time, "shadow_"))
 
-    fontawesome::fa_png("location-pin", file = t_pin, fill = markerColor)
+    if (library == "fontawesome") {
+      fontawesome::fa_png(icon, file = t_logo, fill = iconColor)
+    } else if (library == "bootstrap") {
+      icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
+      icon <- gsub("currentColor", iconColor, icon)
+      rsvg::rsvg_png(charToRaw(icon), file = t_logo)
+    }
 
-    fontawesome::fa_png(icon, file = t_logo, fill = iconColor)
+    fontawesome::fa_png("location-pin", file = t_pin, fill = markerColor)
 
     pin <- magick::image_read(t_pin)
 
@@ -115,87 +130,101 @@ faIcons <- function(icon = "circle",
   unique_combos$themarker <- icons
 
   combinations <-
-    dplyr::left_join(combinations,
-                     unique_combos,
-                     dplyr::join_by(icon, markerColor, iconColor))
+    dplyr::left_join(
+      combinations,
+      unique_combos,
+      dplyr::join_by(icon, markerColor, iconColor)
+    )
 
   do.call(leaflet::iconList, combinations$themarker)
 }
 
 
-#' Add a Font Awesome legend to a map
+#' Add an Icon legend to a map
 #'
-#' Manually specify icons, labels, and colours to add a Font Awesome legend to a
-#' map. Useful in conjunction with [faIcons()] to communicate the meaning of
+#' Manually specify icons, labels, and colours to add an Icon legend to a
+#' map. Useful in conjunction with [magicIcons()] to communicate the meaning of
 #' icons/colours.
 #'
-#' @param icons Name of the Font Awesome icons, passed to [fontawesome::fa()]. A
+#' @param icons Name of the icons, passed to [fontawesome::fa()] or [bsicons::bs_icon()]. A
 #'   full list of available icons can be found using
-#'   [fontawesome::fa_metadata()].
+#'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
 #' @param labels Labels for each `icon`; should be the same length as `icons`.
 #' @param colors Colours to use for each `icon`. If `length(colors) == 1L` it is
 #'   recycled for all icons. Otherwise should be the same length as `icons`.
 #' @param title the legend title; optional.
 #' @inheritParams leaflet::addControl
+#' @inheritParams magicIcons
 #'
 #' @return a [leaflet][leaflet::leaflet-package] widget
 #' @export
 #'
 #' @examples
 #' library(leaflet)
-#' addFaLegend(
+#' addIconLegend(
 #'   map = leaflet(),
 #'   icons = c("beer", "school"),
 #'   labels = c("Pub", "University"),
 #'   colors = c("red", "blue"),
 #'   title = "Student Hangout"
 #' )
-addFaLegend <- function(map,
-                        icons,
-                        labels,
-                        colors = "black",
-                        title = NULL,
-                        position = c("topright", "bottomright", "bottomleft", "topleft"),
-                        layerId = NULL,
-                        className = "info legend",
-                        data = leaflet::getMapData(map)) {
+addIconLegend <- function(map,
+                          icons,
+                          labels,
+                          colors = "black",
+                          title = NULL,
+                          library = "fontawesome",
+                          position = c("topright", "bottomright", "bottomleft", "topleft"),
+                          layerId = NULL,
+                          className = "info legend",
+                          data = leaflet::getMapData(map)) {
   position <- match.arg(position)
 
   # format title
   html_title <- ""
   if (!is.null(title)) {
-    html_title <- paste0("<div style='margin-bottom:3px'><strong>",
-                         title,
-                         "</strong></div>")
+    html_title <- paste0(
+      "<div style='margin-bottom:3px'><strong>",
+      title,
+      "</strong></div>"
+    )
   }
 
   assemble_legend_item <-
     function(icon, label, color) {
-      paste0(fontawesome::fa(
-        icon,
-        width = "1em",
-        height = "1em",
-        fill = color
-      ),
-      "   ",
-      label)
+      if (library == "fontawesome") {
+        paste0(
+          fontawesome::fa(
+            icon,
+            width = "1em",
+            height = "1em",
+            fill = color
+          ),
+          "   ",
+          label
+        )
+      } else if (library == "bootstrap") {
+        i <- as.character(bsicons::bs_icon(icon, size = "1em"))
+        i <- gsub("currentColor", color, i)
+        paste0(i, "   ", label)
+      }
     }
 
   html <-
     paste0(html_title,
-           paste0(
-             purrr::pmap_vec(
-               dplyr::tibble(
-                 icon = icons,
-                 label = labels,
-                 color = colors
-               ),
-               assemble_legend_item
-             ),
-             collapse = "<br>"
-           ),
-
-           collapse = "<br>")
+      paste0(
+        purrr::pmap_vec(
+          dplyr::tibble(
+            icon = icons,
+            label = labels,
+            color = colors
+          ),
+          assemble_legend_item
+        ),
+        collapse = "<br>"
+      ),
+      collapse = "<br>"
+    )
 
   leaflet::addControl(
     map = map,

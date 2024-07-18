@@ -27,8 +27,8 @@ reference:
   contents:
   - port_talbot
 
-- title: Font Awesome
-  desc: Use up-to-date Font Awesome icons in `{leaflet}` maps.
+- title: Icons
+  desc: Use up-to-date Font Awesome & Bootstrap icons in `{leaflet}` maps.
   contents:
-  - faIcons
-  - addFaLegend
+  - magicIcons
+  - addIconLegend
