@@ -1,12 +1,12 @@
 
-# leaf.magick
+# {leaf.magick} - Use Modern Icon Libraries in Leaflet Markers <a href="https://jack-davison.github.io/leaf.magick/"><img src="man/figures/logo.png" align="right" height="138" alt="leaf.magick website" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/leaf.magick)](https://CRAN.R-project.org/package=leaf.magick)
 [![R-CMD-check](https://github.com/jack-davison/leaf.magick/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jack-davison/leaf.magick/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of leaf.magick is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing markers on the fly using `{fontawesome}` and `{magick}`. There are three issues `{leaf.magick}` sets out to overcome:
+The goal of `{leaf.magick}` is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing markers on the fly using `{fontawesome}` and `{magick}`. There are three issues `{leaf.magick}` sets out to overcome:
 
 * `awesomeIcons()` is limited to Font Awesome 4; `{fontawesome}` gets updated to use the most up-to-date icon set.
 

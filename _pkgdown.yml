@@ -1,4 +1,34 @@
 url: https://jack-davison.github.io/leaf.magick/
 template:
   bootstrap: 5
+  bslib:
+    bootswatch: cosmo
+    primary: "#46b1e1"
+    base_font: {google: "Montserrat"}
+    heading_font: {google: "Montserrat"}
+    code_font: {google: "JetBrains Mono"}
 
+navbar:
+  title: leaf.magick
+  structure:
+    left:  [intro, reference, news, articles, tutorials]
+    right: [search, github]
+  components:
+    reference:
+      text: Functions
+      href: reference/index.html
+    news:
+      text: News
+      href: news/index.html
+
+reference:
+- title: Data
+  desc: In-built data to demonstrate functions.
+  contents:
+  - port_talbot
+
+- title: Font Awesome
+  desc: Use up-to-date Font Awesome icons in `{leaflet}` maps.
+  contents:
+  - faIcons
+  - addFaLegend
