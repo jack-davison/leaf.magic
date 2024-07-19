@@ -22,7 +22,7 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 * `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
 
-* `{leaf.magic}` exports functions like `addIconLegend()` to help developers communicate the meanings of icons to users ✅
+* `{leaf.magic}` exports functions like `iconBin()` and `addIconLegend()` to help developers communicate the meanings of icons to users ✅
 
 ## Installation
 
@@ -33,7 +33,7 @@ You can install the development version of `{leaf.magic}` like so:
 pak::pak("jack-davison/leaf.magic")
 ```
 
-![](man/figures/webshot.png)
+![A screenshot of a map produced using the leaf magic R package.](man/figures/webshot.png)
 
 ## Code of Conduct
 

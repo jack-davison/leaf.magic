@@ -2,6 +2,9 @@
 
 export("%>%")
 export(addIconLegend)
+export(iconBin)
+export(iconFactor)
+export(iconQuantile)
 export(magicIcons)
 importFrom(magrittr,"%>%")
 importFrom(rsvg,rsvg_png)
