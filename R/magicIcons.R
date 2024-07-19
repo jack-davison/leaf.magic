@@ -66,7 +66,11 @@ magicIcons <- function(icon = "circle",
       markerSize = markerSize
     )
 
-  unique_combos <- unique(combinations)
+  combinations$rn <- seq_along(combinations$icon)
+
+  unique_combos <- combinations
+  unique_combos$rn <- NULL
+  unique_combos <- unique(unique_combos)
 
   make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
     time <- Sys.time() %>% as.numeric()
@@ -135,9 +139,15 @@ magicIcons <- function(icon = "circle",
   unique_combos$themarker <- icons
 
   combinations <-
-    merge(combinations,
-          unique_combos,
-          by = c("icon", "markerColor", "iconColor", "markerSize"))
+    merge(
+      combinations,
+      unique_combos,
+      sort = TRUE,
+      by = c("icon", "markerColor", "iconColor", "markerSize")
+    )
+
+  combinations <- combinations[order(combinations$rn),]
+  rownames(combinations) <- NULL
 
   do.call(leaflet::iconList, combinations$themarker)
 }

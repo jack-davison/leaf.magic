@@ -258,14 +258,16 @@ leaflet(port_talbot) %>%
 ```{r awesomepal}
 cols <- names(awesomePalette)[names(awesomePalette) != "white"]
 
-breweries91$color <- sample(cols, nrow(breweries91), replace = TRUE)
+breweries91$facolor <- sample(cols, nrow(breweries91), replace = TRUE)
+
+breweries91$hexcolor <- unlist(use.names = FALSE, awesomePalette[breweries91$facolor])
 
 leaflet(breweries91) %>%
   addTiles() %>%
   addAwesomeMarkers(
     icon = ~ awesomeIcons(
       icon = "circle",
-      markerColor = color,
+      markerColor = facolor,
       iconColor = "#FFFFFF",
       library = "fa"
     ),
@@ -274,7 +276,7 @@ leaflet(breweries91) %>%
   addMarkers(
     icon = ~ magicIcons(
       icon = "fas fa-circle",
-      markerColor = unlist(use.names = FALSE, awesomePalette[color]),
+      markerColor = hexcolor,
       iconColor = "#FFFFFF"
     ),
     group = "Magic"
