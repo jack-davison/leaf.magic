@@ -22,7 +22,7 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 * `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
 
-* `{leaf.magic}` exports functions like `addIconLegend()` to help developers communicate the meanings of icons to users ✅
+* `{leaf.magic}` exports functions like `iconBin()` and `addIconLegend()` to help developers communicate the meanings of icons to users ✅
 
 ## Installation
 

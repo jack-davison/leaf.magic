@@ -3,8 +3,10 @@ title: "Getting Started with {leaf.magic}"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{leaf-magic}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -45,6 +47,8 @@ In this document we'll use the in-built `port_talbot` dataset, which details the
 We can give this data a look using vanilla `{leaflet}`:
 
 ```{r map-basic}
+port_talbot$open_year <- as.integer(format(port_talbot$start_date, "%Y"))
+
 port_talbot$popup <-
   paste0(
     "<strong>",
@@ -54,9 +58,7 @@ port_talbot$popup <-
     ")<hr>Site Type: ",
     port_talbot$site_type,
     "<br>Opened: ",
-    port_talbot$start_date,
-    "<br>Closed: ",
-    port_talbot$end_date
+    port_talbot$open_year
   )
 
 leaflet(port_talbot) %>%
@@ -85,24 +87,46 @@ leaflet(port_talbot) %>%
 
 # Varying Icons
 
-`{leaf.magic}` allows you to vary icons by some other variable. At the moment, this needs to be done manually, and is most easily done by adding a new column to your dataset
-
-> If you are interested in better functions for varying icons by some other variable, upvote <https://github.com/jack-davison/leaf.magic/issues/2>
+`{leaf.magic}` allows you to vary icons by some other variable. You can do this manually, or use one of `{leaf.magic}` constructor functions like `iconFactor()`.
 
 ```{r map-varicon}
-port_talbot$icon <- "x"
-port_talbot$icon[port_talbot$site_type == "Urban Industrial"] <- "industry"
-port_talbot$icon[port_talbot$site_type == "Urban Background"] <- "house"
-port_talbot$icon[port_talbot$site_type == "Urban Traffic"] <- "car"
+site_types <- c("Urban Industrial", "Urban Background", "Urban Traffic")
+
+iconPal <- iconFactor(
+  icons = c("industry", "house", "car"),
+  domain = site_types
+)
 
 leaflet(port_talbot) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = icon,
+      icon = iconPal(site_type),
       markerColor = "cadetblue",
       iconColor = "gold"
+    )
+  )
+```
+
+Note that there's also `iconBin()` and `iconQuantile()` which can help map icons to numeric data. In this case, it makes most sense to choose icons that have some inherent "order" to them.
+
+These functions don't have all of the features of `colorBin()` and `colorQuantile()`, in part due to the differences between mapping a continuous aesthetic like colour and a discrete aesthetic like icons. A nice feature is that these are very much icon-led - the `breaks` and `n` arguments default to the length of the provided `icons`, so you don't need to specify them if you're happy letting the functions decide the break-points/`probs` for you.
+
+```{r map-varicon-q}
+iconPalYr <- iconQuantile(
+  icons = c("hourglass-start", "hourglass-half", "hourglass-end"),
+  domain = port_talbot$open_year
+)
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = iconPalYr(open_year),
+      markerColor = "gold",
+      iconColor = "white"
     )
   )
 ```
@@ -119,9 +143,9 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = icon,
-      markerColor = "white",
-      iconColor = catPal(site_type)
+      icon = iconPal(site_type),
+      iconColor = catPal(site_type),
+      markerColor = "white"
     )
   ) %>%
   addLegend(
@@ -134,8 +158,6 @@ leaflet(port_talbot) %>%
 As the markers themselves can be set to *any* colour, we can even use a continuous scale (e.g., from `leaflet::colorNumeric()`).
 
 ```{r map-varcol-num}
-port_talbot$open_year <- as.integer(format(port_talbot$start_date, "%Y"))
-
 palNum <- colorNumeric("viridis", domain = port_talbot$open_year)
 
 leaflet(port_talbot) %>%
@@ -143,7 +165,7 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = "cloud",
+      icon = iconPalYr(open_year),
       markerColor = palNum(open_year),
       iconColor = "white"
     )
@@ -166,7 +188,7 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = icon,
+      icon = iconPal(site_type),
       markerColor = "white",
       markerSize = ifelse(open, 30L, 20L),
       iconColor = catPal(site_type)
@@ -185,14 +207,12 @@ leaflet(port_talbot) %>%
 `{leaf.magic}` provides the `addIconLegend()` function to help construct an icon legend, similar to `leaflet::addLegend()` constructs colour legends.
 
 ```{r map-iconlegend}
-site_types <- c("Urban Industrial", "Urban Traffic", "Urban Background")
-
 leaflet(port_talbot) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = icon,
+      icon = iconPal(site_type),
       markerColor = palNum(open_year),
       iconColor = "white"
     )
@@ -218,13 +238,13 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = icon,
+      icon = iconPal(site_type),
       markerColor = "white",
       iconColor = catPal(site_type)
     )
   ) %>%
   addIconLegend(
-    icons = c("industry", "car", "house"),
+    icons = iconPal(site_types),
     labels = site_types,
     colors = catPal(site_types),
     title = "Site Type"
@@ -236,7 +256,7 @@ leaflet(port_talbot) %>%
 `{leaf.magic}` exports the `awesomePalette` list, which are hex codes for the colours used in `leaflet::awesomeIcons()`. You could use these if you want to recreate the colour scheme of `awesomeIcons()` with the flexibility of `magicIcons()`.
 
 ```{r awesomepal}
-cols <- names(awesomePalette)
+cols <- names(awesomePalette)[names(awesomePalette) != "white"]
 
 breweries91$color <- sample(cols, nrow(breweries91), replace = TRUE)
 
@@ -253,7 +273,7 @@ leaflet(breweries91) %>%
   ) %>%
   addMarkers(
     icon = ~ magicIcons(
-      icon = "circle-dot",
+      icon = "fas fa-circle",
       markerColor = unlist(use.names = FALSE, awesomePalette[color]),
       iconColor = "#FFFFFF"
     ),
