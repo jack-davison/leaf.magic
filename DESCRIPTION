@@ -15,10 +15,8 @@ Imports:
     bsicons,
     dplyr,
     fontawesome,
-    glue,
     leaflet,
     magick,
-    magrittr,
     purrr,
     rsvg
 Suggests: 

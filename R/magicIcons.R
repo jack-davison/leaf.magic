@@ -98,7 +98,7 @@ magicIcons <- function(icon = "circle",
       3.5
 
     marker <-
-      magick::image_composite(pin, logo, offset = glue::glue("+{h_adj}+{v_adj}"))
+      magick::image_composite(pin, logo, offset = paste0("+", h_adj, "+", v_adj))
 
     shadow <- marker %>%
       magick::image_background("transparent") %>%
