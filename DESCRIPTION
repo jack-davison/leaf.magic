@@ -13,13 +13,13 @@ Depends:
     R (>= 2.10)
 Imports: 
     bsicons,
-    dplyr,
     fontawesome,
     leaflet,
     magick,
     purrr,
     rsvg
 Suggests: 
+    dplyr,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

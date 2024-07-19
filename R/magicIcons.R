@@ -59,14 +59,14 @@ magicIcons <- function(icon = "circle",
   library <- match.arg(library, c("fontawesome", "bootstrap"))
 
   combinations <-
-    dplyr::tibble(
+    data.frame(
       icon = icon,
       markerColor = markerColor,
       iconColor = iconColor,
       markerSize = markerSize
     )
 
-  unique_combos <- dplyr::distinct(combinations)
+  unique_combos <- unique(combinations)
 
   make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
     time <- Sys.time() %>% as.numeric()
@@ -135,11 +135,9 @@ magicIcons <- function(icon = "circle",
   unique_combos$themarker <- icons
 
   combinations <-
-    dplyr::left_join(
-      combinations,
-      unique_combos,
-      dplyr::join_by(icon, markerColor, iconColor)
-    )
+    merge(combinations,
+          unique_combos,
+          by = c("icon", "markerColor", "iconColor", "markerSize"))
 
   do.call(leaflet::iconList, combinations$themarker)
 }

@@ -72,7 +72,7 @@ addIconLegend <- function(map,
     paste0(html_title,
            paste0(
              purrr::pmap_vec(
-               dplyr::tibble(
+               data.frame(
                  icon = icons,
                  label = labels,
                  color = colors
