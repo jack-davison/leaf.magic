@@ -33,7 +33,7 @@ You can install the development version of `{leaf.magic}` like so:
 pak::pak("jack-davison/leaf.magic")
 ```
 
-![](man/figures/webshot.png)
+![A screenshot of a map produced using the leaf magic R package.](man/figures/webshot.png)
 
 ## Code of Conduct
 

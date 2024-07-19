@@ -67,6 +67,9 @@ port_talbot \%>\%
     popup = ~site
   )
 }
+\seealso{
+\code{\link[=addIconLegend]{addIconLegend()}}, \code{\link[=iconFactor]{iconFactor()}}, \code{\link[=iconBin]{iconBin()}}, \code{\link[=iconQuantile]{iconQuantile()}}
+}
 \author{
 Jack Davison
 }
