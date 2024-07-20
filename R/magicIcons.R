@@ -57,8 +57,8 @@
 #'     popup = ~site
 #'   )
 magicIcons <- function(icon = "circle",
-                       markerColor = NULL,
-                       iconColor = NULL,
+                       markerColor = awesomePalette$blue,
+                       iconColor = awesomePalette$white,
                        markerSize = 30L,
                        library = "fontawesome",
                        className = NULL) {
