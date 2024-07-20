@@ -1,9 +1,9 @@
-#' Create a set of Font Awesome or Bootstrap Markers
+#' Create a set of Font Awesome, Bootstrap or Ionicons Markers
 #'
 #' This function is intended as a more up-to-date implementation of
 #' [leaflet::awesomeIcons()]. Key benefits include having access to modern Font
-#' Awesome and Bootstrap icons, and allowing any colour to be used the marker
-#' and icon.
+#' Awesome, Bootstrap and Ionicons icons, and allowing any colour to be used the
+#' marker and icon.
 #'
 #' This function uses [magick::image_composite()] to knit together the icon and
 #' marker symbol of choice, and saves it to a temporary directory. It is also
@@ -18,8 +18,8 @@
 #' @param iconColor The color of the fontawesome icon.
 #' @param markerSize The size of the marker. Defaults to `30`, which is roughly
 #'   the same size as [leaflet::addMarkers()].
-#' @param library One of `"fontawesome"` or `"bootstrap"`, defining the icon
-#'   library of interest. Defaults to `"fontawesome"`.
+#' @param library One of `"fontawesome"`, `"bootstrap"`, or `"ionicons"`,
+#'   defining the icon library of interest. Defaults to `"fontawesome"`.
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
@@ -62,7 +62,7 @@ magicIcons <- function(icon = "circle",
                        markerSize = 30L,
                        library = "fontawesome",
                        className = NULL) {
-  library <- match.arg(library, c("fontawesome", "bootstrap"))
+  library <- match.arg(library, c("fontawesome", "bootstrap", "ionicons"))
 
   combinations <-
     data.frame(
@@ -120,6 +120,9 @@ magicIcons <- function(icon = "circle",
         icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
         icon <- gsub("currentColor", iconColor, icon)
         rsvg::rsvg_png(charToRaw(icon), file = t_logo)
+      } else if (library == "ionicons") {
+        ionicon <- read_ionicon(icon, color = iconColor)
+        rsvg::rsvg_png(charToRaw(ionicon), file = t_logo)
       }
 
       logo <- magick::image_read(t_logo) %>% magick::image_scale("x200")
@@ -173,3 +176,14 @@ magicIcons <- function(icon = "circle",
   do.call(leaflet::iconList, combinations$themarker)
 }
 
+#' Homebrew way to download from ionicons
+#' @noRd
+read_ionicon <- function(icon, color, dim = "1em") {
+  on.exit(close(con))
+
+  con <- url(paste0("https://unpkg.com/ionicons@7.1.0/dist/svg/", icon, ".svg"))
+
+  svg <- readLines(con, warn = FALSE)
+
+  gsub('viewBox=', paste0('style="vertical-align:-0.125em;height:', dim, ';width:', dim, ';fill:', color, ';" viewBox='), svg)
+}

@@ -1,12 +1,13 @@
 #' Add an Icon legend to a map
 #'
-#' Manually specify icons, labels, and colours to add an Icon legend to a
-#' map. Useful in conjunction with [magicIcons()] to communicate the meaning of
+#' Manually specify icons, labels, and colours to add an Icon legend to a map.
+#' Useful in conjunction with [magicIcons()] to communicate the meaning of
 #' icons/colours.
 #'
-#' @param icons Name of the icons, passed to [fontawesome::fa()] or [bsicons::bs_icon()]. A
-#'   full list of available icons can be found using
-#'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
+#' @param icons Name of the icons, passed to [fontawesome::fa()] or
+#'   [bsicons::bs_icon()]. A full list of available icons can be found using
+#'   [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/> or
+#'   <https://ionic.io/ionicons>.
 #' @param labels Labels for each `icon`; should be the same length as `icons`.
 #' @param colors Colours to use for each `icon`. If `length(colors) == 1L` it is
 #'   recycled for all icons. Otherwise should be the same length as `icons`.
@@ -64,6 +65,9 @@ addIconLegend <- function(map,
       } else if (library == "bootstrap") {
         i <- as.character(bsicons::bs_icon(icon, size = "1em"))
         i <- gsub("currentColor", color, i)
+        paste0(i, "   ", label)
+      } else if (library == "ionicons") {
+        i <- read_ionicon(icon, color = iconColor)
         paste0(i, "   ", label)
       }
     }

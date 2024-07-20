@@ -18,7 +18,7 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 `{leaf.magic}` attempts to solve all of this:
 
-* `magicIcons()` uses up-to-date versions of Font Awesome and Bootstrap Icons, powered by `{fontawesome}` and `{bsicons}` ✅
+* `magicIcons()` uses up-to-date versions of Font Awesome, Bootstrap, and Ionicons Icons, powered by `{fontawesome}` and `{bsicons}` ✅
 
 * `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
 

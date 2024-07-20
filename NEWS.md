@@ -2,9 +2,9 @@
 
 ## New Features
 
-* `magicIcons()` allows users to use any up-to-date Font Awesome or Bootstrap icon.
+* `magicIcons()` allows users to use any up-to-date Font Awesome, Bootstrap, or Ionicons icon.
 
-* `addIconLegend()` add a legend layer to a `{leaflet}` map with Font Awesome or Bootstrap icons. 
+* `addIconLegend()` add a legend layer to a `{leaflet}` map with Font Awesome, Bootstrap, or Ionicons icons. 
 
 * `iconFactor()`, `iconBins()`, and `iconQuantile()` exist as analogues to `leaflet::colorFactor()`, `leaflet::colorBins()` and `leaflet::colorQuantile()`.
 

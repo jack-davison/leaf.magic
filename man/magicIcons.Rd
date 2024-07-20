@@ -2,7 +2,7 @@
 % Please edit documentation in R/magicIcons.R
 \name{magicIcons}
 \alias{magicIcons}
-\title{Create a set of Font Awesome or Bootstrap Markers}
+\title{Create a set of Font Awesome, Bootstrap or Ionicons Markers}
 \usage{
 magicIcons(
   icon = "circle",
@@ -25,8 +25,8 @@ magicIcons(
 \item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
 the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
 
-\item{library}{One of \code{"fontawesome"} or \code{"bootstrap"}, defining the icon
-library of interest. Defaults to \code{"fontawesome"}.}
+\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
+defining the icon library of interest. Defaults to \code{"fontawesome"}.}
 
 \item{className}{a custom class name to assign to both icon and shadow images}
 }
@@ -37,8 +37,8 @@ a \code{\link[leaflet:iconList]{leaflet::iconList()}}, to be passed to the \code
 \description{
 This function is intended as a more up-to-date implementation of
 \code{\link[leaflet:awesomeIcons]{leaflet::awesomeIcons()}}. Key benefits include having access to modern Font
-Awesome and Bootstrap icons, and allowing any colour to be used the marker
-and icon.
+Awesome, Bootstrap and Ionicons icons, and allowing any colour to be used the
+marker and icon.
 }
 \details{
 This function uses \code{\link[magick:composite]{magick::image_composite()}} to knit together the icon and

@@ -20,9 +20,10 @@ addIconLegend(
 \arguments{
 \item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
 
-\item{icons}{Name of the icons, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or \code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A
-full list of available icons can be found using
-\code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}} or at \url{https://icons.getbootstrap.com/}.}
+\item{icons}{Name of the icons, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or
+\code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
+\code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/} or
+\url{https://ionic.io/ionicons}.}
 
 \item{labels}{Labels for each \code{icon}; should be the same length as \code{icons}.}
 
@@ -31,8 +32,8 @@ recycled for all icons. Otherwise should be the same length as \code{icons}.}
 
 \item{title}{the legend title; optional.}
 
-\item{library}{One of \code{"fontawesome"} or \code{"bootstrap"}, defining the icon
-library of interest. Defaults to \code{"fontawesome"}.}
+\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
+defining the icon library of interest. Defaults to \code{"fontawesome"}.}
 
 \item{position}{position of control: "topleft", "topright", "bottomleft", or
 "bottomright"}
@@ -49,8 +50,8 @@ initially, but can be overridden}
 a \link[leaflet:leaflet-package]{leaflet} widget
 }
 \description{
-Manually specify icons, labels, and colours to add an Icon legend to a
-map. Useful in conjunction with \code{\link[=magicIcons]{magicIcons()}} to communicate the meaning of
+Manually specify icons, labels, and colours to add an Icon legend to a map.
+Useful in conjunction with \code{\link[=magicIcons]{magicIcons()}} to communicate the meaning of
 icons/colours.
 }
 \examples{
