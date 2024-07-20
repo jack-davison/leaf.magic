@@ -20,6 +20,9 @@
 #'   the same size as [leaflet::addMarkers()].
 #' @param library One of `"fontawesome"`, `"bootstrap"`, or `"ionicons"`,
 #'   defining the icon library of interest. Defaults to `"fontawesome"`.
+#' @param dir The directory in which markers are saved. By default this is
+#'   [tempdir()], which is a temporary directory after each session. Providing
+#'   an alternative directory will allow markers to persist between R sessions.
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
@@ -61,7 +64,8 @@ magicIcons <- function(icon = "circle",
                        iconColor = awesomePalette$white,
                        markerSize = 30L,
                        library = "fontawesome",
-                       className = NULL) {
+                       className = NULL,
+                       dir = tempdir()) {
   library <- match.arg(library, c("fontawesome", "bootstrap", "ionicons"))
 
   combinations <-
@@ -78,11 +82,9 @@ magicIcons <- function(icon = "circle",
   unique_combos$rn <- NULL
   unique_combos <- unique(unique_combos)
 
-  dir <- tempdir()
-
   make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
     url <- paste0(dir,
-                  "/",
+                  "/leafmagic-",
                   icon,
                   "_",
                   markerColor,

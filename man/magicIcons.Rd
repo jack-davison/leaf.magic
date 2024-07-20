@@ -10,7 +10,8 @@ magicIcons(
   iconColor = awesomePalette$white,
   markerSize = 30L,
   library = "fontawesome",
-  className = NULL
+  className = NULL,
+  dir = tempdir()
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
 defining the icon library of interest. Defaults to \code{"fontawesome"}.}
 
 \item{className}{a custom class name to assign to both icon and shadow images}
+
+\item{dir}{The directory in which markers are saved. By default this is
+\code{\link[=tempdir]{tempdir()}}, which is a temporary directory after each session. Providing
+an alternative directory will allow markers to persist between R sessions.}
 }
 \value{
 a \code{\link[leaflet:iconList]{leaflet::iconList()}}, to be passed to the \code{icon} argument of
