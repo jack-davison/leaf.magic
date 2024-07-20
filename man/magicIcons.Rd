@@ -40,6 +40,13 @@ This function is intended as a more up-to-date implementation of
 Awesome and Bootstrap icons, and allowing any colour to be used the marker
 and icon.
 }
+\details{
+This function uses \code{\link[magick:composite]{magick::image_composite()}} to knit together the icon and
+marker symbol of choice, and saves it to a temporary directory. It is also
+intelligent enough to not try to recreate a marker that already exists, so
+you may find the use of \code{\link[=magicIcons]{magicIcons()}} speeds up the more you use it in a
+single session.
+}
 \examples{
 # create map
 library(leaflet)

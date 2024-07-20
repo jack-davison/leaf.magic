@@ -36,9 +36,7 @@ Some core advantages of `magicIcons()` over `leaflet::awesomeIcons()` are:
 
 * Markers and icons can be any colour, and can be resized. 
 
-One *disadvantage* is that `magicIcons()` may be slower to create large numbers of icons. Approaches to speeding this up are being discussed.
-
-> If you are interested in speeding up marker drawing, upvote <https://github.com/jack-davison/leaf.magic/issues/4>
+One *disadvantage* is that `magicIcons()` may be slower initially to create large numbers of different icons. However, once a marker has been created in an R session, it will be significantly quicker to redraw, closing the gap between `awesomeIcons()` and `magicIcons()`.
 
 # Example Data
 

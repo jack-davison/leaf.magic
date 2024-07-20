@@ -5,6 +5,12 @@
 #' Awesome and Bootstrap icons, and allowing any colour to be used the marker
 #' and icon.
 #'
+#' This function uses [magick::image_composite()] to knit together the icon and
+#' marker symbol of choice, and saves it to a temporary directory. It is also
+#' intelligent enough to not try to recreate a marker that already exists, so
+#' you may find the use of [magicIcons()] speeds up the more you use it in a
+#' single session.
+#'
 #' @param icon Name of the Font Awesome icon, passed to [fontawesome::fa()] or
 #'   [bsicons::bs_icon()]. A full list of available icons can be found using
 #'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
@@ -72,58 +78,73 @@ magicIcons <- function(icon = "circle",
   unique_combos$rn <- NULL
   unique_combos <- unique(unique_combos)
 
+  dir <- tempdir()
+
   make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
+    url <- paste0(dir,
+                  "/",
+                  icon,
+                  "_",
+                  markerColor,
+                  "_",
+                  iconColor,
+                  "_",
+                  library,
+                  ".png")
+
     time <- Sys.time() %>% as.numeric()
 
-    t_pin <- tempfile(pattern = paste0(time, "pin_"))
-
-    t_logo <- tempfile(pattern = paste0(time, "logo_"))
-
-    t_shadow <- tempfile(pattern = paste0(time, "shadow_"))
-
-    if (library == "fontawesome") {
-      fontawesome::fa_png(icon, file = t_logo, fill = iconColor)
-    } else if (library == "bootstrap") {
-      icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
-      icon <- gsub("currentColor", iconColor, icon)
-      rsvg::rsvg_png(charToRaw(icon), file = t_logo)
-    }
+    t_pin <- tempfile(pattern = "pin_")
 
     fontawesome::fa_png("location-pin", file = t_pin, fill = markerColor)
 
     pin <- magick::image_read(t_pin)
 
-    logo <- magick::image_read(t_logo) %>% magick::image_scale("x200")
+    path_shadow <- paste0(dir, "/leafmagic-shadow.png")
 
-    h_adj <- (magick::image_info(pin)$width - magick::image_info(logo)$width) /
-      2
+    if (!file.exists(path_shadow)) {
+      shadow <- pin %>%
+        magick::image_background("transparent") %>%
+        magick::image_shadow_mask() %>%
+        magick::image_resize("424x552")
 
-    v_adj <- (magick::image_info(pin)$height - magick::image_info(logo)$height) /
-      3.5
+      magick::image_write(shadow, path_shadow)
+    }
 
-    marker <-
-      magick::image_composite(pin, logo, offset = paste0("+", h_adj, "+", v_adj))
+    if (!file.exists(url)) {
+      t_logo <- tempfile(pattern = paste0(time, "logo_"))
 
-    shadow <- marker %>%
-      magick::image_background("transparent") %>%
-      magick::image_shadow_mask() %>%
-      magick::image_resize("424x552")
+      if (library == "fontawesome") {
+        fontawesome::fa_png(icon, file = t_logo, fill = iconColor)
+      } else if (library == "bootstrap") {
+        icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
+        icon <- gsub("currentColor", iconColor, icon)
+        rsvg::rsvg_png(charToRaw(icon), file = t_logo)
+      }
 
-    t <- tempfile()
+      logo <- magick::image_read(t_logo) %>% magick::image_scale("x200")
 
-    magick::image_write(marker, t)
+      h_adj <- (magick::image_info(pin)$width - magick::image_info(logo)$width) /
+        2
 
-    magick::image_write(shadow, t_shadow)
+      v_adj <- (magick::image_info(pin)$height - magick::image_info(logo)$height) /
+        3.5
+
+      marker <-
+        magick::image_composite(pin, logo, offset = paste0("+", h_adj, "+", v_adj))
+
+      magick::image_write(marker, url)
+    }
 
     ratio <- 512 / 384
 
     leaflet::makeIcon(
-      iconUrl = t,
+      iconUrl = url,
       iconWidth = markerSize,
       iconHeight = markerSize * ratio,
       iconAnchorX = markerSize / 2,
       iconAnchorY = markerSize * ratio,
-      shadowUrl = t_shadow,
+      shadowUrl = path_shadow,
       shadowWidth = markerSize * 1.2,
       shadowHeight = markerSize * ratio * 1.1,
       shadowAnchorX = ((markerSize * 1.2) / 2),
