@@ -66,9 +66,7 @@ leaflet(port_talbot) %>%
 
 # Simple Example
 
-We can use the `magicIcons()` function to swap out the default markers for some `{leaf.magic}` markers. The important arguments here are `icon`, which is the (in this case) Font Awesome icon of interest^[See `fontawesome::fa_metadata()` for a complete list], `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. 
-
-Note that we have used in-built R colours (`"cadetblue"` and `"gold"`) but we could have used hex-codes instead.
+We can use the `magicIcons()` function to swap out the default markers for some `{leaf.magic}` markers. The important argument here is `icon`, which is the (in this case) Font Awesome icon of interest^[See `fontawesome::fa_metadata()` for a complete list].
 
 ```{r map-simple}
 leaflet(port_talbot) %>%
@@ -76,9 +74,7 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = magicIcons(
-      icon = "cloud",
-      markerColor = "cadetblue",
-      iconColor = "gold"
+      icon = "cloud"
     )
   )
 ```
@@ -100,9 +96,7 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = iconPal(site_type),
-      markerColor = "cadetblue",
-      iconColor = "gold"
+      icon = iconPal(site_type)
     )
   )
 ```
@@ -122,19 +116,17 @@ leaflet(port_talbot) %>%
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
-      icon = iconPalYr(open_year),
-      markerColor = "gold",
-      iconColor = "white"
+      icon = iconPalYr(open_year)
     )
   )
 ```
 
 # Varying Colours
 
-The above example can naturally be combined with varying colours, too, through the use of `leaflet::colorFactor()`.
+`magicIcons()` has two arguments related to colour; `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. Any hex-code can be supplied to these arguments - either a constant value or colour values mapped to a column using `leaflet::colorFactor()`.
 
 ```{r map-varcol-fct}
-catPal <- colorFactor("viridis", port_talbot$site_type)
+catPal <- colorFactor(c("royalblue", "tomato", "gold"), port_talbot$site_type)
 
 leaflet(port_talbot) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
