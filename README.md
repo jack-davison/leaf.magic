@@ -24,6 +24,8 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 * `{leaf.magic}` exports functions like `iconBin()` and `addIconLegend()` to help developers communicate the meanings of icons to users ✅
 
+`{leaf.magic}` is thoroughly documented on the [package website](https://jack-davison.github.io/leaf.magic/), which includes a [getting started guide](https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html).
+
 ## Installation
 
 You can install the development version of `{leaf.magic}` like so:
@@ -33,7 +35,17 @@ You can install the development version of `{leaf.magic}` like so:
 pak::pak("jack-davison/leaf.magic")
 ```
 
-![A screenshot of a map produced using the leaf magic R package.](man/figures/webshot.png)
+![A screenshot of a map produced using the {leaf.magic} R package.](man/figures/webshot.png)
+
+## Attributions
+
+`{leaf.magic}` is licensed under the [MIT License](https://jack-davison.github.io/leaf.magic/LICENSE.html), and would not be possible without the following icon libraries:
+
+* **Font Awesome** - [Website](https://fontawesome.com/) | [License](https://fontawesome.com/license/free) | [R Package {fontawesome}](https://github.com/rstudio/fontawesome)
+
+* **Bootstrap Icons** - [Website](https://icons.getbootstrap.com/) | [License](https://getbootstrap.com/docs/5.3/about/license/) | [R Package {bsicons}](https://github.com/rstudio/bsicons)
+
+* **Ionicons** - [Website](https://ionic.io/ionicons) | [License](https://github.com/ionic-team/ionicons/blob/main/LICENSE)
 
 ## Code of Conduct
 
