@@ -33,11 +33,19 @@ iconFactor <- function(icons,
   icons <- unique(icons)
   domain <- unique(domain)
   dict <- stats::setNames(icons, domain)
-  function(x) {
-    x <- unname(dict[x])
-    x[is.na(x)] <- na.icon
-    return(x)
-  }
+
+  fun.out <-
+    function(x) {
+      x <- unname(dict[x])
+      x[is.na(x)] <- na.icon
+      return(x)
+    }
+
+  attr(fun.out, "type") <- "factor"
+  attr(fun.out, "breaks") <- NA
+  attr(fun.out, "na.icon") <- na.icon
+
+  return(fun.out)
 }
 
 #' @rdname icon-scales
@@ -62,15 +70,24 @@ iconBin <- function(icons,
   dict <- stats::setNames(icons, unique(fun(domain)))
 
   # function factory
-  function(x) {
-    # run function
-    x_cols <- suppressWarnings(fun(x))
-    # use dictionary on output
-    x_dict <- unname(dict[x_cols])
-    # replace NA with the na.icon
-    x_dict[is.na(x_dict)] <- na.icon
-    x_dict
-  }
+  fun.out <-
+    function(x) {
+      # run function
+      x_cols <- suppressWarnings(fun(x))
+      # use dictionary on output
+      x_dict <- unname(dict[x_cols])
+      # replace NA with the na.icon
+      x_dict[is.na(x_dict)] <- na.icon
+      x_dict
+    }
+
+  # set attributes
+  attr(fun.out, "type") <- "bin"
+  attr(fun.out, "breaks") <- attributes(fun)$colorArgs$bins
+  attr(fun.out, "na.icon") <- na.icon
+
+  # return function
+  return(fun.out)
 }
 
 #' @rdname icon-scales
@@ -96,13 +113,22 @@ iconQuantile <- function(icons,
   dict <- stats::setNames(icons, unique(fun(domain)))
 
   # function factory
-  function(x) {
-    # run function
-    x_cols <- suppressWarnings(fun(x))
-    # use dictionary on output
-    x_dict <- unname(dict[x_cols])
-    # replace NA with the na.icon
-    x_dict[is.na(x_dict)] <- na.icon
-    x_dict
-  }
+  fun.out <-
+    function(x) {
+      # run function
+      x_cols <- suppressWarnings(fun(x))
+      # use dictionary on output
+      x_dict <- unname(dict[x_cols])
+      # replace NA with the na.icon
+      x_dict[is.na(x_dict)] <- na.icon
+      x_dict
+    }
+
+  # set attributes
+  attr(fun.out, "type") <- "quantile"
+  attr(fun.out, "breaks") <- attributes(fun)$colorArgs$probs
+  attr(fun.out, "na.icon") <- na.icon
+
+  # return function
+  return(fun.out)
 }
