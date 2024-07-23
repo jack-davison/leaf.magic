@@ -28,49 +28,28 @@
 #'   title = "Student Hangout"
 #' )
 addIconLegend <- function(map,
-                          icons,
-                          labels,
+                          position = c("topright", "bottomright", "bottomleft", "topleft"),
+                          iconPal = NULL,
+                          colorPal = NULL,
+                          values = NULL,
+                          icons = NULL,
+                          labels = NULL,
                           colors = "black",
                           title = NULL,
                           library = "fontawesome",
-                          position = c("topright", "bottomright", "bottomleft", "topleft"),
                           layerId = NULL,
                           className = "info legend",
                           data = leaflet::getMapData(map)) {
   position <- match.arg(position)
 
-  # format title
-  html_title <- ""
-  if (!is.null(title)) {
-    html_title <- paste0(
-      "<div style='margin-bottom:3px'><strong>",
-      title,
-      "</strong></div>"
-    )
-  }
+  html_title <- build_legend_title(title)
 
-  assemble_legend_item <-
-    function(icon, label, color) {
-      if (library == "fontawesome") {
-        paste0(
-          fontawesome::fa(
-            icon,
-            width = "1em",
-            height = "1em",
-            fill = color
-          ),
-          "   ",
-          label
-        )
-      } else if (library == "bootstrap") {
-        i <- as.character(bsicons::bs_icon(icon, size = "1em"))
-        i <- gsub("currentColor", color, i)
-        paste0(i, "   ", label)
-      } else if (library == "ionicons") {
-        i <- read_ionicon(icon, color = iconColor)
-        paste0(i, "   ", label)
-      }
-    }
+  if (!is.null(iconPal)) {
+    values_icon <- iconPal(values)
+  }
+  if (!is.null(colorPal)) {
+    values_color <- colorPal(values)
+  }
 
   html <-
     paste0(html_title,
@@ -79,7 +58,8 @@ addIconLegend <- function(map,
                data.frame(
                  icon = icons,
                  label = labels,
-                 color = colors
+                 color = colors,
+                 library = library
                ),
                assemble_legend_item
              ),
@@ -97,3 +77,42 @@ addIconLegend <- function(map,
     data = data
   )
 }
+
+#' Helper to build a leaflet legend title
+#' @noRd
+build_legend_title <- function(title) {
+  html_title <- ""
+  if (!is.null(title)) {
+    html_title <- paste0(
+      "<div style='margin-bottom:3px'><strong>",
+      title,
+      "</strong></div>"
+    )
+  }
+  return(html_title)
+}
+
+#' Helper function to create icon legend rows
+#' @noRd
+assemble_legend_item <-
+  function(icon, label, color, library) {
+    if (library == "fontawesome") {
+      paste0(
+        fontawesome::fa(
+          icon,
+          width = "1em",
+          height = "1em",
+          fill = color
+        ),
+        "   ",
+        label
+      )
+    } else if (library == "bootstrap") {
+      i <- as.character(bsicons::bs_icon(icon, size = "1em"))
+      i <- gsub("currentColor", color, i)
+      paste0(i, "   ", label)
+    } else if (library == "ionicons") {
+      i <- read_ionicon(icon, color = color)
+      paste0(i, "   ", label)
+    }
+  }

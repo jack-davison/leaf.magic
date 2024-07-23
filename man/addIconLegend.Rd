@@ -6,12 +6,15 @@
 \usage{
 addIconLegend(
   map,
-  icons,
-  labels,
+  position = c("topright", "bottomright", "bottomleft", "topleft"),
+  iconPal = NULL,
+  colorPal = NULL,
+  values = NULL,
+  icons = NULL,
+  labels = NULL,
   colors = "black",
   title = NULL,
   library = "fontawesome",
-  position = c("topright", "bottomright", "bottomleft", "topleft"),
   layerId = NULL,
   className = "info legend",
   data = leaflet::getMapData(map)
@@ -19,6 +22,9 @@ addIconLegend(
 }
 \arguments{
 \item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+
+\item{position}{position of control: "topleft", "topright", "bottomleft", or
+"bottomright"}
 
 \item{icons}{Name of the icons, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or
 \code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
@@ -34,9 +40,6 @@ recycled for all icons. Otherwise should be the same length as \code{icons}.}
 
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
 defining the icon library of interest. Defaults to \code{"fontawesome"}.}
-
-\item{position}{position of control: "topleft", "topright", "bottomleft", or
-"bottomright"}
 
 \item{layerId}{the layer id}
 
