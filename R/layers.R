@@ -97,3 +97,39 @@ addIconLegend <- function(map,
     data = data
   )
 }
+
+#' Conveniently add Icon Attributions to a Leaflet Map
+#'
+#' Adds a short character string to the bottom-right of the map widget with the
+#' attribution and license of an icon library. `group` and `layerId` can be used
+#' to add or remove the attribution - e.g., if the markers using [magicIcons()]
+#' are hidden.
+#'
+#' @inheritParams magicIcons
+#' @inheritParams leaflet::addTiles
+#'
+#' @export
+addIconAttribution <-
+  function(map,
+           library = "fontawesome",
+           layerId = NULL,
+           group = NULL) {
+    if (library == "fontawesome") {
+      attr <-
+        'Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">FontAwesome</a>, licensed under <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>'
+    } else if (library == "bootstrap") {
+      attr <-
+        'Icons by <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener noreferrer">Bootstrap</a>, licensed under <a href="https://github.com/twbs/icons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>'
+    } else if (library == "ionicons") {
+      attr <-
+        'Icons by <a href="https://ionic.io/ionicons" target="_blank" rel="noopener noreferrer">Ionicons</a>, licensed under <a href="https://github.com/ionic-team/ionicons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>'
+    }
+
+    leaflet::addTiles(
+      map,
+      urlTemplate = " ",
+      attribution = attr,
+      layerId = layerId,
+      group = group
+    )
+  }

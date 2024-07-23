@@ -38,3 +38,4 @@ reference:
   desc: Other useful objects exported by `{leaf.magic}`.
   contents:
   - awesomePalette
+  - addIconAttribution

@@ -276,3 +276,13 @@ leaflet(breweries91) %>%
   )
 ```
 
+If you use `{leaf.magic}`, you may want to add an attribution to Font Awesome or one of the other icon providers. `addIconAttribution()` is a convenient way to do this, and even comes with its own `group` and `layerId` options for precise "layer" control. Try toggling the breweries on and off in the example below.
+
+```{r}
+leaflet(breweries91) |>
+  addTiles() |>
+  addMarkers(icon = magicIcons("beer", "red", "white"), group = "Breweries") |>
+  addIconAttribution(group = "Breweries") |>
+  addLayersControl(overlayGroups = "Breweries",
+                   options = leaflet::layersControlOptions(FALSE))
+```
