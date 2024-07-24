@@ -6,7 +6,7 @@
 \alias{iconQuantile}
 \title{Icon Mapping}
 \usage{
-iconFactor(icons, domain, na.icon = "question")
+iconFactor(icons, levels = NULL, na.icon = "question")
 
 iconBin(
   icons,
@@ -29,10 +29,13 @@ iconQuantile(
 \item{icons}{The icons that values will be mapped to. Note that the \code{library}
 (e.g., \code{"fontawesome"}) is defined in \code{\link[=magicIcons]{magicIcons()}}.}
 
-\item{domain}{The possible values that can be mapped. For \code{\link[=iconFactor]{iconFactor()}} this
-should be categorical data. For \code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}}
+\item{levels}{For \code{\link[=iconFactor]{iconFactor()}}; the values to map to \code{icons}. Each factor
+level is mapped to one icon.}
 
 \item{na.icon}{The icon to return for missing or out-of-scope values.}
+
+\item{domain}{For \code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}; the numeric range to map
+to \code{icons}.}
 
 \item{bins, right}{Passed to \code{\link[=cut]{cut()}}.}
 

@@ -88,7 +88,7 @@ site_types <- c("Urban Industrial", "Urban Background", "Urban Traffic")
 
 iconPal <- iconFactor(
   icons = c("industry", "house", "car"),
-  domain = site_types
+  levels = site_types
 )
 
 leaflet(port_talbot) %>%
@@ -126,7 +126,7 @@ leaflet(port_talbot) %>%
 `magicIcons()` has two arguments related to colour; `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. Any hex-code can be supplied to these arguments - either a constant value or colour values mapped to a column using `leaflet::colorFactor()`.
 
 ```{r map-varcol-fct}
-catPal <- colorFactor(c("royalblue", "tomato", "gold"), port_talbot$site_type)
+catPal <- colorFactor(c("royalblue", "tomato", "gold"), levels = site_types)
 
 leaflet(port_talbot) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%

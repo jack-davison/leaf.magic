@@ -10,8 +10,10 @@
 #'
 #' @param icons The icons that values will be mapped to. Note that the `library`
 #'   (e.g., `"fontawesome"`) is defined in [magicIcons()].
-#' @param domain The possible values that can be mapped. For [iconFactor()] this
-#'   should be categorical data. For [iconBin()] and [iconQuantile()]
+#' @param levels For [iconFactor()]; the values to map to `icons`. Each factor
+#'   level is mapped to one icon.
+#' @param domain For [iconBin()] and [iconQuantile()]; the numeric range to map
+#'   to `icons`.
 #' @param na.icon The icon to return for missing or out-of-scope values.
 #' @param bins,right Passed to [cut()].
 #' @param n Number of equal-size quantiles desired. For more precise control,
@@ -27,12 +29,10 @@
 #' @rdname icon-scales
 #' @order 1
 iconFactor <- function(icons,
-                       domain,
+                       levels = NULL,
                        na.icon = "question") {
   # match factors to icons
-  icons <- unique(icons)
-  domain <- unique(domain)
-  dict <- stats::setNames(icons, domain)
+  dict <- stats::setNames(icons, levels)
 
   fun.out <-
     function(x) {
