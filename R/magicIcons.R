@@ -14,8 +14,13 @@
 #' @param icon Name of the Font Awesome icon, passed to [fontawesome::fa()] or
 #'   [bsicons::bs_icon()]. A full list of available icons can be found using
 #'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
-#' @param markerColor The color of the teardrop-shaped marker.
+#' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #' @param iconColor The color of the fontawesome icon.
+#' @param marker Defaults to `"marker"`, which uses the standard teardrop shaped
+#'   marker, similar to [leaflet::addMarkers()]. Other options are `"circle"`,
+#'   `"square"`, `"star"`, `"heart"`, and `"diamond"`, which place the icon
+#'   inside of the respective shape. Also available is `"none"`, which removes
+#'   the marker entirely and places the icon directly on the map.
 #' @param markerSize The size of the marker. Defaults to `30`, which is roughly
 #'   the same size as [leaflet::addMarkers()].
 #' @param library One of `"fontawesome"`, `"bootstrap"`, or `"ionicons"`,
@@ -62,11 +67,19 @@
 magicIcons <- function(icon = "circle",
                        markerColor = awesomePalette$blue,
                        iconColor = awesomePalette$white,
+                       marker = c("marker", "circle", "square", "star", "heart", "diamond", "none"),
                        markerSize = 30L,
                        library = "fontawesome",
                        className = NULL,
                        dir = tempdir()) {
   library <- match.arg(library, c("fontawesome", "bootstrap", "ionicons"))
+
+  marker <-
+    match.arg(marker,
+              c("marker", "circle", "square", "star", "heart", "diamond", "none"))
+  marker[marker %in% c("circle", "square", "star", "heart", "diamond")] <-
+    paste0("fas fa-", marker)
+  marker[marker == "marker"] <- "location-pin"
 
   combinations <-
     data.frame(
@@ -91,33 +104,24 @@ magicIcons <- function(icon = "circle",
                   "_",
                   iconColor,
                   "_",
+                  marker,
+                  "_",
                   library,
                   ".png")
 
     time <- Sys.time() %>% as.numeric()
 
-    t_pin <- tempfile(pattern = "pin_")
-
-    fontawesome::fa_png("location-pin", file = t_pin, fill = markerColor)
-
-    pin <- magick::image_read(t_pin)
-
-    path_shadow <- paste0(dir, "/leafmagic-shadow.png")
-
-    if (!file.exists(path_shadow)) {
-      shadow <- pin %>%
-        magick::image_background("transparent") %>%
-        magick::image_shadow_mask() %>%
-        magick::image_resize("424x552")
-
-      magick::image_write(shadow, path_shadow)
-    }
-
     if (!file.exists(url)) {
       t_logo <- tempfile(pattern = paste0(time, "logo_"))
 
       if (library == "fontawesome") {
-        fontawesome::fa_png(icon, file = t_logo, fill = iconColor)
+        fontawesome::fa_png(
+          icon,
+          file = t_logo,
+          fill = iconColor,
+          stroke = darken_color(iconColor),
+          stroke_width = "5px"
+        )
       } else if (library == "bootstrap") {
         icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
         icon <- gsub("currentColor", iconColor, icon)
@@ -127,35 +131,48 @@ magicIcons <- function(icon = "circle",
         rsvg::rsvg_png(charToRaw(ionicon), file = t_logo)
       }
 
-      logo <- magick::image_read(t_logo) %>% magick::image_scale("x200")
+      logo <-
+        magick::image_read(t_logo) %>% magick::image_scale(ifelse(marker %in% c("location-pin", "fas fa-star"), "x200", "x250"))
 
-      h_adj <- (magick::image_info(pin)$width - magick::image_info(logo)$width) /
-        2
+      if (marker != "none") {
+        t_pin <- tempfile(pattern = "pin_")
 
-      v_adj <- (magick::image_info(pin)$height - magick::image_info(logo)$height) /
-        3.5
+        fontawesome::fa_png(
+          marker,
+          file = t_pin,
+          fill = markerColor,
+          stroke = darken_color(markerColor),
+          stroke_width = "5px"
+        )
 
-      marker <-
-        magick::image_composite(pin, logo, offset = paste0("+", h_adj, "+", v_adj))
+        pin <- magick::image_read(t_pin)
 
-      magick::image_write(marker, url)
+        h_adj <- (magick::image_info(pin)$width - magick::image_info(logo)$width) /
+          2
+
+        v_adj <- (magick::image_info(pin)$height - magick::image_info(logo)$height) /
+          ifelse(marker == "location-pin", 3.5, ifelse(marker == "fas fa-star", 1.5, 2))
+
+        marker_img <-
+          magick::image_composite(pin, logo, offset = paste0("+", h_adj, "+", v_adj))
+      } else {
+        marker_img <- logo
+      }
+
+      magick::image_write(marker_img, url)
     }
 
-    ratio <- 512 / 384
+    imginfo <- magick::image_info(magick::image_read(url))
+    ratio <- imginfo$height / imginfo$width
 
     leaflet::makeIcon(
       iconUrl = url,
       iconWidth = markerSize,
       iconHeight = markerSize * ratio,
-      iconAnchorX = markerSize / 2,
-      iconAnchorY = markerSize * ratio,
-      shadowUrl = path_shadow,
-      shadowWidth = markerSize * 1.2,
-      shadowHeight = markerSize * ratio * 1.1,
-      shadowAnchorX = ((markerSize * 1.2) / 2),
-      shadowAnchorY = (markerSize * ratio * 1.05),
-      popupAnchorX = .Machine$double.eps,
-      popupAnchorY = -(markerSize * ratio) * 0.8,
+      iconAnchorX = ifelse(marker == "location-pin", markerSize / 2, 0),
+      iconAnchorY = ifelse(marker == "location-pin", markerSize * ratio, 0),
+      popupAnchorX = ifelse(marker == "location-pin", .Machine$double.eps, 0),
+      popupAnchorY = ifelse(marker == "location-pin", -(markerSize * ratio) * 0.8, 0),
       className = className
     )
   }
@@ -188,4 +205,14 @@ read_ionicon <- function(icon, color, dim = "1em") {
   svg <- readLines(con, warn = FALSE)
 
   gsub('viewBox=', paste0('style="vertical-align:-0.125em;height:', dim, ';width:', dim, ';fill:', color, ';" viewBox='), svg)
+}
+
+#' Darken a colour slightly for icon border
+#' @noRd
+darken_color <- function(col, factor = 0.8) {
+  col <- grDevices::col2rgb(col)
+  col <- col * factor
+  col <- pmax(pmin(col, 255), 0)
+  col <- grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
+  return(col)
 }

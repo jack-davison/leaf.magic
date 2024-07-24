@@ -5,6 +5,8 @@
 #' July 2024. This dataset is provided for demonstration of `leaf.magic`
 #' functions.
 #'
+#' @docType data
+#'
 #' @format ## `port_talbot`
 #' A data frame with 9 rows and 8 columns:
 #' \describe{
@@ -24,6 +26,8 @@
 #' Palette used by [leaflet::awesomeIcons()]
 #'
 #' [leaflet::awesomeIcons()] takes one of 19 colours, but its "red" colour is not the same as R's base "red" defined in [colors()]. This list maps the awesome colours onto the hex codes they represent.
+#'
+#' @docType data
 #'
 #' @format ## `awesomePalette`
 #' A named list of length 19.

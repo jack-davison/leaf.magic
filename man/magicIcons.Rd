@@ -8,6 +8,7 @@ magicIcons(
   icon = "circle",
   markerColor = awesomePalette$blue,
   iconColor = awesomePalette$white,
+  marker = c("marker", "circle", "square", "star", "heart", "diamond", "none"),
   markerSize = 30L,
   library = "fontawesome",
   className = NULL,
@@ -19,9 +20,15 @@ magicIcons(
 \code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
 \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}} or at \url{https://icons.getbootstrap.com/}.}
 
-\item{markerColor}{The color of the teardrop-shaped marker.}
+\item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
 \item{iconColor}{The color of the fontawesome icon.}
+
+\item{marker}{Defaults to \code{"marker"}, which uses the standard teardrop shaped
+marker, similar to \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}. Other options are \code{"circle"},
+\code{"square"}, \code{"star"}, \code{"heart"}, and \code{"diamond"}, which place the icon
+inside of the respective shape. Also available is \code{"none"}, which removes
+the marker entirely and places the icon directly on the map.}
 
 \item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
 the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}

@@ -67,7 +67,7 @@ addIconLegend <- function(map,
         i <- gsub("currentColor", color, i)
         paste0(i, "   ", label)
       } else if (library == "ionicons") {
-        i <- read_ionicon(icon, color = iconColor)
+        i <- read_ionicon(icon, color = color)
         paste0(i, "   ", label)
       }
     }

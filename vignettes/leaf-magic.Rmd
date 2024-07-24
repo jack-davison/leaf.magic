@@ -126,7 +126,7 @@ leaflet(port_talbot) %>%
 `magicIcons()` has two arguments related to colour; `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. Any hex-code can be supplied to these arguments - either a constant value or colour values mapped to a column using `leaflet::colorFactor()`.
 
 ```{r map-varcol-fct}
-catPal <- colorFactor(c("royalblue", "tomato", "gold"), port_talbot$site_type)
+catPal <- colorFactor(c("#12436D", "#28A197", "#801650"), port_talbot$site_type)
 
 leaflet(port_talbot) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
@@ -134,8 +134,8 @@ leaflet(port_talbot) %>%
     popup = ~popup,
     icon = ~ magicIcons(
       icon = iconPal(site_type),
-      iconColor = catPal(site_type),
-      markerColor = "white"
+      markerColor = catPal(site_type),
+      iconColor = "#F7F7F7FF"
     )
   ) %>%
   addLegend(
@@ -179,9 +179,9 @@ leaflet(port_talbot) %>%
     popup = ~popup,
     icon = ~ magicIcons(
       icon = iconPal(site_type),
-      markerColor = "white",
+      iconColor = "white",
       markerSize = ifelse(open, 30L, 20L),
-      iconColor = catPal(site_type)
+      markerColor = catPal(site_type)
     )
   ) %>%
   addLegend(
@@ -190,7 +190,6 @@ leaflet(port_talbot) %>%
     title = "Site Type"
   )
 ```
-
 
 # Icon Legends
 
@@ -229,8 +228,8 @@ leaflet(port_talbot) %>%
     popup = ~popup,
     icon = ~ magicIcons(
       icon = iconPal(site_type),
-      markerColor = "white",
-      iconColor = catPal(site_type)
+      iconColor = "white",
+      markerColor = catPal(site_type)
     )
   ) %>%
   addIconLegend(
@@ -240,6 +239,52 @@ leaflet(port_talbot) %>%
     title = "Site Type"
   )
 ```
+
+# Alternative Marker Types
+
+While the default marker type, the "tear-drop" marker, is useful in most instances, you may find other markers types of interest. These include circle, square, diamond, heart, and star-shaped markers. Additionally, users can specify `"none"` and remove the marker entirely, placing the icon directly on the map itself.
+
+```{r}
+addQuickMarker <- function(map, marker) {
+  iconColor <- "white"
+  markerColor <- catPal(port_talbot$site_type)
+  if (marker == "none") {
+    iconColor <- markerColor
+  }
+  map %>%
+    addMarkers(
+      popup = ~ popup,
+      icon = ~ magicIcons(
+        icon = iconPal(site_type),
+        iconColor = iconColor,
+        markerColor = markerColor,
+        marker = marker
+      ),
+      group = marker
+    )
+}
+
+leaflet(port_talbot) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addQuickMarker("circle") %>%
+  addQuickMarker("square") %>%
+  addQuickMarker("diamond") %>%
+  addQuickMarker("heart") %>%
+  addQuickMarker("star") %>%
+  addQuickMarker("none") %>%
+  addLayersControl(
+    baseGroups = c("circle", "square", "diamond", "heart", "star", "none"),
+    options = layersControlOptions(F)
+  ) %>%
+  addIconLegend(
+    position = "bottomleft",
+    icons = iconPal(site_types),
+    labels = site_types,
+    colors = catPal(site_types),
+    title = "Site Type"
+  )
+```
+
 
 # Other Utilities
 
