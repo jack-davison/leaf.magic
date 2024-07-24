@@ -67,7 +67,7 @@
 magicIcons <- function(icon = "circle",
                        markerColor = awesomePalette$blue,
                        iconColor = awesomePalette$white,
-                       marker = c("marker", "circle", "square", "star", "heart", "diamond", "none"),
+                       marker = "marker",
                        markerSize = 30L,
                        library = "fontawesome",
                        className = NULL,
@@ -75,10 +75,13 @@ magicIcons <- function(icon = "circle",
   library <- match.arg(library, c("fontawesome", "bootstrap", "ionicons"))
 
   marker <-
-    match.arg(marker,
-              c("marker", "circle", "square", "star", "heart", "diamond", "none"))
+    match.arg(
+      marker,
+      c("marker", "circle", "square", "star", "heart", "diamond", "none"),
+      several.ok = TRUE
+    )
   marker[marker %in% c("circle", "square", "star", "heart", "diamond")] <-
-    paste0("fas fa-", marker)
+    paste0("fas fa-", marker[marker %in% c("circle", "square", "star", "heart", "diamond")])
   marker[marker == "marker"] <- "location-pin"
 
   combinations <-
@@ -86,6 +89,7 @@ magicIcons <- function(icon = "circle",
       icon = icon,
       markerColor = markerColor,
       iconColor = iconColor,
+      marker = marker,
       markerSize = markerSize
     )
 
@@ -95,7 +99,7 @@ magicIcons <- function(icon = "circle",
   unique_combos$rn <- NULL
   unique_combos <- unique(unique_combos)
 
-  make_fa_icon <- function(icon, markerColor, iconColor, markerSize) {
+  make_fa_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
     url <- paste0(dir,
                   "/leafmagic-",
                   icon,
@@ -186,7 +190,7 @@ magicIcons <- function(icon = "circle",
       combinations,
       unique_combos,
       sort = TRUE,
-      by = c("icon", "markerColor", "iconColor", "markerSize")
+      by = c("icon", "markerColor", "iconColor", "marker", "markerSize")
     )
 
   combinations <- combinations[order(combinations$rn),]

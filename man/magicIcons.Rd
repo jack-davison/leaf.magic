@@ -8,7 +8,7 @@ magicIcons(
   icon = "circle",
   markerColor = awesomePalette$blue,
   iconColor = awesomePalette$white,
-  marker = c("marker", "circle", "square", "star", "heart", "diamond", "none"),
+  marker = "marker",
   markerSize = 30L,
   library = "fontawesome",
   className = NULL,

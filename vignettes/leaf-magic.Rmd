@@ -285,6 +285,24 @@ leaflet(port_talbot) %>%
   )
 ```
 
+Note that `marker` can vary with some variable, allowing the marker style itself to encode extra information.
+
+```{r}
+markPal <- iconFactor(c("circle", "diamond", "square"), site_types)
+
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addMarkers(icon = ~ magicIcons(
+    marker = markPal(site_type),
+    markerSize = ifelse(markPal(site_type) == "diamond", 35, 30)
+  )) |>
+  addIconLegend(
+    title = "Site Type",
+    icons = c("fas fa-circle", "fas fa-diamond", "fas fa-square"),
+    site_types
+  )
+```
+
 
 # Other Utilities
 
