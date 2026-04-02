@@ -1,3 +1,15 @@
+# leaf.magic 0.2.0
+
+## Dependency Changes
+
+* `{rlang}` is now directly imported.
+
+* `{bsicons}` and `{lucidr}` are now suggested packages.
+
+## New Features
+
+* Added Lucide (<https://lucide.dev/>) icons, powered by `{lucidr}`.
+
 # leaf.magic 0.1.0
 
 ## New Features

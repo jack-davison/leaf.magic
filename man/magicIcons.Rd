@@ -16,13 +16,13 @@ magicIcons(
 )
 }
 \arguments{
-\item{icon}{Name of the Font Awesome icon, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or
-\code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
-\code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}} or at \url{https://icons.getbootstrap.com/}.}
+\item{icon}{Name of the icon. A full list of available icons can be found
+using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}} or the equivalent function for other
+\code{library} options.}
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
-\item{iconColor}{The color of the fontawesome icon.}
+\item{iconColor}{The color of the icon.}
 
 \item{marker}{Defaults to \code{"marker"}, which uses the standard teardrop shaped
 marker, similar to \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}. Other options are \code{"circle"},
@@ -33,8 +33,9 @@ the marker entirely and places the icon directly on the map.}
 \item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
 the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
 
-\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
-defining the icon library of interest. Defaults to \code{"fontawesome"}.}
+\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
+\code{"lucide"} defining the icon library of interest. Defaults to
+\code{"fontawesome"}.}
 
 \item{className}{a custom class name to assign to both icon and shadow images}
 
@@ -64,25 +65,27 @@ single session.
 library(leaflet)
 port_talbot |>
   dplyr::mutate(
-    icon = dplyr::case_match(
+    icon = dplyr::recode_values(
       site_type,
       "Urban Industrial" ~ "industry",
       "Urban Traffic" ~ "car",
       "Urban Background" ~ "city",
-      .default = "x"
+      default = "x"
     ),
-    color = dplyr::case_match(
+    color = dplyr::recode_values(
       site_type,
       "Urban Industrial" ~ "#12436D",
       "Urban Traffic" ~ "#801650",
       "Urban Background" ~ "#28A197",
-      .default = "#3D3D3DFF"
+      default = "#3D3D3DFF"
     )
   ) |>
   leaflet() |>
   addProviderTiles("CartoDB.Voyager") |>
   addMarkers(
     icon = ~ magicIcons(icon, color, "white"),
+    lat = ~ latitude,
+    lng = ~ longitude,
     popup = ~site
   )
 }

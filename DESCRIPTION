@@ -1,6 +1,6 @@
 Package: leaf.magic
 Title: Customisable Icon Markers for 'leaflet'
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person("Jack", "Davison", , "davison.jack.jd@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2653-6615"))
@@ -13,16 +13,18 @@ BugReports: https://github.com/jack-davison/leaf.magic/issues
 Depends: 
     R (>= 4.1)
 Imports: 
-    bsicons,
     fontawesome,
     leaflet,
     magick,
     purrr,
+    rlang,
     rsvg
 Suggests: 
     dplyr,
     knitr,
     rmarkdown,
+    bsicons,
+    lucidr,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
@@ -31,4 +33,4 @@ Encoding: UTF-8
 Language: en-GB
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
