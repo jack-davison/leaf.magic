@@ -1,0 +1,140 @@
+# {leaf.magic} - Use Modern Icon Libraries in Leaflet Markers
+
+The goal of [leaf.magic](https://jack-davison.github.io/leaf.magic/) is
+to overcome the somewhat outdated “Font Awesome” implementation in
+vanilla R [leaflet](https://rstudio.github.io/leaflet/) by constructing
+markers on the fly using
+[fontawesome](https://github.com/rstudio/fontawesome) or
+[bsicons](https://github.com/rstudio/bsicons) and
+[magick](https://docs.ropensci.org/magick/). There are three issues
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) sets out to
+overcome:
+
+- [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html)
+  is limited to Font Awesome 4 👎
+
+- [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html)
+  is limited to a handful of discrete colours 👎
+
+- [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html)
+  is limited to a single marker size 👎
+
+- Vanilla [leaflet](https://rstudio.github.io/leaflet/) doesn’t provide
+  any additional features to construct legends, icon palettes, or such
+  like 👎
+
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) attempts to
+solve all of this:
+
+- [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+  uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and
+  Ionicons Icons, powered by
+  [fontawesome](https://github.com/rstudio/fontawesome),
+  [bsicons](https://github.com/rstudio/bsicons) and
+  [lucidr](https://github.com/hyperverse-r/lucidr) ✅
+
+- [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+  uses [fontawesome](https://github.com/rstudio/fontawesome) to grab a
+  marker shape, and can therefore colour and resize it however the user
+  desires ✅
+
+- [leaf.magic](https://jack-davison.github.io/leaf.magic/) exports
+  functions like
+  [`iconBin()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
+  and
+  [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
+  to help developers communicate the meanings of icons to users ✅
+
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) is thoroughly
+documented on the [package
+website](https://jack-davison.github.io/leaf.magic/), which includes a
+[getting started
+guide](https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html).
+
+## Installation
+
+You can install the development version of
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) like so:
+
+``` r
+# install.packages("pak")
+pak::pak("jack-davison/leaf.magic")
+```
+
+![A screenshot of a map produced using the {leaf.magic} R
+package.](reference/figures/webshot.png)
+
+A screenshot of a map produced using the {leaf.magic} R package.
+
+## Attributions
+
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) is licensed
+under the [MIT
+License](https://jack-davison.github.io/leaf.magic/LICENSE.html), and
+would not be possible without the following icon libraries:
+
+- **Font Awesome** - [Website](https://fontawesome.com/) \|
+  [License](https://fontawesome.com/license/free) \| [R Package
+  {fontawesome}](https://github.com/rstudio/fontawesome)
+
+- **Bootstrap Icons** - [Website](https://icons.getbootstrap.com/) \|
+  [License](https://getbootstrap.com/docs/5.3/about/license/) \| [R
+  Package {bsicons}](https://github.com/rstudio/bsicons)
+
+- **Lucide** - [Website](https://lucide.dev/) \|
+  [License](https://lucide.dev/license) \| [R Package
+  {lucidr}](https://github.com/hyperverse-r/lucidr/tree/main)
+
+- **Ionicons** - [Website](https://ionic.io/ionicons) \|
+  [License](https://github.com/ionic-team/ionicons/blob/main/LICENSE)
+
+## Code of Conduct
+
+Please note that the leaf.magic project is released with a [Contributor
+Code of
+Conduct](https://jack-davison.github.io/leaf.magic/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
+# Package index
+
+## Data
+
+In-built data to demonstrate functions.
+
+- [`port_talbot`](https://jack-davison.github.io/leaf.magic/reference/port_talbot.md)
+  : Air Quality Monitoring in Neath Port Talbot, 2024
+
+## Icons
+
+Use up-to-date icon libraries in
+[leaflet](https://rstudio.github.io/leaflet/) maps.
+
+- [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+  : Create a set of Font Awesome, Bootstrap or Ionicons Markers
+- [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
+  : Add an Icon legend to a map
+- [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
+  [`iconBin()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
+  [`iconQuantile()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
+  : Icon Mapping
+
+## Utilities
+
+Other useful objects exported by
+[leaf.magic](https://jack-davison.github.io/leaf.magic/).
+
+- [`awesomePalette`](https://jack-davison.github.io/leaf.magic/reference/awesomePalette.md)
+  :
+
+  Palette used by
+  [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html)
+
+- [`addIconAttribution()`](https://jack-davison.github.io/leaf.magic/reference/addIconAttribution.md)
+  : Conveniently add Icon Attributions to a Leaflet Map
+
+# Articles
+
+### All vignettes
+
+- [Getting Started with
+  {leaf.magic}](https://jack-davison.github.io/leaf.magic/articles/leaf-magic.md):
