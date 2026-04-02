@@ -7,18 +7,19 @@
 addIconAttribution(map, library = "fontawesome", layerId = NULL, group = NULL)
 }
 \arguments{
-\item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+\item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
-\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
-defining the icon library of interest. Defaults to \code{"fontawesome"}.}
+\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
+\code{"lucide"} defining the icon library of interest. Defaults to
+\code{"fontawesome"}.}
 
 \item{layerId}{the layer id}
 
 \item{group}{the name of the group the newly created layers should belong to
-(for \code{\link[leaflet]{clearGroup}} and \code{\link[leaflet]{addLayersControl}} purposes).
+(for \code{\link[leaflet:clearGroup]{clearGroup()}} and \code{\link[leaflet:addLayersControl]{addLayersControl()}} purposes).
 Human-friendly group names are permitted--they need not be short,
 identifier-style names. Any number of layers and even different types of
-layers (e.g. markers and polygons) can share the same group name.}
+layers (e.g., markers and polygons) can share the same group name.}
 }
 \description{
 Adds a short character string to the bottom-right of the map widget with the

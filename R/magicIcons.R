@@ -11,27 +11,36 @@
 #' you may find the use of [magicIcons()] speeds up the more you use it in a
 #' single session.
 #'
-#' @param icon Name of the Font Awesome icon, passed to [fontawesome::fa()] or
-#'   [bsicons::bs_icon()]. A full list of available icons can be found using
-#'   [fontawesome::fa_metadata()] or at <https://icons.getbootstrap.com/>.
+#' @param icon Name of the icon. A full list of available icons can be found
+#'   using [fontawesome::fa_metadata()] or the equivalent function for other
+#'   `library` options.
+#'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
-#' @param iconColor The color of the fontawesome icon.
+#'
+#' @param iconColor The color of the icon.
+#'
 #' @param marker Defaults to `"marker"`, which uses the standard teardrop shaped
 #'   marker, similar to [leaflet::addMarkers()]. Other options are `"circle"`,
 #'   `"square"`, `"star"`, `"heart"`, and `"diamond"`, which place the icon
 #'   inside of the respective shape. Also available is `"none"`, which removes
 #'   the marker entirely and places the icon directly on the map.
+#'
 #' @param markerSize The size of the marker. Defaults to `30`, which is roughly
 #'   the same size as [leaflet::addMarkers()].
-#' @param library One of `"fontawesome"`, `"bootstrap"`, or `"ionicons"`,
-#'   defining the icon library of interest. Defaults to `"fontawesome"`.
+#'
+#' @param library One of `"fontawesome"`, `"bootstrap"`, `"ionicons"`, or
+#'   `"lucide"` defining the icon library of interest. Defaults to
+#'   `"fontawesome"`.
+#'
 #' @param dir The directory in which markers are saved. By default this is
 #'   [tempdir()], which is a temporary directory after each session. Providing
 #'   an alternative directory will allow markers to persist between R sessions.
+#'
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
 #'   [leaflet::addMarkers()]
+#'
 #' @export
 #'
 #' @seealso [addIconLegend()], [iconFactor()], [iconBin()], [iconQuantile()]
@@ -43,25 +52,27 @@
 #' library(leaflet)
 #' port_talbot |>
 #'   dplyr::mutate(
-#'     icon = dplyr::case_match(
+#'     icon = dplyr::recode_values(
 #'       site_type,
 #'       "Urban Industrial" ~ "industry",
 #'       "Urban Traffic" ~ "car",
 #'       "Urban Background" ~ "city",
-#'       .default = "x"
+#'       default = "x"
 #'     ),
-#'     color = dplyr::case_match(
+#'     color = dplyr::recode_values(
 #'       site_type,
 #'       "Urban Industrial" ~ "#12436D",
 #'       "Urban Traffic" ~ "#801650",
 #'       "Urban Background" ~ "#28A197",
-#'       .default = "#3D3D3DFF"
+#'       default = "#3D3D3DFF"
 #'     )
 #'   ) |>
 #'   leaflet() |>
 #'   addProviderTiles("CartoDB.Voyager") |>
 #'   addMarkers(
 #'     icon = ~ magicIcons(icon, color, "white"),
+#'     lat = ~ latitude,
+#'     lng = ~ longitude,
 #'     popup = ~site
 #'   )
 magicIcons <- function(
@@ -74,7 +85,7 @@ magicIcons <- function(
   className = NULL,
   dir = tempdir()
 ) {
-  library <- match.arg(library, c("fontawesome", "bootstrap", "ionicons"))
+  library <- check_library(library)
 
   marker <-
     match.arg(
@@ -140,6 +151,9 @@ magicIcons <- function(
       } else if (library == "ionicons") {
         ionicon <- read_ionicon(icon, color = iconColor)
         rsvg::rsvg_png(charToRaw(ionicon), file = t_logo)
+      } else if (library == "lucide") {
+        icon <- as.character(lucidr::lucide(icon, size = 16, color = iconColor))
+        rsvg::rsvg_png(charToRaw(icon), file = t_logo)
       }
 
       logo <-
@@ -259,4 +273,23 @@ darken_color <- function(col, factor = 0.8) {
   col <- pmax(pmin(col, 255), 0)
   col <- grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
   return(col)
+}
+
+#' Check library is valid
+#' @noRd
+check_library <- function(library) {
+  library <- rlang::arg_match(
+    library,
+    c("fontawesome", "bootstrap", "ionicons", "lucide")
+  )
+
+  if (library == "bootstrap") {
+    rlang::check_installed("bsicons")
+  }
+
+  if (library == "lucide") {
+    rlang::check_installed("lucidr")
+  }
+
+  library
 }

@@ -39,6 +39,7 @@ addIconLegend <- function(
   className = "info legend",
   data = leaflet::getMapData(map)
 ) {
+  library <- check_library(library)
   position <- match.arg(position)
 
   # format title
@@ -70,6 +71,9 @@ addIconLegend <- function(
         paste0(i, "   ", label)
       } else if (library == "ionicons") {
         i <- read_ionicon(icon, color = color)
+        paste0(i, "   ", label)
+      } else if (library == "lucide") {
+        i <- as.character(lucidr::lucide(icon, size = 16, color = color))
         paste0(i, "   ", label)
       }
     }
@@ -114,6 +118,8 @@ addIconLegend <- function(
 #' @export
 addIconAttribution <-
   function(map, library = "fontawesome", layerId = NULL, group = NULL) {
+    library <- check_library(library)
+
     if (library == "fontawesome") {
       attr <-
         'Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">FontAwesome</a>, licensed under <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>'
@@ -123,6 +129,9 @@ addIconAttribution <-
     } else if (library == "ionicons") {
       attr <-
         'Icons by <a href="https://ionic.io/ionicons" target="_blank" rel="noopener noreferrer">Ionicons</a>, licensed under <a href="https://github.com/ionic-team/ionicons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>'
+    } else if (library == "lucide") {
+      attr <-
+        'Icons by <a href="https://lucide.dev" target="_blank" rel="noopener noreferrer">Lucide</a>, licensed under <a href="https://lucide.dev/license" target="_blank" rel="noopener noreferrer">ISC</a>'
     }
 
     leaflet::addTiles(

@@ -18,7 +18,7 @@ addIconLegend(
 )
 }
 \arguments{
-\item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+\item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
 \item{icons}{Name of the icons, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or
 \code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
@@ -32,11 +32,12 @@ recycled for all icons. Otherwise should be the same length as \code{icons}.}
 
 \item{title}{the legend title; optional.}
 
-\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, or \code{"ionicons"},
-defining the icon library of interest. Defaults to \code{"fontawesome"}.}
+\item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
+\code{"lucide"} defining the icon library of interest. Defaults to
+\code{"fontawesome"}.}
 
-\item{position}{position of control: "topleft", "topright", "bottomleft", or
-"bottomright"}
+\item{position}{position of control: \code{"topleft"}, \code{"topright"},
+\code{"bottomleft"}, or \code{"bottomright"}.}
 
 \item{layerId}{the layer id}
 

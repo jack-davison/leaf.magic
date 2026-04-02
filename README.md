@@ -18,7 +18,7 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 `{leaf.magic}` attempts to solve all of this:
 
-* `magicIcons()` uses up-to-date versions of Font Awesome, Bootstrap, and Ionicons Icons, powered by `{fontawesome}` and `{bsicons}` ✅
+* `magicIcons()` uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and Ionicons Icons, powered by `{fontawesome}`, `{bsicons}` and `{lucidr}` ✅
 
 * `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
 
@@ -44,6 +44,8 @@ pak::pak("jack-davison/leaf.magic")
 * **Font Awesome** - [Website](https://fontawesome.com/) | [License](https://fontawesome.com/license/free) | [R Package {fontawesome}](https://github.com/rstudio/fontawesome)
 
 * **Bootstrap Icons** - [Website](https://icons.getbootstrap.com/) | [License](https://getbootstrap.com/docs/5.3/about/license/) | [R Package {bsicons}](https://github.com/rstudio/bsicons)
+
+* **Lucide** - [Website](https://lucide.dev/) | [License](https://lucide.dev/license) | [R Package {lucidr}](https://github.com/hyperverse-r/lucidr/tree/main)
 
 * **Ionicons** - [Website](https://ionic.io/ionicons) | [License](https://github.com/ionic-team/ionicons/blob/main/LICENSE)
 

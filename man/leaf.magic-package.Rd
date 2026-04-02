@@ -15,6 +15,7 @@ Useful links:
 \itemize{
   \item \url{https://jack-davison.github.io/leaf.magic/}
   \item \url{https://github.com/jack-davison/leaf.magic}
+  \item Report bugs at \url{https://github.com/jack-davison/leaf.magic/issues}
 }
 
 }
