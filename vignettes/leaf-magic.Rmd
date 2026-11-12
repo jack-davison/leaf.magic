@@ -86,8 +86,10 @@ leaflet(port_talbot) |>
 ```{r map-varicon}
 site_types <- c("Urban Industrial", "Urban Background", "Urban Traffic")
 
+# like leaflet::colorFactor(), levels are sorted alphabetically:
+# "Urban Background", "Urban Industrial", "Urban Traffic"
 iconPal <- iconFactor(
-  icons = c("industry", "house", "car"),
+  icons = c("house", "industry", "car"),
   domain = site_types
 )
 
@@ -103,7 +105,7 @@ leaflet(port_talbot) |>
 
 Note that there's also `iconBin()` and `iconQuantile()` which can help map icons to numeric data. In this case, it makes most sense to choose icons that have some inherent "order" to them.
 
-These functions don't have all of the features of `colorBin()` and `colorQuantile()`, in part due to the differences between mapping a continuous aesthetic like colour and a discrete aesthetic like icons. A nice feature is that these are very much icon-led - the `breaks` and `n` arguments default to the length of the provided `icons`, so you don't need to specify them if you're happy letting the functions decide the break-points/`probs` for you.
+These functions take the same arguments as `colorFactor()`, `colorBin()` and `colorQuantile()` and split the data in exactly the same way, so if you give an icon function and a colour function the same settings (and the same number of icons as colours), every level gets a consistent icon-colour pair. They are also icon-led - the `bins` and `n` arguments default to the length of the provided `icons`, so you don't need to specify them if you're happy letting the functions decide the break-points/`probs` for you.
 
 ```{r map-varicon-q}
 iconPalYr <- iconQuantile(
@@ -298,8 +300,8 @@ leaflet(port_talbot) |>
   )) |>
   addIconLegend(
     title = "Site Type",
-    icons = c("fas fa-circle", "fas fa-diamond", "fas fa-square"),
-    site_types
+    icons = markPal(site_types),
+    labels = site_types
   )
 ```
 

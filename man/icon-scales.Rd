@@ -6,13 +6,22 @@
 \alias{iconQuantile}
 \title{Icon Mapping}
 \usage{
-iconFactor(icons, domain, na.icon = "question")
+iconFactor(
+  icons,
+  domain,
+  levels = NULL,
+  ordered = FALSE,
+  na.icon = "question",
+  reverse = FALSE
+)
 
 iconBin(
   icons,
   domain,
   bins = length(icons),
+  pretty = TRUE,
   na.icon = "question",
+  reverse = FALSE,
   right = FALSE
 )
 
@@ -22,25 +31,50 @@ iconQuantile(
   n = length(icons),
   probs = seq(0, 1, length.out = n + 1),
   na.icon = "question",
+  reverse = FALSE,
   right = FALSE
 )
 }
 \arguments{
-\item{icons}{The icons that values will be mapped to. Note that the \code{library}
-(e.g., \code{"fontawesome"}) is defined in \code{\link[=magicIcons]{magicIcons()}}.}
+\item{icons}{The icons that values will be mapped to, one per level or bin.
+Icons may be repeated. Note that the \code{library} (e.g., \code{"fontawesome"}) is
+defined in \code{\link[=magicIcons]{magicIcons()}}.}
 
-\item{domain}{The possible values that can be mapped. For \code{\link[=iconFactor]{iconFactor()}} this
-should be categorical data. For \code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}}
+\item{domain}{The possible values that can be mapped. For \code{\link[=iconFactor]{iconFactor()}}
+this should be categorical data (character or factor). For \code{\link[=iconBin]{iconBin()}} and
+\code{\link[=iconQuantile]{iconQuantile()}} this should be numeric. If \code{NULL}, levels/bins are
+calculated from the data each time the function is called, as in
+\code{{leaflet}}.}
+
+\item{levels}{An alternate way of specifying levels; if specified, \code{domain}
+is ignored.}
+
+\item{ordered}{If \code{TRUE} and \code{domain} needs to be coerced to a factor, treat
+it as already in the correct order.}
 
 \item{na.icon}{The icon to return for missing or out-of-scope values.}
 
-\item{bins, right}{Passed to \code{\link[=cut]{cut()}}.}
+\item{reverse}{If \code{TRUE}, the order of \code{icons} is reversed.}
+
+\item{bins}{Either a numeric vector of two or more unique cut points or a
+single number (greater than or equal to 2) giving the number of intervals
+into which the domain values are to be cut. Defaults to \code{length(icons)}.}
+
+\item{pretty}{Whether to use the function \code{\link[=pretty]{pretty()}} to generate the bins
+when \code{bins} is a single number. Note that when \code{pretty = TRUE}, the number
+of bins may not equal \code{bins}, and may therefore not equal the number of
+\code{icons}; a warning is given if so. Use \code{pretty = FALSE} to guarantee one
+bin per icon.}
+
+\item{right}{Should the intervals be closed on the right (and open on the
+left)? Passed to \code{\link[=cut]{cut()}}. Note that, to match \code{\link[leaflet:colorQuantile]{leaflet::colorQuantile()}},
+\code{right} is ignored by \code{\link[=iconQuantile]{iconQuantile()}} when \code{domain} is not \code{NULL}.}
 
 \item{n}{Number of equal-size quantiles desired. For more precise control,
-use the \code{probs} argument instead.}
+use the \code{probs} argument instead. Defaults to \code{length(icons)}.}
 
-\item{probs}{A more precise alternative to \code{probs}. Passed directly to
-\code{\link[=quantile]{quantile()}}.}
+\item{probs}{A more precise alternative to \code{n}. Passed directly to
+\code{\link[stats:quantile]{stats::quantile()}}.}
 }
 \value{
 A function that takes a single parameter, \code{x}; when called with a
@@ -48,10 +82,45 @@ vector of factors/characters (for \code{\link[=iconFactor]{iconFactor()}}) or nu
 \code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}), icon names are returned.
 }
 \description{
-Conveniently maps data values to icons for use in \code{magicIcons()}, analogous
-to \code{\link[leaflet:colorNumeric]{leaflet::colorFactor()}}, \code{\link[leaflet:colorNumeric]{leaflet::colorBin()}} and
-\code{\link[leaflet:colorNumeric]{leaflet::colorQuantile()}}. Icons are, by their nature, discrete, so there is
-no analogue to \code{\link[leaflet:colorNumeric]{leaflet::colorNumeric()}}. For \code{\link[leaflet:colorNumeric]{leaflet::colorBin()}} and
-\code{\link[leaflet:colorNumeric]{leaflet::colorQuantile()}}, it would make sense to pick "ordered" icons such
-as the "hourglass" or "temperature" icon families in Font Awesome.
+Conveniently maps data values to icons for use in \code{\link[=magicIcons]{magicIcons()}}. These
+functions mirror \code{\link[leaflet:colorFactor]{leaflet::colorFactor()}}, \code{\link[leaflet:colorBin]{leaflet::colorBin()}} and
+\code{\link[leaflet:colorQuantile]{leaflet::colorQuantile()}}: given the same \code{domain}, \code{levels}, \code{bins},
+\code{pretty}, \code{n}, \code{probs}, \code{reverse} and \code{right} arguments, an icon function
+and a colour function will split the data in exactly the same way. If
+\code{icons} and \code{palette} have the same length (one per level/bin), each level
+therefore receives a unique and consistent icon-colour pair. Icons are, by
+their nature, discrete, so there is no analogue to \code{\link[leaflet:colorNumeric]{leaflet::colorNumeric()}}.
+For \code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}, it makes sense to pick "ordered" icons
+such as the "hourglass" or "temperature" icon families in Font Awesome.
+}
+\section{Matching icons to levels}{
+ Levels are ordered in the same way as
+\code{\link[leaflet:colorFactor]{leaflet::colorFactor()}}: factor levels if \code{domain} is a factor, the order
+of appearance if \code{ordered = TRUE}, and otherwise sorted alphabetically. For
+\code{\link[=iconBin]{iconBin()}} and \code{\link[=iconQuantile]{iconQuantile()}}, bins are ordered from lowest to highest.
+The first icon is assigned to the first level, the second to the second,
+and so on.
+
+Colour palettes can interpolate between colours when there are more levels
+than colours; icons cannot. If the number of icons differs from the number
+of levels/bins, each level is given the icon at the equivalent position
+along the list of icons (so some icons may be repeated or skipped) and a
+warning is issued.
+}
+
+\examples{
+types <- c("Urban Traffic", "Urban Industrial", "Urban Background")
+
+# levels are sorted, as in leaflet::colorFactor()
+iconPal <- iconFactor(c("house", "industry", "car"), types)
+colorPal <- leaflet::colorFactor(c("#28A197", "#12436D", "#801650"), types)
+data.frame(type = types, icon = iconPal(types), color = colorPal(types))
+
+# numeric data
+binPal <- iconBin(
+  c("temperature-low", "temperature-half", "temperature-high"),
+  domain = 0:30
+)
+binPal(c(2, 15, 28))
+
 }
