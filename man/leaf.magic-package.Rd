@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Jack Davison \email{davison.jack.jd@gmail.com} (\href{https://orcid.org/0000-0003-2653-6615}{ORCID})
 
+Authors:
+\itemize{
+  \item Jack Davison \email{davison.jack.jd@gmail.com} (\href{https://orcid.org/0000-0003-2653-6615}{ORCID})
+}
+
 }
 \keyword{internal}

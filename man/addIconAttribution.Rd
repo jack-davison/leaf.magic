@@ -21,9 +21,25 @@ Human-friendly group names are permitted--they need not be short,
 identifier-style names. Any number of layers and even different types of
 layers (e.g., markers and polygons) can share the same group name.}
 }
+\value{
+a \link[leaflet:leaflet-package]{leaflet} widget
+}
 \description{
 Adds a short character string to the bottom-right of the map widget with the
 attribution and license of an icon library. \code{group} and \code{layerId} can be used
 to add or remove the attribution - e.g., if the markers using \code{\link[=magicIcons]{magicIcons()}}
 are hidden.
+}
+\examples{
+library(leaflet)
+leaflet(port_talbot) |>
+  addTiles() |>
+  addMarkers(
+    lng = ~longitude,
+    lat = ~latitude,
+    icon = magicIcons("industry"),
+    group = "Sites"
+  ) |>
+  addIconAttribution(group = "Sites") |>
+  addLayersControl(overlayGroups = "Sites")
 }

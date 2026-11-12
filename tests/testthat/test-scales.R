@@ -168,7 +168,12 @@ test_that("iconQuantile matches colorQuantile with probs and reverse", {
   set.seed(1)
   domain <- stats::rnorm(50)
   probs <- c(0, 0.1, 0.5, 0.9, 1)
-  cpal <- leaflet::colorQuantile(cols[1:4], domain, probs = probs, reverse = TRUE)
+  cpal <- leaflet::colorQuantile(
+    cols[1:4],
+    domain,
+    probs = probs,
+    reverse = TRUE
+  )
   ipal <- iconQuantile(icns[1:4], domain, probs = probs, reverse = TRUE)
   expect_equal(ipal(domain), as_icons(cpal(domain), 4))
 })

@@ -2,7 +2,7 @@
 title: "Getting Started with {leaf.magic}"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{leaf-magic}
+  %\VignetteIndexEntry{Getting Started with {leaf.magic}}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

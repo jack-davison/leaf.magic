@@ -4,11 +4,13 @@
 #' Useful in conjunction with [magicIcons()] to communicate the meaning of
 #' icons/colours.
 #'
-#' @param icons Name of the icons, passed to [fontawesome::fa()] or
-#'   [bsicons::bs_icon()]. A full list of available icons can be found using
-#'   [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/> or
-#'   <https://ionic.io/ionicons>.
+#' @param icons Name of the icons, from the icon library defined by `library`.
+#'   A full list of available icons can be found using
+#'   [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
+#'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>.
 #' @param labels Labels for each `icon`; should be the same length as `icons`.
+#'   Labels are inserted as HTML, so may contain formatting such as
+#'   `"PM<sub>2.5</sub>"`.
 #' @param colors Colours to use for each `icon`. If `length(colors) == 1L` it is
 #'   recycled for all icons. Otherwise should be the same length as `icons`.
 #' @param title the legend title; optional.
@@ -96,24 +98,32 @@ addIconLegend <- function(
 #' @inheritParams magicIcons
 #' @inheritParams leaflet::addTiles
 #'
+#' @return a [leaflet][leaflet::leaflet-package] widget
 #' @export
+#'
+#' @examples
+#' library(leaflet)
+#' leaflet(port_talbot) |>
+#'   addTiles() |>
+#'   addMarkers(
+#'     lng = ~longitude,
+#'     lat = ~latitude,
+#'     icon = magicIcons("industry"),
+#'     group = "Sites"
+#'   ) |>
+#'   addIconAttribution(group = "Sites") |>
+#'   addLayersControl(overlayGroups = "Sites")
 addIconAttribution <-
   function(map, library = "fontawesome", layerId = NULL, group = NULL) {
     library <- check_library(library)
 
-    if (library == "fontawesome") {
-      attr <-
-        'Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">FontAwesome</a>, licensed under <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>'
-    } else if (library == "bootstrap") {
-      attr <-
-        'Icons by <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener noreferrer">Bootstrap</a>, licensed under <a href="https://github.com/twbs/icons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>'
-    } else if (library == "ionicons") {
-      attr <-
-        'Icons by <a href="https://ionic.io/ionicons" target="_blank" rel="noopener noreferrer">Ionicons</a>, licensed under <a href="https://github.com/ionic-team/ionicons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>'
-    } else if (library == "lucide") {
-      attr <-
-        'Icons by <a href="https://lucide.dev" target="_blank" rel="noopener noreferrer">Lucide</a>, licensed under <a href="https://lucide.dev/license" target="_blank" rel="noopener noreferrer">ISC</a>'
-    }
+    attribution <- switch(
+      library,
+      fontawesome = 'Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">FontAwesome</a>, licensed under <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>',
+      bootstrap = 'Icons by <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener noreferrer">Bootstrap</a>, licensed under <a href="https://github.com/twbs/icons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>',
+      ionicons = 'Icons by <a href="https://ionic.io/ionicons" target="_blank" rel="noopener noreferrer">Ionicons</a>, licensed under <a href="https://github.com/ionic-team/ionicons?tab=MIT-1-ov-file" target="_blank" rel="noopener noreferrer">MIT</a>',
+      lucide = 'Icons by <a href="https://lucide.dev" target="_blank" rel="noopener noreferrer">Lucide</a>, licensed under <a href="https://lucide.dev/license" target="_blank" rel="noopener noreferrer">ISC</a>'
+    )
 
     # The attribution is attached to an invisible tile layer so that it can be
     # shown/hidden with `group` and removed with `layerId`. Every tile is a
@@ -121,7 +131,7 @@ addIconAttribution <-
     leaflet::addTiles(
       map,
       urlTemplate = blank_tile,
-      attribution = attr,
+      attribution = attribution,
       layerId = layerId,
       group = group
     )

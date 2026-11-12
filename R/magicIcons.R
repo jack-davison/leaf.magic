@@ -1,19 +1,22 @@
-#' Create a set of Font Awesome, Bootstrap or Ionicons Markers
+#' Create a set of Font Awesome, Bootstrap, Ionicons or Lucide Markers
 #'
 #' This function is intended as a more up-to-date implementation of
 #' [leaflet::awesomeIcons()]. Key benefits include having access to modern Font
-#' Awesome, Bootstrap and Ionicons icons, and allowing any colour to be used the
-#' marker and icon.
+#' Awesome, Bootstrap, Ionicons and Lucide icons, and allowing any colour to be
+#' used for the marker and icon.
 #'
 #' This function uses [magick::image_composite()] to knit together the icon and
-#' marker symbol of choice, and saves it to a temporary directory. It is also
-#' intelligent enough to not try to recreate a marker that already exists, so
-#' you may find the use of [magicIcons()] speeds up the more you use it in a
-#' single session.
+#' marker symbol of choice, and saves it to `dir`. It is also intelligent enough
+#' to not try to recreate a marker that already exists, so you may find the use
+#' of [magicIcons()] speeds up the more you use it in a single session.
+#'
+#' Ionicons are downloaded from <https://unpkg.com> the first time each icon is
+#' used in a session, so require an internet connection.
 #'
 #' @param icon Name of the icon. A full list of available icons can be found
-#'   using [fontawesome::fa_metadata()] or the equivalent function for other
-#'   `library` options.
+#'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
+#'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>, depending on
+#'   `library`.
 #'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #'
@@ -33,8 +36,9 @@
 #'   `"fontawesome"`.
 #'
 #' @param dir The directory in which markers are saved. By default this is
-#'   [tempdir()], which is a temporary directory after each session. Providing
-#'   an alternative directory will allow markers to persist between R sessions.
+#'   [tempdir()], which is deleted at the end of each R session. Providing an
+#'   alternative directory will allow markers to persist between R sessions.
+#'   `dir` is created if it does not already exist.
 #'
 #' @inheritParams leaflet::makeIcon
 #'
@@ -87,18 +91,18 @@ magicIcons <- function(
 ) {
   library <- check_library(library)
 
-  marker <-
-    match.arg(
-      marker,
-      c("marker", "circle", "square", "star", "heart", "diamond", "none"),
-      several.ok = TRUE
-    )
-  marker[marker %in% c("circle", "square", "star", "heart", "diamond")] <-
-    paste0(
-      "fas fa-",
-      marker[marker %in% c("circle", "square", "star", "heart", "diamond")]
-    )
-  marker[marker == "marker"] <- "location-pin"
+  # user-facing marker names -> Font Awesome icon used to draw the marker
+  marker_shapes <- c(
+    marker = "location-pin",
+    circle = "fas fa-circle",
+    square = "fas fa-square",
+    star = "fas fa-star",
+    heart = "fas fa-heart",
+    diamond = "fas fa-diamond",
+    none = "none"
+  )
+  marker <- match.arg(marker, names(marker_shapes), several.ok = TRUE)
+  marker <- unname(marker_shapes[marker])
 
   check_lengths(
     icon = icon,
@@ -121,11 +125,10 @@ magicIcons <- function(
       markerSize = markerSize
     )
 
-  combinations$rn <- seq_along(combinations$icon)
-
-  unique_combos <- combinations
-  unique_combos$rn <- NULL
-  unique_combos <- unique(unique_combos)
+  # only render each unique combination once
+  key <- do.call(paste, c(combinations, sep = "\x1f"))
+  is_first <- !duplicated(key)
+  unique_combos <- combinations[is_first, , drop = FALSE]
 
   make_fa_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
     # the package version is part of the cache key so that markers cached in a
@@ -235,26 +238,13 @@ magicIcons <- function(
 
   icons <- purrr::pmap(unique_combos, make_fa_icon, .progress = TRUE)
 
-  unique_combos$themarker <- icons
-
-  combinations <-
-    merge(
-      combinations,
-      unique_combos,
-      sort = TRUE,
-      by = c("icon", "markerColor", "iconColor", "marker", "markerSize")
-    )
-
-  combinations <- combinations[order(combinations$rn), ]
-  rownames(combinations) <- NULL
-
-  do.call(leaflet::iconList, combinations$themarker)
+  do.call(leaflet::iconList, icons[match(key, key[is_first])])
 }
 
 #' Build the SVG markup for an icon from any supported library
 #'
 #' @param icon,color Icon name and fill colour.
-#' @param library A library name, already validated by [check_library()].
+#' @param library A library name, already validated by `check_library()`.
 #' @param ... Passed to [fontawesome::fa()] only (e.g., `stroke`, `height`).
 #' @return A single character string of SVG markup.
 #' @noRd
@@ -289,7 +279,11 @@ read_ionicon <- function(icon, color, dim = "1em") {
   svg <- ionicon_cache[[icon]]
 
   if (is.null(svg)) {
-    svg_url <- paste0("https://unpkg.com/ionicons@7.1.0/dist/svg/", icon, ".svg")
+    svg_url <- paste0(
+      "https://unpkg.com/ionicons@7.1.0/dist/svg/",
+      icon,
+      ".svg"
+    )
     svg <- tryCatch(
       paste(readLines(svg_url, warn = FALSE), collapse = "\n"),
       error = function(cnd) {
@@ -354,9 +348,7 @@ check_lengths <- function(..., call = rlang::caller_env()) {
 darken_color <- function(col, factor = 0.8) {
   col <- grDevices::col2rgb(col)
   col <- col * factor
-  col <- pmax(pmin(col, 255), 0)
-  col <- grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
-  return(col)
+  grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
 }
 
 #' Check library is valid

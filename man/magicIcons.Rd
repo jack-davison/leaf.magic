@@ -2,7 +2,7 @@
 % Please edit documentation in R/magicIcons.R
 \name{magicIcons}
 \alias{magicIcons}
-\title{Create a set of Font Awesome, Bootstrap or Ionicons Markers}
+\title{Create a set of Font Awesome, Bootstrap, Ionicons or Lucide Markers}
 \usage{
 magicIcons(
   icon = "circle",
@@ -17,21 +17,22 @@ magicIcons(
 }
 \arguments{
 \item{icon}{Name of the icon. A full list of available icons can be found
-using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}} or the equivalent function for other
-\code{library} options.}
+using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
+\url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}, depending on
+\code{library}.}
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
 \item{iconColor}{The color of the icon.}
 
 \item{marker}{Defaults to \code{"marker"}, which uses the standard teardrop shaped
-marker, similar to \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}. Other options are \code{"circle"},
+marker, similar to \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. Other options are \code{"circle"},
 \code{"square"}, \code{"star"}, \code{"heart"}, and \code{"diamond"}, which place the icon
 inside of the respective shape. Also available is \code{"none"}, which removes
 the marker entirely and places the icon directly on the map.}
 
 \item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
-the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
+the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}.}
 
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
 \code{"lucide"} defining the icon library of interest. Defaults to
@@ -40,25 +41,28 @@ the same size as \code{\link[leaflet:map-layers]{leaflet::addMarkers()}}.}
 \item{className}{a custom class name to assign to both icon and shadow images}
 
 \item{dir}{The directory in which markers are saved. By default this is
-\code{\link[=tempdir]{tempdir()}}, which is a temporary directory after each session. Providing
-an alternative directory will allow markers to persist between R sessions.}
+\code{\link[=tempdir]{tempdir()}}, which is deleted at the end of each R session. Providing an
+alternative directory will allow markers to persist between R sessions.
+\code{dir} is created if it does not already exist.}
 }
 \value{
 a \code{\link[leaflet:iconList]{leaflet::iconList()}}, to be passed to the \code{icon} argument of
-\code{\link[leaflet:map-layers]{leaflet::addMarkers()}}
+\code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}
 }
 \description{
 This function is intended as a more up-to-date implementation of
 \code{\link[leaflet:awesomeIcons]{leaflet::awesomeIcons()}}. Key benefits include having access to modern Font
-Awesome, Bootstrap and Ionicons icons, and allowing any colour to be used the
-marker and icon.
+Awesome, Bootstrap, Ionicons and Lucide icons, and allowing any colour to be
+used for the marker and icon.
 }
 \details{
-This function uses \code{\link[magick:composite]{magick::image_composite()}} to knit together the icon and
-marker symbol of choice, and saves it to a temporary directory. It is also
-intelligent enough to not try to recreate a marker that already exists, so
-you may find the use of \code{\link[=magicIcons]{magicIcons()}} speeds up the more you use it in a
-single session.
+This function uses \code{\link[magick:image_composite]{magick::image_composite()}} to knit together the icon and
+marker symbol of choice, and saves it to \code{dir}. It is also intelligent enough
+to not try to recreate a marker that already exists, so you may find the use
+of \code{\link[=magicIcons]{magicIcons()}} speeds up the more you use it in a single session.
+
+Ionicons are downloaded from \url{https://unpkg.com} the first time each icon is
+used in a session, so require an internet connection.
 }
 \examples{
 # create map

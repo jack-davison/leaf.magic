@@ -20,12 +20,14 @@ addIconLegend(
 \arguments{
 \item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
-\item{icons}{Name of the icons, passed to \code{\link[fontawesome:fa]{fontawesome::fa()}} or
-\code{\link[bsicons:bs_icon]{bsicons::bs_icon()}}. A full list of available icons can be found using
-\code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/} or
-\url{https://ionic.io/ionicons}.}
+\item{icons}{Name of the icons, from the icon library defined by \code{library}.
+A full list of available icons can be found using
+\code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
+\url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}.}
 
-\item{labels}{Labels for each \code{icon}; should be the same length as \code{icons}.}
+\item{labels}{Labels for each \code{icon}; should be the same length as \code{icons}.
+Labels are inserted as HTML, so may contain formatting such as
+\code{"PM<sub>2.5</sub>"}.}
 
 \item{colors}{Colours to use for each \code{icon}. If \code{length(colors) == 1L} it is
 recycled for all icons. Otherwise should be the same length as \code{icons}.}
