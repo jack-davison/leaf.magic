@@ -52,31 +52,10 @@ addIconLegend <- function(
     )
   }
 
-  assemble_legend_item <-
-    function(icon, label, color) {
-      if (library == "fontawesome") {
-        paste0(
-          fontawesome::fa(
-            icon,
-            width = "1em",
-            height = "1em",
-            fill = color
-          ),
-          "   ",
-          label
-        )
-      } else if (library == "bootstrap") {
-        i <- as.character(bsicons::bs_icon(icon, size = "1em"))
-        i <- gsub("currentColor", color, i)
-        paste0(i, "   ", label)
-      } else if (library == "ionicons") {
-        i <- read_ionicon(icon, color = color)
-        paste0(i, "   ", label)
-      } else if (library == "lucide") {
-        i <- as.character(lucidr::lucide(icon, size = 16, color = color))
-        paste0(i, "   ", label)
-      }
-    }
+  assemble_legend_item <- function(icon, label, color) {
+    svg <- icon_svg(icon, color, library, width = "1em", height = "1em")
+    paste0(svg, "   ", label)
+  }
 
   html <-
     paste0(

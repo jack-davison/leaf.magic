@@ -136,25 +136,16 @@ magicIcons <- function(
     if (!file.exists(url)) {
       t_logo <- tempfile(pattern = paste0(time, "logo_"))
 
-      if (library == "fontawesome") {
-        fontawesome::fa_png(
+      svg_to_png(
+        icon_svg(
           icon,
-          file = t_logo,
-          fill = iconColor,
+          iconColor,
+          library,
           stroke = darken_color(iconColor),
           stroke_width = "5px"
-        )
-      } else if (library == "bootstrap") {
-        icon <- as.character(bsicons::bs_icon(icon, size = "1em"))
-        icon <- gsub("currentColor", iconColor, icon)
-        rsvg::rsvg_png(charToRaw(icon), file = t_logo)
-      } else if (library == "ionicons") {
-        ionicon <- read_ionicon(icon, color = iconColor)
-        rsvg::rsvg_png(charToRaw(ionicon), file = t_logo)
-      } else if (library == "lucide") {
-        icon <- as.character(lucidr::lucide(icon, size = 16, color = iconColor))
-        rsvg::rsvg_png(charToRaw(icon), file = t_logo)
-      }
+        ),
+        file = t_logo
+      )
 
       logo <-
         magick::image_scale(
@@ -169,12 +160,15 @@ magicIcons <- function(
       if (marker != "none") {
         t_pin <- tempfile(pattern = "pin_")
 
-        fontawesome::fa_png(
-          marker,
-          file = t_pin,
-          fill = markerColor,
-          stroke = darken_color(markerColor),
-          stroke_width = "5px"
+        svg_to_png(
+          icon_svg(
+            marker,
+            markerColor,
+            "fontawesome",
+            stroke = darken_color(markerColor),
+            stroke_width = "5px"
+          ),
+          file = t_pin
         )
 
         pin <- magick::image_read(t_pin)
@@ -239,6 +233,38 @@ magicIcons <- function(
   rownames(combinations) <- NULL
 
   do.call(leaflet::iconList, combinations$themarker)
+}
+
+#' Build the SVG markup for an icon from any supported library
+#'
+#' @param icon,color Icon name and fill colour.
+#' @param library A library name, already validated by [check_library()].
+#' @param ... Passed to [fontawesome::fa()] only (e.g., `stroke`, `height`).
+#' @return A single character string of SVG markup.
+#' @noRd
+icon_svg <- function(icon, color, library, ...) {
+  svg <- switch(
+    library,
+    fontawesome = fontawesome::fa(icon, fill = color, ...),
+    bootstrap = gsub(
+      "currentColor",
+      color,
+      as.character(bsicons::bs_icon(icon, size = "1em"))
+    ),
+    ionicons = read_ionicon(icon, color = color),
+    lucide = lucidr::lucide(icon, size = 16, color = color)
+  )
+  paste(as.character(svg), collapse = "\n")
+}
+
+#' Rasterise SVG markup to a PNG file
+#'
+#' SVGs are rendered at a fixed height so that every icon library has enough
+#' resolution to be scaled down cleanly; without a height, `{rsvg}` uses the
+#' SVG's own size, which is only 16-24px for Bootstrap and Lucide icons.
+#' @noRd
+svg_to_png <- function(svg, file, height = 512) {
+  rsvg::rsvg_png(charToRaw(svg), file = file, height = height)
 }
 
 #' Homebrew way to download from ionicons

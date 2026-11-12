@@ -10,6 +10,8 @@
 
 ## Bug Fixes
 
+* `magicIcons()` no longer produces pixelated icons when `library = "bootstrap"` or `library = "lucide"`. Icons are now rendered at a high resolution before being scaled down. Note that markers previously cached in a persistent `dir` will need to be deleted to benefit from this fix.
+
 * `iconBin()` and `iconQuantile()` no longer assign icons to the wrong bins when `domain` is unsorted or a bin is empty.
 
 * `iconFactor()` now matches factor inputs by label rather than by their underlying integer codes.
