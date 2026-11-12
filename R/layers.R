@@ -52,9 +52,12 @@ addIconLegend <- function(
     )
   }
 
+  check_lengths(icons = icons, labels = labels, colors = colors)
+
   assemble_legend_item <- function(icon, label, color) {
     svg <- icon_svg(icon, color, library, width = "1em", height = "1em")
-    paste0(svg, "   ", label)
+    # HTML collapses plain whitespace, so non-breaking spaces are needed
+    paste0(svg, "&nbsp;&nbsp;&nbsp;", label)
   }
 
   html <-
@@ -70,8 +73,7 @@ addIconLegend <- function(
           assemble_legend_item
         ),
         collapse = "<br>"
-      ),
-      collapse = "<br>"
+      )
     )
 
   leaflet::addControl(
@@ -113,11 +115,18 @@ addIconAttribution <-
         'Icons by <a href="https://lucide.dev" target="_blank" rel="noopener noreferrer">Lucide</a>, licensed under <a href="https://lucide.dev/license" target="_blank" rel="noopener noreferrer">ISC</a>'
     }
 
+    # The attribution is attached to an invisible tile layer so that it can be
+    # shown/hidden with `group` and removed with `layerId`. Every tile is a
+    # 1x1 transparent PNG data URI, so no network requests are made.
     leaflet::addTiles(
       map,
-      urlTemplate = " ",
+      urlTemplate = blank_tile,
       attribution = attr,
       layerId = layerId,
       group = group
     )
   }
+
+#' A 1x1 fully transparent PNG, used as a tile URL by addIconAttribution()
+#' @noRd
+blank_tile <- "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="

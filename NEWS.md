@@ -12,6 +12,24 @@
 
 * `magicIcons()` no longer produces pixelated icons when `library = "bootstrap"` or `library = "lucide"`. Icons are now rendered at a high resolution before being scaled down. Note that markers previously cached in a persistent `dir` will need to be deleted to benefit from this fix.
 
+* `magicIcons()` now includes the package version in the file names of cached markers, so markers saved in a persistent `dir` are re-rendered after upgrading `{leaf.magic}`.
+
+* `magicIcons()` now creates `dir` if it does not already exist, and cleans up its intermediate temporary files.
+
+* `magicIcons()` and `addIconLegend()` now error informatively if their vector arguments are not length 1 or a common length. Previously, lengths that divided evenly (e.g., 2 icons and 4 colours) were silently recycled.
+
+* Ionicons are now downloaded once per session rather than every time they are used, and a failed download (e.g., a misspelled icon name, or no internet connection) now gives an informative error.
+
+* `addIconAttribution()` no longer makes a network request for every map tile.
+
+* `addIconLegend()` now correctly spaces icons and labels; previously the intended spacing was collapsed by HTML into a single space.
+
+## Dependency Changes
+
+* `{purrr}` now requires version 1.0.0 or later, and `{dplyr}` (used in examples) version 1.2.0 or later.
+
+* `{grDevices}` and `{stats}` are now explicitly imported.
+
 * `iconBin()` and `iconQuantile()` no longer assign icons to the wrong bins when `domain` is unsorted or a bin is empty.
 
 * `iconFactor()` now matches factor inputs by label rather than by their underlying integer codes.

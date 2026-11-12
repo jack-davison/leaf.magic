@@ -14,13 +14,15 @@ Depends:
     R (>= 4.1)
 Imports: 
     fontawesome,
+    grDevices,
     leaflet,
     magick,
-    purrr,
+    purrr (>= 1.0.0),
     rlang,
-    rsvg
+    rsvg,
+    stats
 Suggests: 
-    dplyr,
+    dplyr (>= 1.2.0),
     knitr,
     rmarkdown,
     bsicons,

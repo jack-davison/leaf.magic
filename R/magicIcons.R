@@ -100,6 +100,18 @@ magicIcons <- function(
     )
   marker[marker == "marker"] <- "location-pin"
 
+  check_lengths(
+    icon = icon,
+    markerColor = markerColor,
+    iconColor = iconColor,
+    marker = marker,
+    markerSize = markerSize
+  )
+
+  if (!dir.exists(dir)) {
+    dir.create(dir, recursive = TRUE)
+  }
+
   combinations <-
     data.frame(
       icon = icon,
@@ -116,25 +128,31 @@ magicIcons <- function(
   unique_combos <- unique(unique_combos)
 
   make_fa_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
-    url <- paste0(
+    # the package version is part of the cache key so that markers cached in a
+    # persistent `dir` are re-rendered when the rendering code changes
+    url <- file.path(
       dir,
-      "/leafmagic-",
-      icon,
-      "_",
-      markerColor,
-      "_",
-      iconColor,
-      "_",
-      marker,
-      "_",
-      library,
-      ".png"
+      paste0(
+        "leafmagic-",
+        getNamespaceVersion("leaf.magic"),
+        "-",
+        icon,
+        "_",
+        markerColor,
+        "_",
+        iconColor,
+        "_",
+        marker,
+        "_",
+        library,
+        ".png"
+      )
     )
 
-    time <- as.numeric(Sys.time())
-
     if (!file.exists(url)) {
-      t_logo <- tempfile(pattern = paste0(time, "logo_"))
+      t_logo <- tempfile(pattern = "logo_")
+      t_pin <- tempfile(pattern = "pin_")
+      on.exit(unlink(c(t_logo, t_pin)), add = TRUE)
 
       svg_to_png(
         icon_svg(
@@ -158,8 +176,6 @@ magicIcons <- function(
         )
 
       if (marker != "none") {
-        t_pin <- tempfile(pattern = "pin_")
-
         svg_to_png(
           icon_svg(
             marker,
@@ -270,11 +286,26 @@ svg_to_png <- function(svg, file, height = 512) {
 #' Homebrew way to download from ionicons
 #' @noRd
 read_ionicon <- function(icon, color, dim = "1em") {
-  on.exit(close(con))
+  svg <- ionicon_cache[[icon]]
 
-  con <- url(paste0("https://unpkg.com/ionicons@7.1.0/dist/svg/", icon, ".svg"))
-
-  svg <- readLines(con, warn = FALSE)
+  if (is.null(svg)) {
+    svg_url <- paste0("https://unpkg.com/ionicons@7.1.0/dist/svg/", icon, ".svg")
+    svg <- tryCatch(
+      paste(readLines(svg_url, warn = FALSE), collapse = "\n"),
+      error = function(cnd) {
+        rlang::abort(
+          c(
+            paste0("Could not download the Ionicons icon \"", icon, "\"."),
+            i = "Check the icon name at <https://ionic.io/ionicons>.",
+            i = "Ionicons are downloaded on demand, so an internet connection is required."
+          ),
+          parent = cnd,
+          call = NULL
+        )
+      }
+    )
+    ionicon_cache[[icon]] <- svg
+  }
 
   gsub(
     'viewBox=',
@@ -289,6 +320,33 @@ read_ionicon <- function(icon, color, dim = "1em") {
     ),
     svg
   )
+}
+
+#' Session cache of downloaded Ionicons SVGs, keyed by icon name
+#' @noRd
+ionicon_cache <- new.env(parent = emptyenv())
+
+#' Check vector arguments are length 1 or a common length
+#' @noRd
+check_lengths <- function(..., call = rlang::caller_env()) {
+  args <- list(...)
+  lens <- lengths(args)
+  n <- max(lens)
+  bad <- lens == 0L | !lens %in% c(1L, n)
+  if (any(bad)) {
+    rlang::abort(
+      c(
+        "Arguments must be length 1 or all the same length.",
+        stats::setNames(
+          paste0("`", names(args), "` has length ", lens, ".")[bad],
+          rep("x", sum(bad))
+        ),
+        i = paste0("The longest argument has length ", n, ".")
+      ),
+      call = call
+    )
+  }
+  invisible(n)
 }
 
 #' Darken a colour slightly for icon border
