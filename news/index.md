@@ -1,6 +1,6 @@
 # Changelog
 
-## leaf.magic (development version)
+## leaf.magic 0.3.0
 
 ### Breaking changes
 
@@ -10,6 +10,11 @@
   Marker shapes are now drawn by
   [leaf.magic](https://jack-davison.github.io/leaf.magic/) itself, so
   look slightly different.
+
+- [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)’s
+  `iconColor` now defaults to `"auto"`, which picks black or white icons
+  depending on the marker colour, rather than always white. Use
+  `iconColor = "white"` for the old behaviour.
 
 - [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md),
   [`iconBin()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
@@ -35,20 +40,25 @@
 
 ### New features
 
-- Markers:
+- [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+  now accepts formulas (e.g., `icon = ~site_type`), evaluated against
+  the layer’s data as in
+  [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html).
+
+- Icons:
+
+  - `magicIcons(library = "text")` shows text or numbers in markers
+    instead of icons, e.g., for numbered stops.
   - `magicIcons(library = "svg")` uses raw SVG markup as the icon, so
     any icon can be used.
+
+- Markers:
+
+  - `magicIcons(iconColor = "auto")` picks black or white icons,
+    whichever contrasts more with each marker.
   - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
     gains `outlineColor` and `outlineWidth` to style the outline around
     each marker, e.g., a white halo to stand out on busy basemaps.
-  - `magicIcons(library = "text")` shows text or numbers in markers
-    instead of icons, e.g., for numbered stops.
-  - `magicIcons(iconColor = "auto")` picks black or white icons,
-    whichever contrasts more with each marker. This is now the default.
-  - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
-    now accepts formulas (e.g., `icon = ~site_type`), evaluated against
-    the layer’s data as in
-    [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html).
   - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
     markers now cast shadows like
     [leaflet](https://rstudio.github.io/leaflet/)’s default marker; turn
@@ -62,7 +72,9 @@
     point, popup position and shadow style. Pass them to the `marker`
     argument of
     [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md).
+
 - Legends:
+
   - [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
     can now be built directly from an icon scale using `pal` and
     `values`, like
@@ -74,7 +86,9 @@
     gains `na.label`, `labFormat`, `group` and `opacity` arguments, as
     in
     [`leaflet::addLegend()`](https://rstudio.github.io/leaflet/reference/addLegend.html).
+
 - Icon scales:
+
   - [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
     gains `levels`, `ordered` and `reverse`;
     [`iconBin()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)

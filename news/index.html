@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">leaf.magic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,10 +38,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="leafmagic-development-version">leaf.magic (development version)<a class="anchor" aria-label="anchor" href="#leafmagic-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="leafmagic-030">leaf.magic 0.3.0<a class="anchor" aria-label="anchor" href="#leafmagic-030"></a></h2>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-0-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
 <ul><li><p><code><a href="../reference/magicIcons.html">magicIcons()</a></code> now builds each marker as a single SVG rather than compositing PNGs, so markers are sharp at any size and icons are precisely centred. Marker shapes are now drawn by <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> itself, so look slightly different.</p></li>
+<li><p><code><a href="../reference/magicIcons.html">magicIcons()</a></code>’s <code>iconColor</code> now defaults to <code>"auto"</code>, which picks black or white icons depending on the marker colour, rather than always white. Use <code>iconColor = "white"</code> for the old behaviour.</p></li>
 <li>
 <p><code><a href="../reference/icon-scales.html">iconFactor()</a></code>, <code><a href="../reference/icon-scales.html">iconBin()</a></code> and <code><a href="../reference/icon-scales.html">iconQuantile()</a></code> now behave identically to their <code>leaflet::color*()</code> equivalents, so the same settings always give matching icon-colour pairs. This changes two defaults:</p>
 <ul><li>
@@ -52,37 +53,42 @@
 <li><p>All icon libraries are now optional: <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a> has moved to Suggests alongside <a href="https://github.com/rstudio/bsicons" class="external-link">bsicons</a> and <a href="https://github.com/hyperverse-r/lucidr" class="external-link">lucidr</a>. <a href="https://docs.ropensci.org/magick/" class="external-link">magick</a> and <a href="https://docs.ropensci.org/rsvg/" class="external-link">rsvg</a> are no longer needed.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li>Markers:
+<h3 id="new-features-0-3-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<ul><li><p><code><a href="../reference/magicIcons.html">magicIcons()</a></code> now accepts formulas (e.g., <code>icon = ~site_type</code>), evaluated against the layer’s data as in <code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code>.</p></li>
+<li>
+<p>Icons:</p>
 <ul><li>
-<code>magicIcons(library = "svg")</code> uses raw SVG markup as the icon, so any icon can be used.</li>
-<li>
-<code><a href="../reference/magicIcons.html">magicIcons()</a></code> gains <code>outlineColor</code> and <code>outlineWidth</code> to style the outline around each marker, e.g., a white halo to stand out on busy basemaps.</li>
-<li>
 <code>magicIcons(library = "text")</code> shows text or numbers in markers instead of icons, e.g., for numbered stops.</li>
 <li>
-<code>magicIcons(iconColor = "auto")</code> picks black or white icons, whichever contrasts more with each marker. This is now the default.</li>
+<code>magicIcons(library = "svg")</code> uses raw SVG markup as the icon, so any icon can be used.</li>
+</ul></li>
 <li>
-<code><a href="../reference/magicIcons.html">magicIcons()</a></code> now accepts formulas (e.g., <code>icon = ~site_type</code>), evaluated against the layer’s data as in <code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code>.</li>
+<p>Markers:</p>
+<ul><li>
+<code>magicIcons(iconColor = "auto")</code> picks black or white icons, whichever contrasts more with each marker.</li>
+<li>
+<code><a href="../reference/magicIcons.html">magicIcons()</a></code> gains <code>outlineColor</code> and <code>outlineWidth</code> to style the outline around each marker, e.g., a white halo to stand out on busy basemaps.</li>
 <li>
 <code><a href="../reference/magicIcons.html">magicIcons()</a></code> markers now cast shadows like <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a>’s default marker; turn them off with <code>shadow = FALSE</code> (<a href="https://github.com/jack-davison/leaf.magic/issues/12" class="external-link">#12</a>).</li>
 <li>New marker shapes: <code>"marker-square"</code>, <code>"callout"</code>, <code>"triangle"</code> and <code>"hexagon"</code>.</li>
 <li>New <code><a href="../reference/markerShape.html">markerShape()</a></code> defines custom SVG marker shapes, including icon position, anchor point, popup position and shadow style. Pass them to the <code>marker</code> argument of <code><a href="../reference/magicIcons.html">magicIcons()</a></code>.</li>
 </ul></li>
-<li>Legends:
+<li>
+<p>Legends:</p>
 <ul><li>
 <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> can now be built directly from an icon scale using <code>pal</code> and <code>values</code>, like <code><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">leaflet::addLegend()</a></code> (<a href="https://github.com/jack-davison/leaf.magic/issues/10" class="external-link">#10</a>). <code>colors</code> may also be a <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> colour scale.</li>
 <li>
 <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> gains <code>na.label</code>, <code>labFormat</code>, <code>group</code> and <code>opacity</code> arguments, as in <code><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">leaflet::addLegend()</a></code>.</li>
 </ul></li>
-<li>Icon scales:
+<li>
+<p>Icon scales:</p>
 <ul><li>
 <code><a href="../reference/icon-scales.html">iconFactor()</a></code> gains <code>levels</code>, <code>ordered</code> and <code>reverse</code>; <code><a href="../reference/icon-scales.html">iconBin()</a></code> gains <code>pretty</code> and <code>reverse</code>; <code><a href="../reference/icon-scales.html">iconQuantile()</a></code> gains <code>reverse</code>.</li>
 <li>All three now accept <code>domain = NULL</code>.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
 <ul><li>
 <p><code><a href="../reference/magicIcons.html">magicIcons()</a></code>:</p>
 <ul><li>Outlined Ionicons (e.g., <code>"car-outline"</code>) now use <code>iconColor</code> rather than always being black.</li>
@@ -110,7 +116,7 @@
 <li><p><code><a href="../reference/magicIcons.html">magicIcons()</a></code> and <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> now error informatively on mismatched argument lengths, rather than silently recycling. <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> also errors informatively if <code>icons</code> or <code>labels</code> is missing.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="dependencies-development-version">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-development-version"></a></h3>
+<h3 id="dependencies-0-3-0">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-3-0"></a></h3>
 <ul><li><p><a href="https://github.com/rstudio/htmltools" class="external-link">htmltools</a>, <code>{grDevices}</code> and <code>{stats}</code> are now imported.</p></li>
 <li><p><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a> now requires 1.0.0 or later, <a href="https://rlang.r-lib.org" class="external-link">rlang</a> 1.0.0 or later, and <a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a> (used in examples) 1.2.0 or later.</p></li>
 </ul></div>

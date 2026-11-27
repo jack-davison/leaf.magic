@@ -1,7 +1,10 @@
 # leaf.magic: Customisable Icon Markers for 'leaflet'
 
-Use modern Icon libraries to construct customisable leaflet marker
-icons.
+Build customisable markers for 'leaflet' maps using modern icon
+libraries (Font Awesome, Bootstrap Icons, Lucide and Ionicons), text, or
+your own SVG icons. Markers are drawn as SVG images in any colour, size
+or shape, and icons can be mapped to data and explained with legends in
+the same way as colours in 'leaflet'.
 
 ## See also
 

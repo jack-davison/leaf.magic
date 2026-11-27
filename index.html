@@ -17,8 +17,8 @@
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Customisable Icon Markers for leaflet">
-<meta name="description" content="Use modern Icon libraries to construct customisable leaflet marker icons.">
-<meta property="og:description" content="Use modern Icon libraries to construct customisable leaflet marker icons.">
+<meta name="description" content="Build customisable markers for leaflet maps using modern icon libraries (Font Awesome, Bootstrap Icons, Lucide and Ionicons), text, or your own SVG icons. Markers are drawn as SVG images in any colour, size or shape, and icons can be mapped to data and explained with legends in the same way as colours in leaflet.">
+<meta property="og:description" content="Build customisable markers for leaflet maps using modern icon libraries (Font Awesome, Bootstrap Icons, Lucide and Ionicons), text, or your own SVG icons. Markers are drawn as SVG images in any colour, size or shape, and icons can be mapped to data and explained with legends in the same way as colours in leaflet.">
 <meta property="og:image" content="https://jack-davison.github.io/leaf.magic/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">leaf.magic</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,20 +69,19 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is to overcome the somewhat outdated “Font Awesome” implementation in vanilla R <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> by constructing SVG markers on the fly using modern icon libraries such as <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a>, <a href="https://github.com/rstudio/bsicons" class="external-link">bsicons</a> and <a href="https://github.com/hyperverse-r/lucidr" class="external-link">lucidr</a>. There are three issues <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> sets out to overcome:</p>
+<p>The goal of <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is to overcome the somewhat outdated “Font Awesome” implementation in vanilla R <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> by constructing SVG markers on the fly using modern icon libraries such as <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a>, <a href="https://github.com/rstudio/bsicons" class="external-link">bsicons</a> and <a href="https://github.com/hyperverse-r/lucidr" class="external-link">lucidr</a>. There are a few issues <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> sets out to overcome:</p>
 <ul>
 <li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to Font Awesome 4 👎</p></li>
 <li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to a handful of discrete colours 👎</p></li>
-<li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to a single marker size 👎</p></li>
+<li><p><code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code> is limited to a single marker size and shape 👎</p></li>
 <li><p>Vanilla <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> doesn’t provide any additional features to construct legends, icon palettes, or such like 👎</p></li>
 </ul>
 <p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> attempts to solve all of this:</p>
 <ul>
-<li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and Ionicons Icons, powered by <a href="https://github.com/rstudio/fontawesome" class="external-link">fontawesome</a>, <a href="https://github.com/rstudio/bsicons" class="external-link">bsicons</a> and <a href="https://github.com/hyperverse-r/lucidr" class="external-link">lucidr</a> ✅</p></li>
-<li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> draws its own vector marker shapes, so they can be coloured and resized however the user desires and stay sharp at any size ✅</p></li>
-<li><p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> exports functions like <code><a href="reference/icon-scales.html">iconBin()</a></code> and <code><a href="reference/addIconLegend.html">addIconLegend()</a></code> to help developers communicate the meanings of icons to users ✅</p></li>
+<li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and Ionicons icons - or your own text and SVG icons ✅</p></li>
+<li><p><code><a href="reference/magicIcons.html">magicIcons()</a></code> draws its own vector markers, so they can be any colour, size or shape (including shapes you design yourself) and stay sharp at any size ✅</p></li>
+<li><p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> exports functions like <code><a href="reference/icon-scales.html">iconFactor()</a></code> and <code><a href="reference/addIconLegend.html">addIconLegend()</a></code> to map data to icons and explain them to users, just like colours in <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> ✅</p></li>
 </ul>
-<p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is thoroughly documented on the <a href="https://jack-davison.github.io/leaf.magic/">package website</a>, which includes a <a href="https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html">getting started guide</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -90,9 +89,38 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jack-davison/leaf.magic"</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/webshot.png" alt="A screenshot of a map produced using the {leaf.magic} R package."><div class="figcaption">A screenshot of a map produced using the {leaf.magic} R package.</div>
 </div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<p>Pass <code><a href="reference/magicIcons.html">magicIcons()</a></code> to the <code>icon</code> argument of <code><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">leaflet::addMarkers()</a></code>. Like <code><a href="https://rstudio.github.io/leaflet/reference/awesomeIcons.html" class="external-link">leaflet::awesomeIcons()</a></code>, its arguments can be formulas, which are evaluated using the map’s data.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">iconPal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/icon-scales.html">iconFactor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"city"</span>, <span class="st">"industry"</span>, <span class="st">"car"</span><span class="op">)</span>, domain <span class="op">=</span> <span class="va">port_talbot</span><span class="op">$</span><span class="va">site_type</span><span class="op">)</span></span>
+<span><span class="va">colPal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/leaflet/reference/colorNumeric.html" class="external-link">colorFactor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#12436D"</span>, <span class="st">"#28A197"</span>, <span class="st">"#801650"</span><span class="op">)</span>, domain <span class="op">=</span> <span class="va">port_talbot</span><span class="op">$</span><span class="va">site_type</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/leaflet.html" class="external-link">leaflet</a></span><span class="op">(</span><span class="va">port_talbot</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">addTiles</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">addMarkers</a></span><span class="op">(</span></span>
+<span>    icon <span class="op">=</span> <span class="fu"><a href="reference/magicIcons.html">magicIcons</a></span><span class="op">(</span></span>
+<span>      icon <span class="op">=</span> <span class="op">~</span> <span class="fu">iconPal</span><span class="op">(</span><span class="va">site_type</span><span class="op">)</span>,</span>
+<span>      markerColor <span class="op">=</span> <span class="op">~</span> <span class="fu">colPal</span><span class="op">(</span><span class="va">site_type</span><span class="op">)</span>,</span>
+<span>      marker <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">open</span>, <span class="st">"marker"</span>, <span class="st">"circle"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    popup <span class="op">=</span> <span class="op">~</span><span class="va">site</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/addIconLegend.html">addIconLegend</a></span><span class="op">(</span></span>
+<span>    pal <span class="op">=</span> <span class="va">iconPal</span>,</span>
+<span>    values <span class="op">=</span> <span class="op">~</span><span class="va">site_type</span>,</span>
+<span>    colors <span class="op">=</span> <span class="va">colPal</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Site Type"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/webshot.png" alt="A map of air quality monitoring sites in Port Talbot, using {leaf.magic} markers which show the type of each site with both an icon and a colour."><div class="figcaption">A map of air quality monitoring sites in Port Talbot, using {leaf.magic} markers which show the type of each site with both an icon and a colour.</div>
+</div>
+<p><a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is thoroughly documented on the <a href="https://jack-davison.github.io/leaf.magic/">package website</a>. Start with the <a href="https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html">getting started guide</a>, then see the articles on <a href="https://jack-davison.github.io/leaf.magic/articles/markers.html">customising markers</a> and <a href="https://jack-davison.github.io/leaf.magic/articles/scales-and-legends.html">icon scales &amp; legends</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="attributions">Attributions<a class="anchor" aria-label="anchor" href="#attributions"></a>

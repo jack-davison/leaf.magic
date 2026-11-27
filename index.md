@@ -6,7 +6,7 @@ vanilla R [leaflet](https://rstudio.github.io/leaflet/) by constructing
 SVG markers on the fly using modern icon libraries such as
 [fontawesome](https://github.com/rstudio/fontawesome),
 [bsicons](https://github.com/rstudio/bsicons) and
-[lucidr](https://github.com/hyperverse-r/lucidr). There are three issues
+[lucidr](https://github.com/hyperverse-r/lucidr). There are a few issues
 [leaf.magic](https://jack-davison.github.io/leaf.magic/) sets out to
 overcome:
 
@@ -17,7 +17,7 @@ overcome:
   is limited to a handful of discrete colours 👎
 
 - [`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html)
-  is limited to a single marker size 👎
+  is limited to a single marker size and shape 👎
 
 - Vanilla [leaflet](https://rstudio.github.io/leaflet/) doesn’t provide
   any additional features to construct legends, icon palettes, or such
@@ -28,27 +28,19 @@ solve all of this:
 
 - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
   uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and
-  Ionicons Icons, powered by
-  [fontawesome](https://github.com/rstudio/fontawesome),
-  [bsicons](https://github.com/rstudio/bsicons) and
-  [lucidr](https://github.com/hyperverse-r/lucidr) ✅
+  Ionicons icons - or your own text and SVG icons ✅
 
 - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
-  draws its own vector marker shapes, so they can be coloured and
-  resized however the user desires and stay sharp at any size ✅
+  draws its own vector markers, so they can be any colour, size or shape
+  (including shapes you design yourself) and stay sharp at any size ✅
 
 - [leaf.magic](https://jack-davison.github.io/leaf.magic/) exports
   functions like
-  [`iconBin()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
+  [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
   and
   [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
-  to help developers communicate the meanings of icons to users ✅
-
-[leaf.magic](https://jack-davison.github.io/leaf.magic/) is thoroughly
-documented on the [package
-website](https://jack-davison.github.io/leaf.magic/), which includes a
-[getting started
-guide](https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html).
+  to map data to icons and explain them to users, just like colours in
+  [leaflet](https://rstudio.github.io/leaflet/) ✅
 
 ## Installation
 
@@ -61,10 +53,58 @@ You can install the development version of
 pak::pak("jack-davison/leaf.magic")
 ```
 
-![A screenshot of a map produced using the {leaf.magic} R
-package.](reference/figures/webshot.png)
+## Example
 
-A screenshot of a map produced using the {leaf.magic} R package.
+Pass
+[`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+to the `icon` argument of
+[`leaflet::addMarkers()`](https://rstudio.github.io/leaflet/reference/map-layers.html).
+Like
+[`leaflet::awesomeIcons()`](https://rstudio.github.io/leaflet/reference/awesomeIcons.html),
+its arguments can be formulas, which are evaluated using the map’s data.
+
+``` r
+
+library(leaflet)
+library(leaf.magic)
+
+iconPal <- iconFactor(c("city", "industry", "car"), domain = port_talbot$site_type)
+colPal <- colorFactor(c("#12436D", "#28A197", "#801650"), domain = port_talbot$site_type)
+
+leaflet(port_talbot) |>
+  addTiles() |>
+  addMarkers(
+    icon = magicIcons(
+      icon = ~ iconPal(site_type),
+      markerColor = ~ colPal(site_type),
+      marker = ~ ifelse(open, "marker", "circle")
+    ),
+    popup = ~site
+  ) |>
+  addIconLegend(
+    pal = iconPal,
+    values = ~site_type,
+    colors = colPal,
+    title = "Site Type"
+  )
+```
+
+![A map of air quality monitoring sites in Port Talbot, using
+{leaf.magic} markers which show the type of each site with both an icon
+and a colour.](reference/figures/webshot.png)
+
+A map of air quality monitoring sites in Port Talbot, using {leaf.magic}
+markers which show the type of each site with both an icon and a colour.
+
+[leaf.magic](https://jack-davison.github.io/leaf.magic/) is thoroughly
+documented on the [package
+website](https://jack-davison.github.io/leaf.magic/). Start with the
+[getting started
+guide](https://jack-davison.github.io/leaf.magic/articles/leaf-magic.html),
+then see the articles on [customising
+markers](https://jack-davison.github.io/leaf.magic/articles/markers.html)
+and [icon scales &
+legends](https://jack-davison.github.io/leaf.magic/articles/scales-and-legends.html).
 
 ## Attributions
 
