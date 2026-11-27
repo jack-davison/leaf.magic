@@ -10,6 +10,8 @@ magicIcons(
   iconColor = "auto",
   marker = "marker",
   markerSize = 30L,
+  outlineColor = NULL,
+  outlineWidth = NULL,
   library = "fontawesome",
   className = NULL,
   dir = tempdir(),
@@ -21,7 +23,7 @@ magicIcons(
 using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
 \url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}, depending on
 \code{library}. When \code{library = "text"}, the text (or numbers) to show in each
-marker instead.}
+marker instead, and when \code{library = "svg"}, a string of SVG markup.}
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
@@ -51,11 +53,23 @@ marker.}
 \item{markerSize}{The width of the marker in pixels. Defaults to \code{30}, which
 is roughly the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}.}
 
+\item{outlineColor}{The colour of the outline around each marker. Defaults
+to a slightly darker shade of \code{markerColor}. A contrasting colour (e.g.,
+\code{"white"}) helps markers stand out against similarly coloured basemaps.}
+
+\item{outlineWidth}{The width of the outline in pixels. Defaults to a
+subtle outline which scales with \code{markerSize} (around half a pixel at the
+default size). Markers are not shrunk to make room for wider outlines, so
+they grow by the extra width.}
+
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
 \code{"lucide"} defining the icon library of interest. Defaults to
 \code{"fontawesome"}. Alternatively, \code{"text"} shows \code{icon} as text, which is
 useful for numbered or lettered markers (e.g., \code{icon = 1:10}). Text is
-bold and shrinks to fit, so is best kept to around three characters.}
+bold and shrinks to fit, so is best kept to around three characters.
+\code{"svg"} uses \code{icon} as raw SVG markup (e.g., \code{'<svg viewBox="0 0 24 24">...</svg>'}), so any icon can be used. Parts of the SVG which use
+\code{currentColor} or have no fill of their own take on \code{iconColor}. Only use
+SVG markup you trust, as it is inserted directly into legends.}
 
 \item{className}{a custom class name to assign to both icon and shadow images}
 
@@ -97,7 +111,8 @@ session, so require an internet connection.
 }
 \section{Using formulas}{
  As with \code{\link[leaflet:awesomeIcons]{leaflet::awesomeIcons()}}, \code{icon},
-\code{markerColor}, \code{iconColor}, \code{marker} and \code{markerSize} may be one-sided
+\code{markerColor}, \code{iconColor}, \code{marker}, \code{markerSize}, \code{outlineColor} and
+\code{outlineWidth} may be one-sided
 formulas (e.g., \code{~site_type}), which are evaluated against the data of the
 layer the markers are added to. Markers are then built when the layer is
 added, so \code{magicIcons()} must be passed directly to the \code{icon} argument of

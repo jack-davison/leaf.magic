@@ -18,7 +18,8 @@
 #' session, so require an internet connection.
 #'
 #' @section Using formulas: As with [leaflet::awesomeIcons()], `icon`,
-#'   `markerColor`, `iconColor`, `marker` and `markerSize` may be one-sided
+#'   `markerColor`, `iconColor`, `marker`, `markerSize`, `outlineColor` and
+#'   `outlineWidth` may be one-sided
 #'   formulas (e.g., `~site_type`), which are evaluated against the data of the
 #'   layer the markers are added to. Markers are then built when the layer is
 #'   added, so `magicIcons()` must be passed directly to the `icon` argument of
@@ -30,7 +31,7 @@
 #'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
 #'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>, depending on
 #'   `library`. When `library = "text"`, the text (or numbers) to show in each
-#'   marker instead.
+#'   marker instead, and when `library = "svg"`, a string of SVG markup.
 #'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #'
@@ -66,6 +67,10 @@
 #'   `"fontawesome"`. Alternatively, `"text"` shows `icon` as text, which is
 #'   useful for numbered or lettered markers (e.g., `icon = 1:10`). Text is
 #'   bold and shrinks to fit, so is best kept to around three characters.
+#'   `"svg"` uses `icon` as raw SVG markup (e.g., `'<svg viewBox="0 0 24
+#'   24">...</svg>'`), so any icon can be used. Parts of the SVG which use
+#'   `currentColor` or have no fill of their own take on `iconColor`. Only use
+#'   SVG markup you trust, as it is inserted directly into legends.
 #'
 #' @param dir The directory in which markers are saved. By default this is
 #'   [tempdir()], which is deleted at the end of each R session. Providing an
@@ -77,6 +82,15 @@
 #'   cast a shadow up and to the right, while other shapes have a soft shadow
 #'   just beneath them. `"none"` never has a shadow. The shadow of a custom
 #'   shape is set using the `shadow` argument of [markerShape()].
+#'
+#' @param outlineColor The colour of the outline around each marker. Defaults
+#'   to a slightly darker shade of `markerColor`. A contrasting colour (e.g.,
+#'   `"white"`) helps markers stand out against similarly coloured basemaps.
+#'
+#' @param outlineWidth The width of the outline in pixels. Defaults to a
+#'   subtle outline which scales with `markerSize` (around half a pixel at the
+#'   default size). Markers are not shrunk to make room for wider outlines, so
+#'   they grow by the extra width.
 #'
 #' @inheritParams leaflet::makeIcon
 #'
@@ -126,6 +140,8 @@ magicIcons <- function(
   iconColor = "auto",
   marker = "marker",
   markerSize = 30L,
+  outlineColor = NULL,
+  outlineWidth = NULL,
   library = "fontawesome",
   className = NULL,
   dir = tempdir(),
@@ -141,7 +157,9 @@ magicIcons <- function(
     markerColor = markerColor,
     iconColor = iconColor,
     marker = marker,
-    markerSize = markerSize
+    markerSize = markerSize,
+    outlineColor = if (is.null(outlineColor)) NA_character_ else outlineColor,
+    outlineWidth = if (is.null(outlineWidth)) NA_real_ else outlineWidth
   )
   if (any(vapply(data_args, rlang::is_formula, logical(1)))) {
     return(defer_magic_icons(
@@ -152,12 +170,24 @@ magicIcons <- function(
 
   shapes <- as_marker_shapes(marker)
 
+  if (is.null(outlineColor)) {
+    outlineColor <- NA_character_
+  }
+  if (is.null(outlineWidth)) {
+    outlineWidth <- NA_real_
+  }
+  if (!is.numeric(outlineWidth) && !all(is.na(outlineWidth))) {
+    rlang::abort("`outlineWidth` must be a number of pixels.")
+  }
+
   check_lengths(
     icon = icon,
     markerColor = markerColor,
     iconColor = iconColor,
     marker = shapes,
-    markerSize = markerSize
+    markerSize = markerSize,
+    outlineColor = outlineColor,
+    outlineWidth = outlineWidth
   )
 
   if (!dir.exists(dir)) {
@@ -176,7 +206,9 @@ magicIcons <- function(
       markerColor = markerColor,
       iconColor = iconColor,
       marker = shape_keys,
-      markerSize = markerSize
+      markerSize = markerSize,
+      outlineColor = outlineColor,
+      outlineWidth = outlineWidth
     )
 
   # "auto" icon colours are black or white, whichever contrasts more with the
@@ -202,8 +234,26 @@ magicIcons <- function(
   is_first <- !duplicated(key)
   unique_combos <- combinations[is_first, , drop = FALSE]
 
-  make_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
+  make_icon <- function(
+    icon,
+    markerColor,
+    iconColor,
+    marker,
+    markerSize,
+    outlineColor,
+    outlineWidth
+  ) {
     shape <- shapes[[marker]]
+    scale <- markerSize / shape$width
+
+    # outlines default to a slightly darker shade of the marker, 2 shape units
+    # wide. Built-in shapes leave a 2 unit margin, so wider outlines would be
+    # clipped; instead, the canvas is padded by the extra width.
+    if (is.na(outlineColor)) {
+      outlineColor <- darken_color(markerColor)
+    }
+    outline_units <- if (is.na(outlineWidth)) 2 else outlineWidth / scale
+    pad <- if (is.null(shape$body)) 0 else max(0, (outline_units - 2) / 2)
 
     # the package version is part of the cache key so that markers cached in a
     # persistent `dir` are rebuilt when the marker code changes. The rest of
@@ -220,6 +270,8 @@ magicIcons <- function(
           icon,
           if (!is.null(shape$body)) normalise_color(markerColor),
           normalise_color(iconColor),
+          if (!is.null(shape$body)) normalise_color(outlineColor),
+          if (!is.null(shape$body)) round(outline_units, 4),
           marker,
           library
         )),
@@ -228,13 +280,21 @@ magicIcons <- function(
     )
 
     if (!file.exists(url)) {
-      svg <- marker_svg(shape, icon, markerColor, iconColor, library)
+      svg <- marker_svg(
+        shape,
+        icon,
+        markerColor,
+        iconColor,
+        library,
+        outlineColor = outlineColor,
+        outlineWidth = outline_units,
+        pad = pad
+      )
       writeLines(enc2utf8(svg), url, useBytes = TRUE)
     }
 
     # shape units -> pixels
-    scale <- markerSize / shape$width
-    anchor <- shape$anchor * scale
+    anchor <- (shape$anchor + pad) * scale
     popup <- (shape$popup - shape$anchor) * scale
 
     # shadows don't depend on colours or icons, so there's one per shape
@@ -264,8 +324,8 @@ magicIcons <- function(
 
     leaflet::makeIcon(
       iconUrl = url,
-      iconWidth = markerSize,
-      iconHeight = shape$height * scale,
+      iconWidth = (shape$width + 2 * pad) * scale,
+      iconHeight = (shape$height + 2 * pad) * scale,
       # leaflet ignores anchors whose x is exactly 0, hence the tiny offsets
       iconAnchorX = nonzero(anchor[["x"]]),
       iconAnchorY = anchor[["y"]],
@@ -366,18 +426,30 @@ nonzero <- function(x) {
 
 #' Build the SVG markup of a whole marker
 #'
-#' The marker shape is drawn with a slightly darker outline, and the icon's own
-#' SVG is nested inside it.
+#' The marker shape is drawn with an outline (by default, a slightly darker
+#' shade of `markerColor`), and the icon's own SVG is nested inside it. `pad`
+#' extends the canvas on every side so that wide outlines aren't clipped.
 #' @noRd
-marker_svg <- function(shape, icon, markerColor, iconColor, library) {
+marker_svg <- function(
+  shape,
+  icon,
+  markerColor,
+  iconColor,
+  library,
+  outlineColor = darken_color(markerColor),
+  outlineWidth = 2,
+  pad = 0
+) {
   body <- NULL
   if (!is.null(shape$body)) {
     body <- paste0(
       '<g fill="',
       html_attr(markerColor),
       '" stroke="',
-      darken_color(markerColor),
-      '" stroke-width="2" stroke-linejoin="round">',
+      html_attr(outlineColor),
+      '" stroke-width="',
+      format(round(outlineWidth, 4)),
+      '" stroke-linejoin="round">',
       shape$body,
       "</g>"
     )
@@ -395,14 +467,18 @@ marker_svg <- function(shape, icon, markerColor, iconColor, library) {
   )
 
   paste0(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ',
-    shape$width,
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="',
+    format(-pad),
     " ",
-    shape$height,
+    format(-pad),
+    " ",
+    format(shape$width + 2 * pad),
+    " ",
+    format(shape$height + 2 * pad),
     '" width="',
-    shape$width,
+    format(shape$width + 2 * pad),
     '" height="',
-    shape$height,
+    format(shape$height + 2 * pad),
     '">',
     body,
     nested,
@@ -501,7 +577,8 @@ icon_svg <- function(icon, color, library, ...) {
     ),
     ionicons = read_ionicon(icon, color = color),
     lucide = lucidr::lucide(icon, size = 16, color = color),
-    text = text_svg(icon, color)
+    text = text_svg(icon, color),
+    svg = user_svg(icon, color)
   )
   paste(as.character(svg), collapse = "\n")
 }
@@ -523,10 +600,62 @@ text_svg <- function(text, color) {
     'overflow="visible" style="vertical-align:-0.125em;height:1em;width:1em">',
     '<text x="50" y="50" dy="0.35em" text-anchor="middle" ',
     'font-family="Helvetica, Arial, sans-serif" font-weight="bold" ',
-    'font-size="', format(round(font_size, 2)), '" fill="', html_attr(color), '">',
+    'font-size="',
+    format(round(font_size, 2)),
+    '" fill="',
+    html_attr(color),
+    '">',
     htmltools::htmlEscape(text),
     "</text></svg>"
   )
+}
+
+#' Prepare user-supplied SVG markup to be used as an icon
+#'
+#' The markup is sized to 1em (like the other libraries' icons, for legends)
+#' and coloured with `color` where it uses `currentColor` or has no fill of
+#' its own. An SVG with `width` and `height` but no `viewBox` is given one, so
+#' that it scales to fit rather than being cropped.
+#' @noRd
+user_svg <- function(svg, color) {
+  svg <- paste(as.character(svg), collapse = "\n")
+  root <- regmatches(svg, regexpr("<svg\\b[^>]*>", svg, perl = TRUE))
+  if (length(root) == 0L) {
+    rlang::abort(
+      c(
+        "`icon` must be SVG markup when `library = \"svg\"`.",
+        x = paste0("Can't find an `<svg>` tag in \"", substr(svg, 1, 40), "\".")
+      ),
+      call = NULL
+    )
+  }
+
+  if (!grepl("\\sviewBox\\s*=", root, perl = TRUE)) {
+    dim <- function(attr) {
+      m <- regmatches(
+        root,
+        regexec(
+          paste0("\\s", attr, "\\s*=\\s*[\"']\\s*([0-9.]+)(px)?\\s*[\"']"),
+          root,
+          perl = TRUE
+        )
+      )[[1]]
+      if (length(m) < 2L) NA_real_ else as.numeric(m[2])
+    }
+    w <- dim("width")
+    h <- dim("height")
+    if (!is.na(w) && !is.na(h)) {
+      svg <- sub(
+        "<svg\\b",
+        sprintf('<svg viewBox="0 0 %s %s"', format(w), format(h)),
+        svg,
+        perl = TRUE
+      )
+    }
+  }
+
+  svg <- nest_svg(svg, x = 0, y = 0, size = "1em", color = color)
+  sub("<svg\\b", '<svg style="vertical-align:-0.125em"', svg, perl = TRUE)
 }
 
 #' Homebrew way to download from ionicons
@@ -642,7 +771,7 @@ normalise_color <- function(col) {
 check_library <- function(library, check_installed = TRUE) {
   library <- rlang::arg_match(
     library,
-    c("fontawesome", "bootstrap", "ionicons", "lucide", "text")
+    c("fontawesome", "bootstrap", "ionicons", "lucide", "text", "svg")
   )
 
   if (!check_installed) {

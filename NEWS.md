@@ -13,6 +13,8 @@
 ## New features
 
 * Markers:
+  * `magicIcons(library = "svg")` uses raw SVG markup as the icon, so any icon can be used.
+  * `magicIcons()` gains `outlineColor` and `outlineWidth` to style the outline around each marker, e.g., a white halo to stand out on busy basemaps.
   * `magicIcons(library = "text")` shows text or numbers in markers instead of icons, e.g., for numbered stops.
   * `magicIcons(iconColor = "auto")` picks black or white icons, whichever contrasts more with each marker. This is now the default.
   * `magicIcons()` now accepts formulas (e.g., `icon = ~site_type`), evaluated against the layer's data as in `leaflet::awesomeIcons()`.

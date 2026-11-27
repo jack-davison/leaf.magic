@@ -412,8 +412,10 @@ icon_legend_dependency <- function() {
 addIconAttribution <-
   function(map, library = "fontawesome", layerId = NULL, group = NULL) {
     library <- check_library(library, check_installed = FALSE)
-    if (library == "text") {
-      rlang::abort("Text markers don't use an icon library, so need no attribution.")
+    if (library %in% c("text", "svg")) {
+      rlang::abort(paste0(
+        "`library = \"", library, "\"` doesn't use an icon library, so needs no attribution."
+      ))
     }
 
     attribution <- switch(

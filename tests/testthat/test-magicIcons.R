@@ -383,3 +383,62 @@ test_that("library = 'text' shows text in markers", {
     "no attribution"
   )
 })
+
+read_marker <- function(icon) paste(readLines(icon$iconUrl), collapse = "")
+
+test_that("outlineColor and outlineWidth style the marker outline", {
+  skip_if_not_installed("fontawesome")
+  default <- magicIcons("car", "red", shadow = FALSE)[[1]]
+  expect_match(read_marker(default), 'stroke="#CC0000" stroke-width="2"', fixed = TRUE)
+
+  white <- magicIcons("car", "red", outlineColor = "white", shadow = FALSE)[[1]]
+  expect_match(read_marker(white), 'stroke="white" stroke-width="2"', fixed = TRUE)
+  expect_equal(white$iconWidth, default$iconWidth)
+
+  # a 3px outline on a 30px marker is 10 shape units, so the canvas is padded
+  # by 4 units (1.2px) on each side and the anchor moves with it
+  wide <- magicIcons("car", "red", outlineWidth = 3, shadow = FALSE)[[1]]
+  expect_match(read_marker(wide), 'viewBox="-4 -4 108 140"', fixed = TRUE)
+  expect_match(read_marker(wide), 'stroke-width="10"', fixed = TRUE)
+  expect_equal(wide$iconWidth, default$iconWidth + 2.4)
+  expect_equal(wide$iconHeight, default$iconHeight + 2.4)
+  expect_equal(wide$iconAnchorX, default$iconAnchorX + 1.2)
+  expect_equal(wide$iconAnchorY, default$iconAnchorY + 1.2)
+
+  # outlines can vary by marker, including via formulas
+  icons <- magicIcons("car", "red", outlineColor = c("white", "black"), shadow = FALSE)
+  expect_false(identical(icons[[1]]$iconUrl, icons[[2]]$iconUrl))
+  expect_s3_class(magicIcons("car", outlineColor = ~col), "leafmagic_icons_formula")
+
+  expect_error(magicIcons("car", outlineWidth = "thick"), "number of pixels")
+})
+
+test_that("library = 'svg' uses raw SVG markup as the icon", {
+  with_viewbox <- '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="gold"/><circle cx="12" cy="12" r="5"/></svg>'
+  no_viewbox <- '<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="16"><rect width="24" height="16"/></svg>'
+
+  svg <- read_marker(magicIcons(with_viewbox, "navy", "white", library = "svg", shadow = FALSE)[[1]])
+  # hard-coded colours are kept, and unfilled parts take on iconColor
+  expect_match(svg, 'fill="gold"', fixed = TRUE)
+  expect_match(svg, 'viewBox="0 0 24 24"[^>]*fill="white"', perl = TRUE)
+
+  # an SVG with only a width and height is given a viewBox so it scales
+  svg <- read_marker(magicIcons(no_viewbox, "navy", library = "svg", shadow = FALSE)[[1]])
+  expect_match(svg, 'viewBox="0 0 24 16"', fixed = TRUE)
+  expect_no_match(svg, 'width="24px"', fixed = TRUE)
+
+  expect_error(
+    magicIcons("car", library = "svg"),
+    "must be SVG markup"
+  )
+
+  # svg legends work, but svg icons need no attribution
+  expect_no_error(
+    leaflet::leaflet() |>
+      addIconLegend(icons = with_viewbox, labels = "a", library = "svg")
+  )
+  expect_error(
+    leaflet::leaflet() |> addIconAttribution("svg"),
+    "no attribution"
+  )
+})

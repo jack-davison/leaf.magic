@@ -51,7 +51,10 @@ formula, the title defaults to the variable name in the formula, as in
 \code{"lucide"} defining the icon library of interest. Defaults to
 \code{"fontawesome"}. Alternatively, \code{"text"} shows \code{icon} as text, which is
 useful for numbered or lettered markers (e.g., \code{icon = 1:10}). Text is
-bold and shrinks to fit, so is best kept to around three characters.}
+bold and shrinks to fit, so is best kept to around three characters.
+\code{"svg"} uses \code{icon} as raw SVG markup (e.g., \code{'<svg viewBox="0 0 24 24">...</svg>'}), so any icon can be used. Parts of the SVG which use
+\code{currentColor} or have no fill of their own take on \code{iconColor}. Only use
+SVG markup you trust, as it is inserted directly into legends.}
 
 \item{position}{position of control: \code{"topleft"}, \code{"topright"},
 \code{"bottomleft"}, or \code{"bottomright"}.}
