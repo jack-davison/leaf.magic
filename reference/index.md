@@ -13,7 +13,9 @@ Use up-to-date icon libraries in
 [leaflet](https://rstudio.github.io/leaflet/) maps.
 
 - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
-  : Create a set of Font Awesome, Bootstrap or Ionicons Markers
+  : Create a set of Font Awesome, Bootstrap, Ionicons or Lucide Markers
+- [`markerShape()`](https://jack-davison.github.io/leaf.magic/reference/markerShape.md)
+  : Define a custom marker shape
 - [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
   : Add an Icon legend to a map
 - [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)

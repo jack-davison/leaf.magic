@@ -3,10 +3,10 @@
 The goal of [leaf.magic](https://jack-davison.github.io/leaf.magic/) is
 to overcome the somewhat outdated “Font Awesome” implementation in
 vanilla R [leaflet](https://rstudio.github.io/leaflet/) by constructing
-markers on the fly using
-[fontawesome](https://github.com/rstudio/fontawesome) or
+SVG markers on the fly using modern icon libraries such as
+[fontawesome](https://github.com/rstudio/fontawesome),
 [bsicons](https://github.com/rstudio/bsicons) and
-[magick](https://docs.ropensci.org/magick/). There are three issues
+[lucidr](https://github.com/hyperverse-r/lucidr). There are three issues
 [leaf.magic](https://jack-davison.github.io/leaf.magic/) sets out to
 overcome:
 
@@ -34,9 +34,8 @@ solve all of this:
   [lucidr](https://github.com/hyperverse-r/lucidr) ✅
 
 - [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
-  uses [fontawesome](https://github.com/rstudio/fontawesome) to grab a
-  marker shape, and can therefore colour and resize it however the user
-  desires ✅
+  draws its own vector marker shapes, so they can be coloured and
+  resized however the user desires and stay sharp at any size ✅
 
 - [leaf.magic](https://jack-davison.github.io/leaf.magic/) exports
   functions like
@@ -57,6 +56,7 @@ You can install the development version of
 [leaf.magic](https://jack-davison.github.io/leaf.magic/) like so:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("jack-davison/leaf.magic")
 ```
