@@ -191,3 +191,8 @@ test_that("missing marker shapes are drawn as \"none\"", {
   )
   expect_identical(as_marker_shapes(NA)[[1]], marker_shapes$none)
 })
+
+test_that("the \"auto\" missing icon is drawn as \"none\" when used as a shape", {
+  spal <- iconFactor(c("circle", "square"), c("a", "b"))
+  expect_identical(as_marker_shapes(spal(NA))[[1]], marker_shapes$none)
+})

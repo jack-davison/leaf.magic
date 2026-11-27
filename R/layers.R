@@ -210,7 +210,12 @@ addIconLegend <- function(
       markers <- legend$markers
     } else {
       markers <- legend$icons
-      if (missing(icons)) icons <- NA_character_
+      if (missing(icons)) {
+        # shapes alone, except that an "auto" NA item (drawn as "none") shows
+        # the library's missing icon rather than nothing
+        is_auto <- vapply(markers, identical, logical(1), "auto")
+        icons <- ifelse(is_auto, "auto", NA_character_)
+      }
     }
     if (missing(labels)) {
       labels <- legend$labels

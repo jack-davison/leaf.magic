@@ -36,7 +36,12 @@
 #'   is ignored.
 #' @param ordered If `TRUE` and `domain` needs to be coerced to a factor, treat
 #'   it as already in the correct order.
-#' @param na.icon The icon to return for missing or out-of-scope values.
+#' @param na.icon The icon to return for missing or out-of-scope values. The
+#'   default, `"auto"`, is drawn by [magicIcons()] and [addIconLegend()] as a
+#'   question mark from whichever `library` they use. If the scale maps values
+#'   to marker shapes instead, `"auto"` is drawn as `"none"` (the icon alone).
+#'   `NA` draws no icon (or, for shapes, no marker) and leaves missing values
+#'   out of legends.
 #' @param reverse If `TRUE`, the order of `icons` is reversed.
 #' @param bins Either a numeric vector of two or more unique cut points or a
 #'   single number (greater than or equal to 2) giving the number of intervals
@@ -81,7 +86,7 @@ iconFactor <- function(
   domain,
   levels = NULL,
   ordered = FALSE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE
 ) {
   if (missing(domain) && !is.null(levels)) {
@@ -133,7 +138,7 @@ iconBin <- function(
   domain,
   bins = length(icons),
   pretty = TRUE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 ) {
@@ -187,7 +192,7 @@ iconQuantile <- function(
   domain,
   n = length(icons),
   probs = seq(0, 1, length.out = n + 1),
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 ) {

@@ -400,7 +400,7 @@ test_that("a marker scale can accompany an icon scale", {
     "NA",
     markers = spal
   )
-  expect_equal(out$icons, c("1", "2", "3", "question"))
+  expect_equal(out$icons, c("1", "2", "3", "auto"))
   expect_equal(out$markers, list("circle", "square", "star", "diamond"))
   expect_equal(out$colors, c(cols[1:3], "#808080"))
 
@@ -469,4 +469,16 @@ test_that("a marker scale can drive the legend on its own", {
     legend_html(markers = function(x) x),
     "`markers` must be created by"
   )
+})
+
+test_that("shapes-only legends show the missing icon for NA items", {
+  spal <- iconFactor(c("circle", "square"), c("Open", "Closed"))
+  html <- legend_html(
+    markers = spal,
+    values = c("Open", NA),
+    library = "text"
+  )
+  # two shapes with no icon, then a "?" alone for NA
+  expect_equal(lengths(regmatches(html, gregexpr("</text>", html))), 1L)
+  expect_match(html, ">?</text>.*&nbsp;NA", perl = TRUE)
 })

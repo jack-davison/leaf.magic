@@ -3,7 +3,7 @@
 cols <- c("#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF")
 icns <- c("a", "b", "c", "d", "e")
 
-as_icons <- function(colors, n, na.icon = "question") {
+as_icons <- function(colors, n, na.icon = "auto") {
   out <- icns[match(colors, cols[seq_len(n)])]
   out[is.na(out)] <- na.icon
   out
@@ -149,9 +149,9 @@ test_that("iconBin matches colorBin with pretty, right and reverse", {
 
 test_that("iconBin handles NA and out-of-range values", {
   ipal <- iconBin(c("a", "b"), domain = 0:10)
-  expect_equal(ipal(c(NA_real_, NA_real_)), c("question", "question"))
+  expect_equal(ipal(c(NA_real_, NA_real_)), c("auto", "auto"))
   expect_warning(out <- ipal(c(5, 100)), "outside the icon scale")
-  expect_equal(out, c("b", "question"))
+  expect_equal(out, c("b", "auto"))
 })
 
 # iconQuantile ------------------------------------------------------------
@@ -196,4 +196,10 @@ test_that("iconQuantile works with domain = NULL", {
   cpal <- leaflet::colorQuantile(cols[1:2], NULL, n = 2)
   ipal <- iconQuantile(icns[1:2], NULL)
   expect_equal(ipal(x), as_icons(cpal(x), 2))
+})
+
+test_that("icon scales default to the \"auto\" missing icon", {
+  expect_equal(iconFactor("a", "x")(NA), "auto")
+  expect_equal(iconBin("a", 0:1, bins = 1:2)(NA), "auto")
+  expect_equal(iconQuantile(c("a", "b"), 0:10)(NA), "auto")
 })

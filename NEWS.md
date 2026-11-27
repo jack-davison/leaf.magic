@@ -36,6 +36,7 @@
 * Icon scales:
   * `iconFactor()` gains `levels`, `ordered` and `reverse`; `iconBin()` gains `pretty` and `reverse`; `iconQuantile()` gains `reverse`.
   * All three now accept `domain = NULL`.
+  * `na.icon` now defaults to `"auto"`, which `magicIcons()` and `addIconLegend()` draw as a question mark from whichever icon library is in use (previously always the Font Awesome `"question"` icon, which failed in other libraries). When a scale maps to marker shapes, `"auto"` is drawn as `"none"`.
 
 ## Bug fixes
 

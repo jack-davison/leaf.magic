@@ -11,7 +11,7 @@ iconFactor(
   domain,
   levels = NULL,
   ordered = FALSE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE
 )
 
@@ -20,7 +20,7 @@ iconBin(
   domain,
   bins = length(icons),
   pretty = TRUE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 )
@@ -30,7 +30,7 @@ iconQuantile(
   domain,
   n = length(icons),
   probs = seq(0, 1, length.out = n + 1),
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 )
@@ -52,7 +52,12 @@ is ignored.}
 \item{ordered}{If \code{TRUE} and \code{domain} needs to be coerced to a factor, treat
 it as already in the correct order.}
 
-\item{na.icon}{The icon to return for missing or out-of-scope values.}
+\item{na.icon}{The icon to return for missing or out-of-scope values. The
+default, \code{"auto"}, is drawn by \code{\link[=magicIcons]{magicIcons()}} and \code{\link[=addIconLegend]{addIconLegend()}} as a
+question mark from whichever \code{library} they use. If the scale maps values
+to marker shapes instead, \code{"auto"} is drawn as \code{"none"} (the icon alone).
+\code{NA} draws no icon (or, for shapes, no marker) and leaves missing values
+out of legends.}
 
 \item{reverse}{If \code{TRUE}, the order of \code{icons} is reversed.}
 

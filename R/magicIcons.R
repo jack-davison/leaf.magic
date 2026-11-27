@@ -583,6 +583,13 @@ html_attr <- function(x) {
 #' @noRd
 icon_svg <- function(icon, color, library, ...) {
   color <- css_color(color)
+  if (identical(icon, "auto")) {
+    # the default `na.icon` of the icon scales: a question mark in any library
+    icon <- missing_icon(library)
+    if (library == "svg") {
+      library <- "text"
+    }
+  }
   svg <- switch(
     library,
     fontawesome = fontawesome::fa(icon, fill = color, ...),
@@ -597,6 +604,22 @@ icon_svg <- function(icon, color, library, ...) {
     svg = user_svg(icon, color)
   )
   paste(as.character(svg), collapse = "\n")
+}
+
+#' The icon each library uses for missing values (`na.icon = "auto"`)
+#'
+#' `"svg"` has no icons of its own, so uses the `"text"` question mark.
+#' @noRd
+missing_icon <- function(library) {
+  switch(
+    library,
+    fontawesome = "question",
+    bootstrap = "question-lg",
+    ionicons = "help",
+    lucide = "circle-question-mark",
+    text = ,
+    svg = "?"
+  )
 }
 
 #' Build an SVG showing a short piece of text, in the same form as an icon

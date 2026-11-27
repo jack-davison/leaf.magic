@@ -520,3 +520,23 @@ test_that("R colour names that aren't CSS colours are converted", {
   # transparency is kept
   expect_equal(css_color(c("red", "#FF000080")), c("#FF0000", "#FF000080"))
 })
+
+test_that("the \"auto\" icon is a question mark in every library", {
+  expect_equal(missing_icon("fontawesome"), "question")
+  expect_equal(missing_icon("text"), "?")
+
+  for (library in c("fontawesome", "bootstrap", "lucide")) {
+    skip_if_not_installed(switch(
+      library,
+      fontawesome = "fontawesome",
+      bootstrap = "bsicons",
+      lucide = "lucidr"
+    ))
+    expect_equal(
+      icon_svg("auto", "red", library),
+      icon_svg(missing_icon(library), "red", library)
+    )
+  }
+  expect_match(icon_svg("auto", "red", "text"), ">?</text>", fixed = TRUE)
+  expect_match(icon_svg("auto", "red", "svg"), ">?</text>", fixed = TRUE)
+})
