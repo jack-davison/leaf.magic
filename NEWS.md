@@ -19,6 +19,7 @@
 * Icons:
   * `magicIcons(library = "text")` shows text or numbers in markers instead of icons, e.g., for numbered stops.
   * `magicIcons(library = "svg")` uses raw SVG markup as the icon, so any icon can be used.
+  * `magicIcons(icon = NA)` draws the marker shape with no icon, e.g., when the shape alone carries the meaning. Likewise, `marker = NA` draws the icon with no marker, like `"none"`.
 
 * Markers:
   * `magicIcons(iconColor = "auto")` picks black or white icons, whichever contrasts more with each marker.
@@ -30,6 +31,7 @@
 * Legends:
   * `addIconLegend()` can now be built directly from an icon scale using `pal` and `values`, like `leaflet::addLegend()` (#10). `colors` may also be a `{leaflet}` colour scale.
   * `addIconLegend()` gains `na.label`, `labFormat`, `group` and `opacity` arguments, as in `leaflet::addLegend()`.
+  * `addIconLegend()` gains `markers` to draw each item as the marker used on the map (shape, colour and icon) rather than a bare icon, and `iconColors` to colour icons within markers. `markers` may also be an icon scale mapping data to shapes, which can drive the legend on its own to show shapes alone.
 
 * Icon scales:
   * `iconFactor()` gains `levels`, `ordered` and `reverse`; `iconBin()` gains `pretty` and `reverse`; `iconQuantile()` gains `reverse`.
@@ -41,6 +43,7 @@
   * Outlined Ionicons (e.g., `"car-outline"`) now use `iconColor` rather than always being black.
   * Cached markers are now invalidated when `{leaf.magic}` is upgraded, work with any icon name, and are shared between equivalent colours (e.g., `"red"` and `"#FF0000"`).
   * `dir` is created if it doesn't exist.
+  * Colours which R understands but CSS doesn't (e.g., `"grey40"`) are no longer drawn as black.
 
 * `addIconLegend()`:
   * Icons and labels are now spaced correctly.

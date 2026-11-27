@@ -285,17 +285,27 @@ marker_shapes <- list(
 #'
 #' `marker` may be a character vector of built-in shape names (which may be
 #' abbreviated), a single shape from markerShape(), or a list of shapes and/or
-#' names.
+#' names. Missing (`NA`) shapes are `"none"`, i.e., the icon alone, so that a
+#' shape scale's `na.icon = NA` behaves like a colour scale's transparent
+#' `na.color`.
 #' @noRd
 as_marker_shapes <- function(marker, call = rlang::caller_env()) {
   if (inherits(marker, "leafmagic_marker_shape")) {
     return(list(marker))
   }
-  if (is.factor(marker)) {
+  if (is.factor(marker) || is.logical(marker)) {
     marker <- as.character(marker)
   }
   if (is.character(marker)) {
     marker <- as.list(marker)
+  }
+  if (is.list(marker)) {
+    is_na <- vapply(
+      marker,
+      function(x) is.atomic(x) && length(x) == 1L && is.na(x),
+      logical(1)
+    )
+    marker[is_na] <- list("none")
   }
   if (!is.list(marker)) {
     rlang::abort(

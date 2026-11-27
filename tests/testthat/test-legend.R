@@ -295,3 +295,178 @@ test_that("addIconLegend supports opacity and group", {
     system.file("htmlwidgets", "iconLegend.js", package = "leaf.magic")
   ))
 })
+
+legend_html <- function(...) {
+  map <- addIconLegend(leaflet::leaflet(), ...)
+  args <- map$x$calls[[1]]$args[[1]]
+  if (is.list(args)) args$html else args
+}
+
+test_that("addIconLegend can draw markers behind icons", {
+  skip_if_not_installed("fontawesome")
+  html <- legend_html(
+    icons = c("beer", "school"),
+    labels = c("Pub", "University"),
+    colors = c("#FFFFFF", "#000000"),
+    markers = "circle"
+  )
+  # one marker per item, filled with `colors`, with "auto" icon colours
+  expect_equal(lengths(regmatches(html, gregexpr("<circle", html))), 2L)
+  expect_match(html, 'fill="#FFFFFF"', fixed = TRUE)
+  expect_match(html, 'fill="#000000"', fixed = TRUE)
+  expect_match(html, 'color="#000000"', fixed = TRUE)
+  expect_match(html, 'color="#FFFFFF"', fixed = TRUE)
+  # sized in em to scale with the legend text
+  expect_match(html, 'width="1.25em" height="1.25em"', fixed = TRUE)
+  expect_match(html, "&nbsp;University", fixed = TRUE)
+
+  # explicit icon colours
+  html <- legend_html(
+    icons = "beer",
+    labels = "Pub",
+    colors = "#FFFFFF",
+    markers = "circle",
+    iconColors = "#FF0000"
+  )
+  expect_match(html, 'color="#FF0000"', fixed = TRUE)
+
+  # without markers, the legend is unchanged
+  html <- legend_html(icons = "beer", labels = "Pub", colors = "red")
+  expect_no_match(html, "<circle", fixed = TRUE)
+  expect_no_match(html, "inline-block", fixed = TRUE)
+})
+
+test_that("addIconLegend markers can be mixed, custom, or absent", {
+  html <- legend_html(
+    icons = c("1", "2", "3", "4"),
+    labels = c("a", "b", "c", "d"),
+    colors = "#FF0000",
+    library = "text",
+    markers = list(
+      "square",
+      markerShape('<ellipse cx="50" cy="50" rx="48" ry="30"/>'),
+      "none",
+      NA
+    )
+  )
+  expect_match(html, "<rect", fixed = TRUE)
+  expect_match(html, "<ellipse", fixed = TRUE)
+  # "none" and NA items show the icon in the marker colour; others contrast
+  expect_match(html, 'fill="#000000">1</text>', fixed = TRUE)
+  expect_match(html, 'fill="#000000">2</text>', fixed = TRUE)
+  expect_match(html, 'fill="#FF0000">3</text>', fixed = TRUE)
+  expect_match(html, 'fill="#FF0000">4</text>', fixed = TRUE)
+
+  expect_error(
+    legend_html(icons = "a", labels = "a", markers = "blob"),
+    "Unknown `marker` shape"
+  )
+  expect_error(
+    legend_html(
+      icons = c("a", "b"),
+      labels = c("a", "b"),
+      markers = c("circle", "square", "star")
+    ),
+    "longest argument has length 3"
+  )
+})
+
+test_that("addIconLegend defaults to the magicIcons() marker colour", {
+  html <- legend_html(
+    icons = "1",
+    labels = "a",
+    library = "text",
+    markers = "circle"
+  )
+  expect_match(
+    html,
+    paste0('fill="', toupper(awesomePalette$blue), '"'),
+    fixed = TRUE
+  )
+})
+
+test_that("a marker scale can accompany an icon scale", {
+  types <- c("a", "b", "c")
+  ipal <- iconFactor(c("1", "2", "3"), types)
+  spal <- iconFactor(c("circle", "square", "star"), types, na.icon = "diamond")
+  cpal <- leaflet::colorFactor(cols[1:3], types)
+  values <- c("c", "a", NA, "b")
+
+  out <- icon_legend_items(
+    ipal,
+    values,
+    cpal,
+    leaflet::labelFormat(),
+    "NA",
+    markers = spal
+  )
+  expect_equal(out$icons, c("1", "2", "3", "question"))
+  expect_equal(out$markers, list("circle", "square", "star", "diamond"))
+  expect_equal(out$colors, c(cols[1:3], "#808080"))
+
+  # a marker scale with no NA shape draws the NA item as "none"
+  spal_na <- iconFactor(c("circle", "square", "star"), types, na.icon = NA)
+  out <- icon_legend_items(
+    ipal,
+    values,
+    cpal,
+    leaflet::labelFormat(),
+    "NA",
+    markers = spal_na
+  )
+  expect_true(is.na(out$markers[[4]]))
+
+  # a single shape is used for every item, including the NA item
+  out <- icon_legend_items(
+    ipal,
+    values,
+    cpal,
+    leaflet::labelFormat(),
+    "NA",
+    markers = "circle"
+  )
+  expect_equal(out$markers, "circle")
+
+  html <- legend_html(
+    pal = ipal,
+    values = values,
+    colors = cpal,
+    markers = spal,
+    library = "text"
+  )
+  expect_match(html, "<circle", fixed = TRUE)
+  expect_match(html, "<rect", fixed = TRUE)
+  expect_match(html, "<polygon", fixed = TRUE)
+  expect_match(html, "M50 2 98 50 50 98 2 50z", fixed = TRUE)
+})
+
+test_that("a marker scale can drive the legend on its own", {
+  df <- data.frame(status = c("Open", "Closed", NA))
+  spal <- iconFactor(c("circle", "square"), df$status, na.icon = "diamond")
+  map <- addIconLegend(
+    leaflet::leaflet(df),
+    markers = spal,
+    values = ~status,
+    colors = "#555555"
+  )
+  html <- map$x$calls[[1]]$args[[1]]
+  expect_match(html, "<strong>status</strong>", fixed = TRUE)
+  # levels are sorted, as in leaflet::addLegend()
+  expect_match(html, "<circle.*Closed.*<rect.*Open.*98 50.*NA", perl = TRUE)
+  # shapes alone, with no icons
+  expect_no_match(html, "<svg[^>]* x=", perl = TRUE)
+
+  # a constant icon may be shown in every marker
+  html <- legend_html(markers = spal, icons = "x", library = "text")
+  expect_equal(lengths(regmatches(html, gregexpr(">x</text>", html))), 2L)
+  expect_match(html, "&nbsp;Closed", fixed = TRUE)
+
+  expect_error(
+    legend_html(markers = iconFactor("circle", NULL), labels = "a"),
+    "when `markers` has no fixed `domain`"
+  )
+  expect_error(
+    legend_html(markers = function(x) x),
+    "`markers` must be created by"
+  )
+})

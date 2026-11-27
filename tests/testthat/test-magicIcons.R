@@ -419,7 +419,7 @@ test_that("outlineColor and outlineWidth style the marker outline", {
   white <- magicIcons("car", "red", outlineColor = "white", shadow = FALSE)[[1]]
   expect_match(
     read_marker(white),
-    'stroke="white" stroke-width="2"',
+    'stroke="#FFFFFF" stroke-width="2"',
     fixed = TRUE
   )
   expect_equal(white$iconWidth, default$iconWidth)
@@ -463,7 +463,7 @@ test_that("library = 'svg' uses raw SVG markup as the icon", {
   )[[1]])
   # hard-coded colours are kept, and unfilled parts take on iconColor
   expect_match(svg, 'fill="gold"', fixed = TRUE)
-  expect_match(svg, 'viewBox="0 0 24 24"[^>]*fill="white"', perl = TRUE)
+  expect_match(svg, 'viewBox="0 0 24 24"[^>]*fill="#FFFFFF"', perl = TRUE)
 
   # an SVG with only a width and height is given a viewBox so it scales
   svg <- read_marker(magicIcons(
@@ -489,4 +489,34 @@ test_that("library = 'svg' uses raw SVG markup as the icon", {
     leaflet::leaflet() |> addIconAttribution("svg"),
     "no attribution"
   )
+})
+
+test_that("NA icons draw the marker shape alone", {
+  shape <- marker_shapes$circle
+  svg <- marker_svg(shape, NA, "#FF0000", "#FFFFFF", "fontawesome")
+  expect_match(svg, "<circle", fixed = TRUE)
+  expect_equal(lengths(regmatches(svg, gregexpr("<svg", svg))), 1L)
+
+  icons <- magicIcons(NA, marker = "square", library = "text")
+  svg <- paste(readLines(icons[[1]]$iconUrl), collapse = "")
+  expect_match(svg, "<rect", fixed = TRUE)
+  expect_no_match(svg, "<text", fixed = TRUE)
+})
+
+test_that("R colour names that aren't CSS colours are converted", {
+  # browsers draw unknown colours (e.g., "grey40") as black
+  icons <- magicIcons(
+    "1",
+    markerColor = "grey40",
+    iconColor = "navyblue",
+    library = "text",
+    shadow = FALSE
+  )
+  svg <- paste(readLines(icons[[1]]$iconUrl), collapse = "")
+  expect_match(svg, 'fill="#666666"', fixed = TRUE)
+  expect_match(svg, 'fill="#000080">1</text>', fixed = TRUE)
+  expect_no_match(svg, "grey40|navyblue")
+
+  # transparency is kept
+  expect_equal(css_color(c("red", "#FF000080")), c("#FF0000", "#FF000080"))
 })

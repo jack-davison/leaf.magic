@@ -37,20 +37,42 @@
 #'   labels, if `na.icon` is `NA`, or if `colors` is a colour scale with a
 #'   transparent `na.color`.
 #'
+#' @section Showing marker shapes: By default, legend items are bare icons
+#'   coloured with `colors`, which suits maps where colour is applied to the
+#'   icons themselves (e.g., `magicIcons(marker = "none")`). When `markers` is
+#'   provided, each item is instead drawn as a small version of the marker used
+#'   on the map: the shape is filled with `colors` and the icon drawn on top in
+#'   `iconColors`, exactly as in [magicIcons()].
+#'
+#'   `markers` may be a single shape used for every item, one shape per item,
+#'   or an icon scale (e.g., `iconFactor(c("circle", "square"), domain)`) whose
+#'   values are marker shapes. As with a colour scale in `colors`, a marker
+#'   scale is applied to the same values as `pal`, so the two should share the
+#'   same settings.
+#'
+#'   If the shape of the markers is the only thing mapped to a variable, pass
+#'   that scale to `markers` and leave `pal` out: the legend items are then
+#'   derived from the marker scale instead. In this case `icons` is optional;
+#'   give a single icon to show it in every marker (as on the map), or leave
+#'   it out to show the shapes alone.
+#'
 #' @param icons Name of the icons, from the icon library defined by `library`.
 #'   A full list of available icons can be found using
 #'   [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
 #'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>. Should not be
-#'   provided if `pal` is used.
+#'   provided if `pal` is used. May be `NA` (for every item, or some of them)
+#'   to show a marker with no icon, or omitted if `markers` is provided.
 #' @param labels Labels for each `icon`; should be the same length as `icons`.
 #'   Labels are inserted as HTML, so may contain formatting such as
 #'   `"PM<sub>2.5</sub>"`. If `pal` is used, labels are generated using
 #'   `labFormat`, but can be overridden by providing `labels`.
-#' @param colors Colours to use for each `icon`. If `length(colors) == 1L` it is
-#'   recycled for all icons. Otherwise should be the same length as `icons`. If
-#'   `pal` is used, `colors` may also be a colour scale function, such as one
-#'   created using [leaflet::colorFactor()], [leaflet::colorBin()] or
-#'   [leaflet::colorQuantile()].
+#' @param colors Colours to use for each `icon`, or for each marker if
+#'   `markers` is provided. If `length(colors) == 1L` it is recycled for all
+#'   icons. Otherwise should be the same length as `icons`. If `pal` (or a
+#'   marker scale) is used, `colors` may also be a colour scale function, such
+#'   as one created using [leaflet::colorFactor()], [leaflet::colorBin()] or
+#'   [leaflet::colorQuantile()]. Defaults to black, or to the default
+#'   `markerColor` of [magicIcons()] when `markers` is provided.
 #' @param title the legend title; optional. If `pal` is used and `values` is a
 #'   formula, the title defaults to the variable name in the formula, as in
 #'   [leaflet::addLegend()].
@@ -71,6 +93,14 @@
 #'   group, e.g., using [leaflet::addLayersControl()]. In Shiny, using `group`
 #'   with [leaflet::leafletProxy()] requires the original map to already
 #'   contain a grouped icon legend.
+#' @param markers Marker shapes to draw behind each icon, as in the `marker`
+#'   argument of [magicIcons()]. `NULL` (the default) draws bare icons. Either
+#'   a single shape, one shape per item (shape names, [markerShape()]s, or a
+#'   list of both; `NA` is `"none"`, the icon alone), or an icon scale
+#'   function whose values are shapes. See "Showing marker shapes".
+#' @param iconColors The colours of the icons when `markers` is provided, as in
+#'   the `iconColor` argument of [magicIcons()]. `"auto"` (the default) picks
+#'   black or white for each item, whichever contrasts more with its marker.
 #' @inheritParams leaflet::addControl
 #' @inheritParams magicIcons
 #'
@@ -101,6 +131,20 @@
 #'     title = "Temperature",
 #'     labFormat = labelFormat(suffix = "&deg;C")
 #'   )
+#'
+#' # show the marker shapes used on the map
+#' leaflet() |>
+#'   addIconLegend(
+#'     icons = c("beer", "school"),
+#'     labels = c("Pub", "University"),
+#'     colors = c("red", "blue"),
+#'     markers = "marker"
+#'   )
+#'
+#' # when only the shape is mapped, the legend can show shapes alone
+#' shapePal <- iconFactor(c("circle", "square"), c("Open", "Closed"))
+#' leaflet() |>
+#'   addIconLegend(markers = shapePal, title = "Status")
 addIconLegend <- function(
   map,
   icons,
@@ -117,15 +161,32 @@ addIconLegend <- function(
   na.label = "NA",
   labFormat = leaflet::labelFormat(),
   opacity = 1,
-  group = NULL
+  group = NULL,
+  markers = NULL,
+  iconColors = "auto"
 ) {
   library <- check_library(library)
   position <- match.arg(position)
 
+  has_markers <- !is.null(markers)
+  if (has_markers && missing(colors)) {
+    colors <- leaf.magic::awesomePalette$blue
+  }
+
+  # a marker scale drives the legend if there is no icon scale
+  scale_arg <- NULL
   if (!missing(pal)) {
+    scale_arg <- "pal"
     if (!missing(icons)) {
       rlang::abort("Provide either `pal` or `icons`, not both.")
     }
+  } else if (is.function(markers)) {
+    scale_arg <- "markers"
+    pal <- markers
+    markers <- NULL
+  }
+
+  if (!is.null(scale_arg)) {
     if (missing(values)) {
       values <- NULL
     } else if (inherits(values, "formula")) {
@@ -134,15 +195,34 @@ addIconLegend <- function(
       }
       values <- leaflet::evalFormula(values, data)
     }
-    legend <- icon_legend_items(pal, values, colors, labFormat, na.label)
-    icons <- legend$icons
+    legend <- icon_legend_items(
+      pal,
+      values,
+      colors,
+      labFormat,
+      na.label,
+      markers = markers,
+      arg = scale_arg
+    )
     colors <- legend$colors
+    if (scale_arg == "pal") {
+      icons <- legend$icons
+      markers <- legend$markers
+    } else {
+      markers <- legend$icons
+      if (missing(icons)) icons <- NA_character_
+    }
     if (missing(labels)) {
       labels <- legend$labels
     }
   } else {
     if (is.function(colors)) {
-      rlang::abort("`colors` can only be a function if `pal` is provided.")
+      rlang::abort(
+        "`colors` can only be a function if `pal` or a marker scale is provided."
+      )
+    }
+    if (missing(icons) && has_markers) {
+      icons <- NA_character_
     }
     if (missing(icons) || missing(labels)) {
       rlang::abort(c(
@@ -162,7 +242,18 @@ addIconLegend <- function(
     )
   }
 
-  check_lengths(icons = icons, labels = labels, colors = colors)
+  if (has_markers) {
+    markers <- as_marker_shapes(markers)
+    n <- check_lengths(
+      icons = icons,
+      labels = labels,
+      colors = colors,
+      markers = markers,
+      iconColors = iconColors
+    )
+  } else {
+    n <- check_lengths(icons = icons, labels = labels, colors = colors)
+  }
 
   if (
     !is.numeric(opacity) ||
@@ -174,30 +265,60 @@ addIconLegend <- function(
     rlang::abort("`opacity` must be a single number between 0 and 1.")
   }
 
-  assemble_legend_item <- function(icon, label, color) {
-    svg <- icon_svg(icon, color, library, width = "1em", height = "1em")
-    if (opacity < 1) {
-      svg <- paste0("<span style='opacity:", opacity, "'>", svg, "</span>")
-    }
-    # HTML collapses plain whitespace, so non-breaking spaces are needed
-    paste0(svg, "&nbsp;&nbsp;&nbsp;", label)
+  icons <- rep_len(icons, n)
+  labels <- rep_len(labels, n)
+  colors <- rep_len(colors, n)
+
+  if (has_markers) {
+    markers <- rep_len(markers, n)
+    iconColors <- auto_icon_color(rep_len(iconColors, n), colors, markers)
+    graphics <- vapply(
+      seq_len(n),
+      function(i) {
+        legend_marker_svg(
+          markers[[i]],
+          icons[[i]],
+          colors[[i]],
+          iconColors[[i]],
+          library
+        )
+      },
+      character(1)
+    )
+  } else {
+    graphics <- vapply(
+      seq_len(n),
+      function(i) {
+        if (is.na(icons[[i]])) {
+          return("")
+        }
+        icon_svg(
+          icons[[i]],
+          colors[[i]],
+          library,
+          width = "1em",
+          height = "1em"
+        )
+      },
+      character(1)
+    )
   }
 
-  html <-
-    paste0(
-      html_title,
-      paste0(
-        purrr::pmap_vec(
-          data.frame(
-            icon = icons,
-            label = labels,
-            color = colors
-          ),
-          assemble_legend_item
-        ),
-        collapse = "<br>"
-      )
+  if (opacity < 1) {
+    graphics <- paste0(
+      "<span style='opacity:",
+      opacity,
+      "'>",
+      graphics,
+      "</span>"
     )
+  }
+
+  # HTML collapses plain whitespace, so non-breaking spaces are needed
+  html <- paste0(
+    html_title,
+    paste0(graphics, "&nbsp;&nbsp;&nbsp;", labels, collapse = "<br>")
+  )
 
   if (is.null(group)) {
     return(
@@ -235,23 +356,39 @@ addIconLegend <- function(
 #' `iconType` and `iconArgs` attributes set by `with_icon_attr()`. Where
 #' leaflet would fail (e.g., no `values`, or a bin scale with no domain), a
 #' sensible fallback is used instead.
+#'
+#' `markers`, if a function, is a marker scale applied to the same values as
+#' `pal`, in the same way as a colour scale in `colors`. `arg` names the
+#' argument `pal` came from, for error messages.
 #' @noRd
-icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
+icon_legend_items <- function(
+  pal,
+  values,
+  colors,
+  labFormat,
+  na.label,
+  markers = NULL,
+  arg = "pal"
+) {
   type <- attr(pal, "iconType", exact = TRUE)
   args <- attr(pal, "iconArgs", exact = TRUE)
   if (!is.function(pal) || is.null(type)) {
-    rlang::abort(
-      "`pal` must be created by `iconFactor()`, `iconBin()` or `iconQuantile()`."
-    )
+    rlang::abort(paste0(
+      "`",
+      arg,
+      "` must be created by `iconFactor()`, `iconBin()` or `iconQuantile()`."
+    ))
   }
 
   has_values <- !is.null(values) && !all(is.na(values))
   color_index <- NULL
   needs_values <- function() {
     if (!has_values) {
-      rlang::abort(
-        "`values` must be provided when `pal` has no fixed `domain`."
-      )
+      rlang::abort(paste0(
+        "`values` must be provided when `",
+        arg,
+        "` has no fixed `domain`."
+      ))
     }
   }
 
@@ -347,6 +484,24 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
     colors <- c(rep_len(colors, length(icons)), na.color)
   }
 
+  # a marker scale is applied like a colour scale, with its `na.icon` for the
+  # NA item. A single shape is used for every item, including the NA item.
+  if (is.function(markers)) {
+    marker_na <- attr(markers, "iconArgs", exact = TRUE)$na.icon
+    markers <- markers(color_values)
+    if (!is.null(color_index)) {
+      markers <- markers[color_index]
+    }
+    if (show_na) {
+      markers <- c(
+        as.list(markers),
+        list(if (is_invisible(marker_na)) NA else marker_na)
+      )
+    }
+  } else if (show_na && length(markers) > 1L) {
+    markers <- c(as.list(markers), list(NA))
+  }
+
   if (show_na) {
     icons <- c(icons, args$na.icon)
     labels <- c(labels, na.label)
@@ -355,7 +510,32 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
   list(
     icons = unname(icons),
     labels = unname(labels),
-    colors = unname(colors)
+    colors = unname(colors),
+    markers = unname(markers)
+  )
+}
+
+#' Build the SVG of a legend item drawn as a marker
+#'
+#' Markers are drawn as in magicIcons(), but sized in `em` so that they scale
+#' with the legend text. Every marker is the same width, so labels line up.
+#' @noRd
+legend_marker_svg <- function(shape, icon, color, iconColor, library) {
+  width <- 1.25
+  svg <- marker_svg(
+    shape,
+    icon,
+    markerColor = color,
+    iconColor = iconColor,
+    library = library,
+    width = width
+  )
+  paste0(
+    "<span style='display:inline-block;width:",
+    width,
+    "em;text-align:center;vertical-align:middle;line-height:0'>",
+    svg,
+    "</span>"
   )
 }
 

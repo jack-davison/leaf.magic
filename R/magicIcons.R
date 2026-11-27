@@ -31,7 +31,9 @@
 #'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
 #'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>, depending on
 #'   `library`. When `library = "text"`, the text (or numbers) to show in each
-#'   marker instead, and when `library = "svg"`, a string of SVG markup.
+#'   marker instead, and when `library = "svg"`, a string of SVG markup. Use
+#'   `NA` for a marker with no icon, e.g., when the marker shape alone conveys
+#'   the meaning.
 #'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #'
@@ -57,7 +59,7 @@
 #'   Custom shapes can be created using [markerShape()]. `marker` may be a
 #'   character vector of shape names, a single [markerShape()], or a list of
 #'   [markerShape()]s and/or shape names to use a different shape for each
-#'   marker.
+#'   marker. Missing (`NA`) shapes are drawn as `"none"`.
 #'
 #' @param markerSize The width of the marker in pixels. Defaults to `30`, which
 #'   is roughly the same size as [leaflet::addMarkers()].
@@ -211,23 +213,11 @@ magicIcons <- function(
       outlineWidth = outlineWidth
     )
 
-  # "auto" icon colours are black or white, whichever contrasts more with the
-  # marker. Shapes with no body (i.e., "none") have no marker to contrast
-  # with, so the icon takes on `markerColor` instead.
-  is_auto <- combinations$iconColor %in% "auto"
-  if (any(is_auto)) {
-    has_body <- vapply(
-      shapes[combinations$marker[is_auto]],
-      function(s) !is.null(s$body),
-      logical(1)
-    )
-    auto_marker_color <- combinations$markerColor[is_auto]
-    combinations$iconColor[is_auto] <- ifelse(
-      has_body,
-      contrast_color(auto_marker_color),
-      auto_marker_color
-    )
-  }
+  combinations$iconColor <- auto_icon_color(
+    combinations$iconColor,
+    combinations$markerColor,
+    shapes[combinations$marker]
+  )
 
   # only build each unique combination once
   key <- do.call(paste, c(combinations, sep = "\x1f"))
@@ -428,7 +418,13 @@ nonzero <- function(x) {
 #'
 #' The marker shape is drawn with an outline (by default, a slightly darker
 #' shade of `markerColor`), and the icon's own SVG is nested inside it. `pad`
-#' extends the canvas on every side so that wide outlines aren't clipped.
+#' extends the canvas on every side so that wide outlines aren't clipped. A
+#' missing (`NA`) icon draws the shape alone.
+#'
+#' By default the SVG's size is its size in shape units (markers are scaled by
+#' leaflet's `iconSize`). `width` instead sets its width as a CSS length in
+#' `units` (e.g., `"em"`, for legends), with the height following the shape's
+#' aspect ratio.
 #' @noRd
 marker_svg <- function(
   shape,
@@ -438,8 +434,14 @@ marker_svg <- function(
   library,
   outlineColor = darken_color(markerColor),
   outlineWidth = 2,
-  pad = 0
+  pad = 0,
+  width = NULL,
+  units = "em"
 ) {
+  markerColor <- css_color(markerColor)
+  outlineColor <- css_color(outlineColor)
+  iconColor <- css_color(iconColor)
+
   body <- NULL
   if (!is.null(shape$body)) {
     body <- paste0(
@@ -455,16 +457,29 @@ marker_svg <- function(
     )
   }
 
-  size <- shape$icon[["size"]]
-  nested <- nest_svg(
-    icon_svg(icon, iconColor, library),
-    x = shape$icon[["x"]] - size / 2,
-    y = shape$icon[["y"]] - size / 2,
-    size = size,
-    color = iconColor,
-    # Font Awesome icons are given a subtle outline, as in previous versions
-    outline = if (library == "fontawesome") darken_color(iconColor)
-  )
+  nested <- NULL
+  if (!is.na(icon)) {
+    size <- shape$icon[["size"]]
+    nested <- nest_svg(
+      icon_svg(icon, iconColor, library),
+      x = shape$icon[["x"]] - size / 2,
+      y = shape$icon[["y"]] - size / 2,
+      size = size,
+      color = iconColor,
+      # Font Awesome icons are given a subtle outline, as in previous versions
+      outline = if (library == "fontawesome") darken_color(iconColor)
+    )
+  }
+
+  canvas_w <- shape$width + 2 * pad
+  canvas_h <- shape$height + 2 * pad
+  if (is.null(width)) {
+    svg_w <- format(canvas_w)
+    svg_h <- format(canvas_h)
+  } else {
+    svg_w <- paste0(fmt_num(width), units)
+    svg_h <- paste0(fmt_num(width * canvas_h / canvas_w), units)
+  }
 
   paste0(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="',
@@ -472,13 +487,13 @@ marker_svg <- function(
     " ",
     format(-pad),
     " ",
-    format(shape$width + 2 * pad),
+    format(canvas_w),
     " ",
-    format(shape$height + 2 * pad),
+    format(canvas_h),
     '" width="',
-    format(shape$width + 2 * pad),
+    svg_w,
     '" height="',
-    format(shape$height + 2 * pad),
+    svg_h,
     '">',
     body,
     nested,
@@ -567,6 +582,7 @@ html_attr <- function(x) {
 #' @return A single character string of SVG markup.
 #' @noRd
 icon_svg <- function(icon, color, library, ...) {
+  color <- css_color(color)
   svg <- switch(
     library,
     fontawesome = fontawesome::fa(icon, fill = color, ...),
@@ -736,6 +752,28 @@ darken_color <- function(col, factor = 0.8) {
   grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
 }
 
+#' Resolve `"auto"` icon colours
+#'
+#' `"auto"` icon colours are black or white, whichever contrasts more with the
+#' marker. Shapes with no body (i.e., `"none"`) have no marker to contrast
+#' with, so the icon takes on `markerColor` instead. `shapes` is a list of
+#' shapes, one per element of `iconColor`.
+#' @noRd
+auto_icon_color <- function(iconColor, markerColor, shapes) {
+  is_auto <- iconColor %in% "auto"
+  if (!any(is_auto)) {
+    return(iconColor)
+  }
+  markerColor <- rep_len(markerColor, length(iconColor))[is_auto]
+  has_body <- vapply(shapes[is_auto], function(s) !is.null(s$body), logical(1))
+  iconColor[is_auto] <- ifelse(
+    has_body,
+    contrast_color(markerColor),
+    markerColor
+  )
+  iconColor
+}
+
 #' Pick black or white, whichever has the higher contrast against `col`
 #'
 #' Uses the WCAG 2 definitions of relative luminance and contrast ratio. Ties
@@ -755,12 +793,23 @@ contrast_color <- function(col) {
 normalise_color <- function(col) {
   rgba <- grDevices::col2rgb(col, alpha = TRUE)
   grDevices::rgb(
-    rgba[1],
-    rgba[2],
-    rgba[3],
-    rgba[4],
+    rgba[1, ],
+    rgba[2, ],
+    rgba[3, ],
+    rgba[4, ],
     maxColorValue = 255
   )
+}
+
+#' Convert R colours to CSS colours
+#'
+#' R accepts colour names that CSS doesn't (e.g., `"grey40"`, `"navyblue"`),
+#' which browsers would draw as black, so colours are converted to hex codes.
+#' Transparency is kept as an "#RRGGBBAA" code.
+#' @noRd
+css_color <- function(col) {
+  hex <- normalise_color(col)
+  ifelse(endsWith(hex, "FF"), substr(hex, 1, 7), hex)
 }
 
 #' Check library is valid

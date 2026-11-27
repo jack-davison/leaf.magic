@@ -23,7 +23,9 @@ magicIcons(
 using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
 \url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}, depending on
 \code{library}. When \code{library = "text"}, the text (or numbers) to show in each
-marker instead, and when \code{library = "svg"}, a string of SVG markup.}
+marker instead, and when \code{library = "svg"}, a string of SVG markup. Use
+\code{NA} for a marker with no icon, e.g., when the marker shape alone conveys
+the meaning.}
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
@@ -48,7 +50,7 @@ directly on the map.
 Custom shapes can be created using \code{\link[=markerShape]{markerShape()}}. \code{marker} may be a
 character vector of shape names, a single \code{\link[=markerShape]{markerShape()}}, or a list of
 \code{\link[=markerShape]{markerShape()}}s and/or shape names to use a different shape for each
-marker.}
+marker. Missing (\code{NA}) shapes are drawn as \code{"none"}.}
 
 \item{markerSize}{The width of the marker in pixels. Defaults to \code{30}, which
 is roughly the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}.}

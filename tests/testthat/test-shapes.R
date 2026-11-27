@@ -55,7 +55,6 @@ test_that("`marker` accepts names, shapes and lists of both", {
   )
 
   expect_error(as_marker_shapes("blob"), "Unknown `marker` shape: \"blob\"")
-  expect_error(as_marker_shapes(NA_character_), "shape name")
   expect_error(as_marker_shapes(1), "`marker` must be")
   expect_error(as_marker_shapes(list(1)), "shape name")
 })
@@ -181,4 +180,14 @@ test_that("magicIcons() adds shadows, positioned by the anchor", {
   expect_null(magicIcons("car", marker = "none", dir = dir)[[1]]$shadowUrl)
   expect_null(magicIcons("car", shadow = FALSE, dir = dir)[[1]]$shadowUrl)
   expect_error(magicIcons("car", shadow = NA, dir = dir), "`shadow` must be")
+})
+
+test_that("missing marker shapes are drawn as \"none\"", {
+  shapes <- as_marker_shapes(c("circle", NA))
+  expect_identical(shapes[[2]], marker_shapes$none)
+  expect_identical(
+    as_marker_shapes(list("circle", NA))[[2]],
+    marker_shapes$none
+  )
+  expect_identical(as_marker_shapes(NA)[[1]], marker_shapes$none)
 })

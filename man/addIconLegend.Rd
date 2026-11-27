@@ -20,7 +20,9 @@ addIconLegend(
   na.label = "NA",
   labFormat = leaflet::labelFormat(),
   opacity = 1,
-  group = NULL
+  group = NULL,
+  markers = NULL,
+  iconColors = "auto"
 )
 }
 \arguments{
@@ -30,18 +32,21 @@ addIconLegend(
 A full list of available icons can be found using
 \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
 \url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}. Should not be
-provided if \code{pal} is used.}
+provided if \code{pal} is used. May be \code{NA} (for every item, or some of them)
+to show a marker with no icon, or omitted if \code{markers} is provided.}
 
 \item{labels}{Labels for each \code{icon}; should be the same length as \code{icons}.
 Labels are inserted as HTML, so may contain formatting such as
 \code{"PM<sub>2.5</sub>"}. If \code{pal} is used, labels are generated using
 \code{labFormat}, but can be overridden by providing \code{labels}.}
 
-\item{colors}{Colours to use for each \code{icon}. If \code{length(colors) == 1L} it is
-recycled for all icons. Otherwise should be the same length as \code{icons}. If
-\code{pal} is used, \code{colors} may also be a colour scale function, such as one
-created using \code{\link[leaflet:colorFactor]{leaflet::colorFactor()}}, \code{\link[leaflet:colorBin]{leaflet::colorBin()}} or
-\code{\link[leaflet:colorQuantile]{leaflet::colorQuantile()}}.}
+\item{colors}{Colours to use for each \code{icon}, or for each marker if
+\code{markers} is provided. If \code{length(colors) == 1L} it is recycled for all
+icons. Otherwise should be the same length as \code{icons}. If \code{pal} (or a
+marker scale) is used, \code{colors} may also be a colour scale function, such
+as one created using \code{\link[leaflet:colorFactor]{leaflet::colorFactor()}}, \code{\link[leaflet:colorBin]{leaflet::colorBin()}} or
+\code{\link[leaflet:colorQuantile]{leaflet::colorQuantile()}}. Defaults to black, or to the default
+\code{markerColor} of \code{\link[=magicIcons]{magicIcons()}} when \code{markers} is provided.}
 
 \item{title}{the legend title; optional. If \code{pal} is used and \code{values} is a
 formula, the title defaults to the variable name in the formula, as in
@@ -89,6 +94,16 @@ that this defaults to \code{1}, rather than the \code{0.5} of
 group, e.g., using \code{\link[leaflet:addLayersControl]{leaflet::addLayersControl()}}. In Shiny, using \code{group}
 with \code{\link[leaflet:leafletProxy]{leaflet::leafletProxy()}} requires the original map to already
 contain a grouped icon legend.}
+
+\item{markers}{Marker shapes to draw behind each icon, as in the \code{marker}
+argument of \code{\link[=magicIcons]{magicIcons()}}. \code{NULL} (the default) draws bare icons. Either
+a single shape, one shape per item (shape names, \code{\link[=markerShape]{markerShape()}}s, or a
+list of both; \code{NA} is \code{"none"}, the icon alone), or an icon scale
+function whose values are shapes. See "Showing marker shapes".}
+
+\item{iconColors}{The colours of the icons when \code{markers} is provided, as in
+the \code{iconColor} argument of \code{\link[=magicIcons]{magicIcons()}}. \code{"auto"} (the default) picks
+black or white for each item, whichever contrasts more with its marker.}
 }
 \value{
 a \link[leaflet:leaflet-package]{leaflet} widget
@@ -133,6 +148,27 @@ labels, if \code{na.icon} is \code{NA}, or if \code{colors} is a colour scale wi
 transparent \code{na.color}.
 }
 
+\section{Showing marker shapes}{
+ By default, legend items are bare icons
+coloured with \code{colors}, which suits maps where colour is applied to the
+icons themselves (e.g., \code{magicIcons(marker = "none")}). When \code{markers} is
+provided, each item is instead drawn as a small version of the marker used
+on the map: the shape is filled with \code{colors} and the icon drawn on top in
+\code{iconColors}, exactly as in \code{\link[=magicIcons]{magicIcons()}}.
+
+\code{markers} may be a single shape used for every item, one shape per item,
+or an icon scale (e.g., \code{iconFactor(c("circle", "square"), domain)}) whose
+values are marker shapes. As with a colour scale in \code{colors}, a marker
+scale is applied to the same values as \code{pal}, so the two should share the
+same settings.
+
+If the shape of the markers is the only thing mapped to a variable, pass
+that scale to \code{markers} and leave \code{pal} out: the legend items are then
+derived from the marker scale instead. In this case \code{icons} is optional;
+give a single icon to show it in every marker (as on the map), or leave
+it out to show the shapes alone.
+}
+
 \examples{
 library(leaflet)
 addIconLegend(
@@ -157,4 +193,18 @@ leaflet() |>
     title = "Temperature",
     labFormat = labelFormat(suffix = "&deg;C")
   )
+
+# show the marker shapes used on the map
+leaflet() |>
+  addIconLegend(
+    icons = c("beer", "school"),
+    labels = c("Pub", "University"),
+    colors = c("red", "blue"),
+    markers = "marker"
+  )
+
+# when only the shape is mapped, the legend can show shapes alone
+shapePal <- iconFactor(c("circle", "square"), c("Open", "Closed"))
+leaflet() |>
+  addIconLegend(markers = shapePal, title = "Status")
 }

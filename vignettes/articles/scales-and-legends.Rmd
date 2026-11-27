@@ -165,6 +165,59 @@ leaflet(port_talbot) |>
   )
 ```
 
+## Marker Legends
+
+By default, legends show bare icons in `colors`. Use `markers` to draw each item as a small version of the marker on the map instead, with the shape filled with `colors` and the icon on top, coloured exactly as in `magicIcons()`.
+
+```{r map-markerlegend}
+leaflet(port_talbot) |>
+  addTiles() |>
+  addMarkers(
+    popup = ~popup,
+    icon = magicIcons(
+      icon = ~ iconPal(site_type),
+      markerColor = ~ catPal(site_type)
+    )
+  ) |>
+  addIconLegend(
+    pal = iconPal,
+    values = ~site_type,
+    colors = catPal,
+    markers = "marker",
+    title = "Site Type"
+  )
+```
+
+Because icon scales map values to any string, they can map data to marker *shapes* too. When the shape is the only thing mapped to a variable, pass its scale to `markers` and leave out `pal`: the legend then shows the shapes alone. Below, the icon and colour show the site type, while the shape shows whether the site is still open.
+
+```{r map-shapelegend}
+statusPal <- iconFactor(c("square", "circle"), domain = c(FALSE, TRUE))
+
+leaflet(port_talbot) |>
+  addTiles() |>
+  addMarkers(
+    popup = ~popup,
+    icon = magicIcons(
+      icon = ~ iconPal(site_type),
+      markerColor = ~ catPal(site_type),
+      marker = ~ statusPal(open)
+    )
+  ) |>
+  addIconLegend(
+    pal = iconPal,
+    values = ~site_type,
+    colors = catPal,
+    title = "Site Type"
+  ) |>
+  addIconLegend(
+    markers = statusPal,
+    values = ~open,
+    labels = c("Closed", "Open"),
+    colors = "grey40",
+    title = "Status"
+  )
+```
+
 ## Manual Legends
 
 Legends can also be built by hand with the `icons`, `labels` and `colors` arguments, and - like `leaflet::addLegend()` - shown and hidden alongside a layer using `group`.
