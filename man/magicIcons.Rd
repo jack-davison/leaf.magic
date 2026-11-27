@@ -7,7 +7,7 @@
 magicIcons(
   icon = "circle",
   markerColor = leaf.magic::awesomePalette$blue,
-  iconColor = leaf.magic::awesomePalette$white,
+  iconColor = "auto",
   marker = "marker",
   markerSize = 30L,
   library = "fontawesome",
@@ -24,7 +24,10 @@ using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{ht
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
-\item{iconColor}{The color of the icon.}
+\item{iconColor}{The color of the icon. \code{"auto"} chooses black or white for
+each marker, whichever has the greater contrast with \code{markerColor}. When
+\code{marker = "none"}, \code{"auto"} instead gives the icon the colour
+\code{markerColor}, as there is no marker for it to contrast with.}
 
 \item{marker}{The shape of the marker. Defaults to \code{"marker"}, which uses
 the standard teardrop shaped pin, similar to \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. The

@@ -13,6 +13,7 @@
 ## New features
 
 * Markers:
+  * `magicIcons(iconColor = "auto")` picks black or white icons, whichever contrasts more with each marker. This is now the default.
   * `magicIcons()` now accepts formulas (e.g., `icon = ~site_type`), evaluated against the layer's data as in `leaflet::awesomeIcons()`.
   * `magicIcons()` markers now cast shadows like `{leaflet}`'s default marker; turn them off with `shadow = FALSE` (#12).
   * New marker shapes: `"marker-square"`, `"callout"`, `"triangle"` and `"hexagon"`.

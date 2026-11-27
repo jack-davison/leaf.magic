@@ -332,3 +332,27 @@ test_that("Formulas can use functions and variables from their environment", {
 test_that("Two-sided formulas error", {
   expect_error(magicIcons(type ~ col), "one-sided formula")
 })
+
+test_that("iconColor = 'auto' picks the higher contrast of black or white", {
+  skip_if_not_installed("fontawesome")
+  expect_identical(
+    contrast_color(c("#000000", "#FFFFFF", "navy", "yellow")),
+    c("#FFFFFF", "#000000", "#FFFFFF", "#000000")
+  )
+
+  icon_urls <- function(...) magicIcons(..., shadow = FALSE)$iconUrl
+  expect_identical(
+    icon_urls("car", c("navy", "yellow"), "auto"),
+    icon_urls("car", c("navy", "yellow"), c("#FFFFFF", "#000000"))
+  )
+  # "auto" can be mixed with other colours
+  expect_identical(
+    icon_urls("car", c("navy", "yellow"), c("auto", "red")),
+    icon_urls("car", c("navy", "yellow"), c("#FFFFFF", "red"))
+  )
+  # with no marker, the icon takes the marker colour
+  expect_identical(
+    icon_urls("car", c("navy", "yellow"), "auto", marker = c("none", "circle")),
+    icon_urls("car", c("navy", "yellow"), c("navy", "#000000"), marker = c("none", "circle"))
+  )
+})

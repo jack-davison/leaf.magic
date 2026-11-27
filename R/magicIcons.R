@@ -33,7 +33,10 @@
 #'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #'
-#' @param iconColor The color of the icon.
+#' @param iconColor The color of the icon. `"auto"` chooses black or white for
+#'   each marker, whichever has the greater contrast with `markerColor`. When
+#'   `marker = "none"`, `"auto"` instead gives the icon the colour
+#'   `markerColor`, as there is no marker for it to contrast with.
 #'
 #' @param marker The shape of the marker. Defaults to `"marker"`, which uses
 #'   the standard teardrop shaped pin, similar to [leaflet::addMarkers()]. The
@@ -117,7 +120,7 @@
 magicIcons <- function(
   icon = "circle",
   markerColor = leaf.magic::awesomePalette$blue,
-  iconColor = leaf.magic::awesomePalette$white,
+  iconColor = "auto",
   marker = "marker",
   markerSize = 30L,
   library = "fontawesome",
@@ -172,6 +175,24 @@ magicIcons <- function(
       marker = shape_keys,
       markerSize = markerSize
     )
+
+  # "auto" icon colours are black or white, whichever contrasts more with the
+  # marker. Shapes with no body (i.e., "none") have no marker to contrast
+  # with, so the icon takes on `markerColor` instead.
+  is_auto <- combinations$iconColor %in% "auto"
+  if (any(is_auto)) {
+    has_body <- vapply(
+      shapes[combinations$marker[is_auto]],
+      function(s) !is.null(s$body),
+      logical(1)
+    )
+    auto_marker_color <- combinations$markerColor[is_auto]
+    combinations$iconColor[is_auto] <- ifelse(
+      has_body,
+      contrast_color(auto_marker_color),
+      auto_marker_color
+    )
+  }
 
   # only build each unique combination once
   key <- do.call(paste, c(combinations, sep = "\x1f"))
@@ -289,11 +310,13 @@ defer_magic_icons <- function(data_args, other_args) {
     .leafmagic_resolve = resolve_magic_icons
   )
   f <- stats::as.formula(
-    quote(~ .leafmagic_resolve(
-      .leafmagic_args,
-      .leafmagic_other,
-      environment()
-    )),
+    quote(
+      ~ .leafmagic_resolve(
+        .leafmagic_args,
+        .leafmagic_other,
+        environment()
+      )
+    ),
     env = env
   )
   structure(f, class = c("leafmagic_icons_formula", class(f)))
@@ -555,6 +578,20 @@ darken_color <- function(col, factor = 0.8) {
   col <- grDevices::col2rgb(col)
   col <- col * factor
   grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
+}
+
+#' Pick black or white, whichever has the higher contrast against `col`
+#'
+#' Uses the WCAG 2 definitions of relative luminance and contrast ratio. Ties
+#' go to white, as in the default `{leaflet}` awesome markers.
+#' @noRd
+contrast_color <- function(col) {
+  rgb <- grDevices::col2rgb(col) / 255
+  linear <- ifelse(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055)^2.4)
+  lum <- colSums(linear * c(0.2126, 0.7152, 0.0722))
+  black_contrast <- (lum + 0.05) / 0.05
+  white_contrast <- 1.05 / (lum + 0.05)
+  ifelse(black_contrast > white_contrast, "#000000", "#FFFFFF")
 }
 
 #' Normalise a colour to an uppercase "#RRGGBBAA" hex code
