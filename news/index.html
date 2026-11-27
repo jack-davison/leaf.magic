@@ -61,6 +61,8 @@
 <code>magicIcons(library = "text")</code> shows text or numbers in markers instead of icons, e.g., for numbered stops.</li>
 <li>
 <code>magicIcons(library = "svg")</code> uses raw SVG markup as the icon, so any icon can be used.</li>
+<li>
+<code>magicIcons(icon = NA)</code> draws the marker shape with no icon, e.g., when the shape alone carries the meaning. Likewise, <code>marker = NA</code> draws the icon with no marker, like <code>"none"</code>.</li>
 </ul></li>
 <li>
 <p>Markers:</p>
@@ -79,6 +81,8 @@
 <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> can now be built directly from an icon scale using <code>pal</code> and <code>values</code>, like <code><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">leaflet::addLegend()</a></code> (<a href="https://github.com/jack-davison/leaf.magic/issues/10" class="external-link">#10</a>). <code>colors</code> may also be a <a href="https://rstudio.github.io/leaflet/" class="external-link">leaflet</a> colour scale.</li>
 <li>
 <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> gains <code>na.label</code>, <code>labFormat</code>, <code>group</code> and <code>opacity</code> arguments, as in <code><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">leaflet::addLegend()</a></code>.</li>
+<li>
+<code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> gains <code>markers</code> to draw each item as the marker used on the map (shape, colour and icon) rather than a bare icon, and <code>iconColors</code> to colour icons within markers. <code>markers</code> may also be an icon scale mapping data to shapes, which can drive the legend on its own to show shapes alone.</li>
 </ul></li>
 <li>
 <p>Icon scales:</p>
@@ -95,6 +99,7 @@
 <li>Cached markers are now invalidated when <a href="https://jack-davison.github.io/leaf.magic/">leaf.magic</a> is upgraded, work with any icon name, and are shared between equivalent colours (e.g., <code>"red"</code> and <code>"#FF0000"</code>).</li>
 <li>
 <code>dir</code> is created if it doesn’t exist.</li>
+<li>Colours which R understands but CSS doesn’t (e.g., <code>"grey40"</code>) are no longer drawn as black.</li>
 </ul></li>
 <li>
 <p><code><a href="../reference/addIconLegend.html">addIconLegend()</a></code>:</p>

@@ -268,7 +268,11 @@ Note that `marker` can vary with some variable, allowing the marker
 shape itself to encode extra information. As marker shapes are just
 names,
 [`iconFactor()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
-can map data to them.
+can map data to them. Passing that scale to the `markers` argument of
+[`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
+draws the real marker shapes in the legend (see [Icon Scales &
+Legends](https://jack-davison.github.io/leaf.magic/articles/scales-and-legends.html#marker-legends)
+for more).
 
 ``` r
 
@@ -281,8 +285,9 @@ leaflet(port_talbot) |>
     markerSize = ~ ifelse(markPal(site_type) == "diamond", 35, 30)
   )) |>
   addIconLegend(
-    pal = markPal,
+    markers = markPal,
     values = ~site_type,
+    icons = "circle",
     title = "Site Type"
   )
 ```
