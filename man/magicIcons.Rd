@@ -12,7 +12,8 @@ magicIcons(
   markerSize = 30L,
   library = "fontawesome",
   className = NULL,
-  dir = tempdir()
+  dir = tempdir(),
+  shadow = TRUE
 )
 }
 \arguments{
@@ -56,6 +57,12 @@ is roughly the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers(
 \code{\link[=tempdir]{tempdir()}}, which is deleted at the end of each R session. Providing an
 alternative directory will allow markers to persist between R sessions.
 \code{dir} is created if it does not already exist.}
+
+\item{shadow}{Should markers have a shadow? Defaults to \code{TRUE}. As with the
+default \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}} marker, pointed shapes such as \code{"marker"}
+cast a shadow up and to the right, while other shapes have a soft shadow
+just beneath them. \code{"none"} never has a shadow. The shadow of a custom
+shape is set using the \code{shadow} argument of \code{\link[=markerShape]{markerShape()}}.}
 }
 \value{
 a \code{\link[leaflet:iconList]{leaflet::iconList()}}, to be passed to the \code{icon} argument of

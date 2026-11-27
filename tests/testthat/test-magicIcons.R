@@ -72,7 +72,7 @@ test_that("Markers are cached by package version and temp files are removed", {
 
   # a missing `dir` is created
   before <- list.files(tempdir())
-  icons <- magicIcons("car", "red", "white", dir = dir)
+  icons <- magicIcons("car", "red", "white", dir = dir, shadow = FALSE)
   expect_true(dir.exists(dir))
 
   files <- list.files(dir)
@@ -85,7 +85,7 @@ test_that("Markers are cached by package version and temp files are removed", {
   expect_false(any(grepl("^(logo|pin)_", new_tmp)))
 
   # equivalent colours share a single cached marker
-  magicIcons("car", c("#FF0000", "#ff0000", "red"), "WHITE", dir = dir)
+  magicIcons("car", c("#FF0000", "#ff0000", "red"), "WHITE", dir = dir, shadow = FALSE)
   expect_length(list.files(dir), 1)
 
   # cache file names are always valid, whatever the icon name

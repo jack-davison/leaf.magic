@@ -30,6 +30,19 @@
 #'   should be the tip.
 #' @param popup The coordinates from which popups open, as a numeric vector of
 #'   `x` and `y`. Defaults to `anchor`.
+#' @param shadow The style of shadow drawn beneath the marker when
+#'   `magicIcons(shadow = TRUE)`. One of:
+#'   - `"drop"` (the default): a soft shadow just below the shape, as if it
+#'   were lying flat on the map. Suits shapes centred on their location.
+#'   - `"cast"`: a shadow cast from `anchor` up and to the right, as if the
+#'   shape were standing upright on its tip, like the default
+#'   [leaflet::addMarkers()] marker. Suits pointed shapes.
+#'   - `"none"`: no shadow.
+#'
+#' @section Shadows: As in `{leaflet}`, shadows are drawn as separate images in
+#'   the map's shadow pane, so a marker's shadow never covers another marker.
+#'   Shadows are generated from the shape itself, so work for any shape. Shapes
+#'   with no `path` never have a shadow.
 #'
 #' @return A `leafmagic_marker_shape` object.
 #' @export
@@ -42,7 +55,8 @@
 #'   "M2 2h96L50 98z",
 #'   icon = c(x = 50, y = 34, size = 36),
 #'   anchor = c(x = 50, y = 98),
-#'   popup = c(x = 50, y = 10)
+#'   popup = c(x = 50, y = 10),
+#'   shadow = "cast"
 #' )
 #' arrow
 #'
@@ -62,8 +76,10 @@ markerShape <- function(
   height = 100,
   icon = c(x = width / 2, y = height / 2, size = min(width, height) / 2),
   anchor = c(x = width / 2, y = height / 2),
-  popup = anchor
+  popup = anchor,
+  shadow = c("drop", "cast", "none")
 ) {
+  shadow <- rlang::arg_match(shadow)
   check_number(width, "width")
   check_number(height, "height")
 
@@ -91,7 +107,8 @@ markerShape <- function(
       height = height,
       icon = icon,
       anchor = anchor,
-      popup = popup
+      popup = popup,
+      shadow = if (is.null(path)) "none" else shadow
     ),
     class = "leafmagic_marker_shape"
   )
@@ -122,6 +139,9 @@ print.leafmagic_marker_shape <- function(x, ...) {
     ", ",
     format(x$popup[["y"]]),
     ")\n",
+    "* shadow: ",
+    x$shadow,
+    "\n",
     if (is.null(x$body)) "* no shape; icon only\n",
     sep = ""
   )
@@ -199,7 +219,8 @@ marker_shapes <- list(
     height = 132,
     icon = c(50, 50, 52),
     anchor = c(50, 130),
-    popup = c(50, 24)
+    popup = c(50, 24),
+    shadow = "cast"
   ),
   `marker-square` = markerShape(
     "M16 2h68a14 14 0 0 1 14 14v68a14 14 0 0 1-14 14H64l-14 24-14-24H16A14 14 0 0 1 2 84V16A14 14 0 0 1 16 2z",
@@ -207,7 +228,8 @@ marker_shapes <- list(
     height = 124,
     icon = c(50, 50, 54),
     anchor = c(50, 122),
-    popup = c(50, 22)
+    popup = c(50, 22),
+    shadow = "cast"
   ),
   circle = markerShape(
     '<circle cx="50" cy="50" r="48"/>',
@@ -253,7 +275,8 @@ marker_shapes <- list(
     height = 98,
     icon = c(50, 40, 50),
     anchor = c(14, 96),
-    popup = c(50, 4)
+    popup = c(50, 4),
+    shadow = "cast"
   ),
   none = markerShape(NULL, icon = c(50, 50, 96))
 )
@@ -317,4 +340,107 @@ as_marker_shapes <- function(marker, call = rlang::caller_env()) {
   }
   marker[is_name] <- marker_shapes[idx]
   unname(marker)
+}
+
+#' Build the SVG of a shape's shadow
+#'
+#' Shadows are drawn in the shape's own coordinate system, but on a canvas
+#' large enough to contain the (transformed, blurred) shadow. The shape is
+#' turned into a translucent black silhouette using a colour matrix, so any
+#' fills set by a custom shape are ignored, and then blurred.
+#'
+#' - `"cast"` shadows are squashed vertically and sheared to the right about
+#'   the anchor point, as though the shape were standing on its tip with the
+#'   light behind and to the left, mimicking leaflet's default marker shadow.
+#' - `"drop"` shadows are offset slightly downwards.
+#'
+#' @return A list of the SVG markup and the canvas `x`, `y`, `width` and
+#'   `height` in shape units.
+#' @noRd
+shadow_svg <- function(shape) {
+  w <- shape$width
+  h <- shape$height
+  corners_x <- c(0, w, 0, w)
+  corners_y <- c(0, 0, h, h)
+
+  if (shape$shadow == "cast") {
+    ay <- shape$anchor[["y"]]
+    squash <- 0.5
+    blur <- 2.5
+    opacity <- 0.35
+    # x' = x - squash * (y - ay); y' = ay + squash * (y - ay)
+    transform <- sprintf(
+      "matrix(1 0 %s %s %s %s)",
+      fmt_num(-squash),
+      fmt_num(squash),
+      fmt_num(squash * ay),
+      fmt_num((1 - squash) * ay)
+    )
+    tx <- corners_x - squash * (corners_y - ay)
+    ty <- ay + squash * (corners_y - ay)
+  } else {
+    offset <- c(0, 0.04 * h)
+    blur <- 3
+    opacity <- 0.3
+    transform <- sprintf(
+      "translate(%s %s)",
+      fmt_num(offset[1]),
+      fmt_num(offset[2])
+    )
+    tx <- corners_x + offset[1]
+    ty <- corners_y + offset[2]
+  }
+
+  # leave room for the blur, which extends about 3 standard deviations
+  margin <- 3 * blur
+  x <- floor(min(tx) - margin)
+  y <- floor(min(ty) - margin)
+  width <- ceiling(max(tx) + margin) - x
+  height <- ceiling(max(ty) + margin) - y
+  box <- paste(fmt_num(c(x, y, width, height)), collapse = " ")
+
+  svg <- paste0(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="',
+    box,
+    '" width="',
+    fmt_num(width),
+    '" height="',
+    fmt_num(height),
+    '">',
+    '<defs><filter id="shadow" filterUnits="userSpaceOnUse" x="',
+    fmt_num(x),
+    '" y="',
+    fmt_num(y),
+    '" width="',
+    fmt_num(width),
+    '" height="',
+    fmt_num(height),
+    '">',
+    '<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',
+    fmt_num(opacity),
+    ' 0"/>',
+    '<feGaussianBlur stdDeviation="',
+    fmt_num(blur),
+    '"/></filter></defs>',
+    '<g filter="url(#shadow)"><g transform="',
+    transform,
+    '" fill="#000" stroke="#000" stroke-width="2" stroke-linejoin="round">',
+    shape$body,
+    "</g></g></svg>"
+  )
+
+  list(svg = svg, x = x, y = y, width = width, height = height)
+}
+
+#' Format numbers for SVG attributes, without scientific notation
+#' @noRd
+fmt_num <- function(x) {
+  vapply(
+    round(x, 4),
+    format,
+    character(1),
+    scientific = FALSE,
+    trim = TRUE,
+    drop0trailing = TRUE
+  )
 }

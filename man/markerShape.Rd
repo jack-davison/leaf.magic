@@ -10,7 +10,8 @@ markerShape(
   height = 100,
   icon = c(x = width/2, y = height/2, size = min(width, height)/2),
   anchor = c(x = width/2, y = height/2),
-  popup = anchor
+  popup = anchor,
+  shadow = c("drop", "cast", "none")
 )
 }
 \arguments{
@@ -34,6 +35,17 @@ should be the tip.}
 
 \item{popup}{The coordinates from which popups open, as a numeric vector of
 \code{x} and \code{y}. Defaults to \code{anchor}.}
+
+\item{shadow}{The style of shadow drawn beneath the marker when
+\code{magicIcons(shadow = TRUE)}. One of:
+\itemize{
+\item \code{"drop"} (the default): a soft shadow just below the shape, as if it
+were lying flat on the map. Suits shapes centred on their location.
+\item \code{"cast"}: a shadow cast from \code{anchor} up and to the right, as if the
+shape were standing upright on its tip, like the default
+\code{\link[leaflet:addMarkers]{leaflet::addMarkers()}} marker. Suits pointed shapes.
+\item \code{"none"}: no shadow.
+}}
 }
 \value{
 A \code{leafmagic_marker_shape} object.
@@ -55,13 +67,21 @@ between the shape and the edges of the coordinate system so that it isn't
 clipped.
 }
 
+\section{Shadows}{
+ As in \code{{leaflet}}, shadows are drawn as separate images in
+the map's shadow pane, so a marker's shadow never covers another marker.
+Shadows are generated from the shape itself, so work for any shape. Shapes
+with no \code{path} never have a shadow.
+}
+
 \examples{
 # a downwards-pointing triangle, anchored at its tip
 arrow <- markerShape(
   "M2 2h96L50 98z",
   icon = c(x = 50, y = 34, size = 36),
   anchor = c(x = 50, y = 98),
-  popup = c(x = 50, y = 10)
+  popup = c(x = 50, y = 10),
+  shadow = "cast"
 )
 arrow
 

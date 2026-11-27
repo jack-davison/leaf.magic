@@ -83,7 +83,7 @@ test_that("custom shapes are used by magicIcons()", {
   expect_length(icons, 3)
   # identical shapes share a cached marker
   expect_equal(icons[[1]]$iconUrl, icons[[3]]$iconUrl)
-  expect_length(list.files(dir), 2)
+  expect_length(grep("-shadow-", list.files(dir), invert = TRUE, value = TRUE), 2)
 
   svg <- xml2::read_xml(icons[[1]]$iconUrl)
   expect_equal(
@@ -116,4 +116,66 @@ test_that("anchors at x = 0 aren't ignored by leaflet", {
   icon <- magicIcons("car", marker = corner, dir = dir)[[1]]
   expect_gt(icon$iconAnchorX, 0)
   expect_gt(icon$popupAnchorX, 0)
+})
+
+test_that("markerShape() validates `shadow`", {
+  expect_equal(markerShape("M0 0")$shadow, "drop")
+  expect_equal(markerShape("M0 0", shadow = "cast")$shadow, "cast")
+  # shapes with no path have nothing to cast a shadow
+  expect_equal(markerShape(NULL, shadow = "cast")$shadow, "none")
+  expect_error(markerShape("M0 0", shadow = "blob"), "`shadow` must be one of")
+  expect_equal(marker_shapes$marker$shadow, "cast")
+  expect_equal(marker_shapes$circle$shadow, "drop")
+  expect_equal(marker_shapes$none$shadow, "none")
+})
+
+test_that("shadow SVGs are well-formed and contain the whole shadow", {
+  skip_if_not_installed("xml2")
+  for (name in setdiff(names(marker_shapes), "none")) {
+    shape <- marker_shapes[[name]]
+    shadow <- shadow_svg(shape)
+    svg <- xml2::read_xml(shadow$svg)
+    expect_equal(
+      xml2::xml_attr(svg, "viewBox"),
+      paste(shadow$x, shadow$y, shadow$width, shadow$height),
+      label = name
+    )
+    # the canvas always contains the shape's anchor
+    expect_true(shape$anchor[["x"]] > shadow$x, label = name)
+    expect_true(shape$anchor[["y"]] > shadow$y, label = name)
+  }
+
+  # cast shadows lean to the right of the shape and are squashed
+  pin <- shadow_svg(marker_shapes$marker)
+  expect_gt(pin$x + pin$width, marker_shapes$marker$width + 30)
+  expect_lt(pin$height, marker_shapes$marker$height)
+})
+
+test_that("magicIcons() adds shadows, positioned by the anchor", {
+  skip_if_not_installed("fontawesome")
+  dir <- tempfile("leafmagic-test-")
+  on.exit(unlink(dir, recursive = TRUE))
+
+  icons <- magicIcons(
+    "car",
+    c("red", "blue"),
+    marker = c("marker", "marker"),
+    markerSize = 50,
+    dir = dir
+  )
+  pin <- icons[[1]]
+  expect_match(pin$shadowUrl, "-shadow-.*[.]svg$")
+  # one shadow per shape, whatever the colours
+  expect_equal(icons[[2]]$shadowUrl, pin$shadowUrl)
+
+  # the shadow canvas, in pixels, is placed so the shape's anchor lines up
+  shadow <- shadow_svg(marker_shapes$marker)
+  expect_equal(pin$shadowWidth, shadow$width / 2)
+  expect_equal(pin$shadowHeight, shadow$height / 2)
+  expect_equal(pin$shadowAnchorX, (50 - shadow$x) / 2)
+  expect_equal(pin$shadowAnchorY, (130 - shadow$y) / 2)
+
+  expect_null(magicIcons("car", marker = "none", dir = dir)[[1]]$shadowUrl)
+  expect_null(magicIcons("car", shadow = FALSE, dir = dir)[[1]]$shadowUrl)
+  expect_error(magicIcons("car", shadow = NA, dir = dir), "`shadow` must be")
 })

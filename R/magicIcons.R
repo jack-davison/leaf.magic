@@ -57,6 +57,12 @@
 #'   alternative directory will allow markers to persist between R sessions.
 #'   `dir` is created if it does not already exist.
 #'
+#' @param shadow Should markers have a shadow? Defaults to `TRUE`. As with the
+#'   default [leaflet::addMarkers()] marker, pointed shapes such as `"marker"`
+#'   cast a shadow up and to the right, while other shapes have a soft shadow
+#'   just beneath them. `"none"` never has a shadow. The shadow of a custom
+#'   shape is set using the `shadow` argument of [markerShape()].
+#'
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
@@ -105,10 +111,14 @@ magicIcons <- function(
   markerSize = 30L,
   library = "fontawesome",
   className = NULL,
-  dir = tempdir()
+  dir = tempdir(),
+  shadow = TRUE
 ) {
   library <- check_library(library)
   shapes <- as_marker_shapes(marker)
+  if (!rlang::is_bool(shadow)) {
+    rlang::abort("`shadow` must be `TRUE` or `FALSE`.")
+  }
 
   check_lengths(
     icon = icon,
@@ -177,6 +187,31 @@ magicIcons <- function(
     anchor <- shape$anchor * scale
     popup <- (shape$popup - shape$anchor) * scale
 
+    # shadows don't depend on colours or icons, so there's one per shape
+    shadow_url <- shadow_width <- shadow_height <- NULL
+    shadow_anchor <- NULL
+    if (shadow && shape$shadow != "none") {
+      shadow_def <- shadow_svg(shape)
+      shadow_url <- file.path(
+        dir,
+        paste0(
+          "leafmagic-",
+          getNamespaceVersion("leaf.magic"),
+          "-shadow-",
+          marker,
+          ".svg"
+        )
+      )
+      if (!file.exists(shadow_url)) {
+        writeLines(enc2utf8(shadow_def$svg), shadow_url, useBytes = TRUE)
+      }
+      shadow_width <- shadow_def$width * scale
+      shadow_height <- shadow_def$height * scale
+      # the anchor is the same point of the shape, measured from the corner
+      # of the (larger) shadow canvas
+      shadow_anchor <- (shape$anchor - c(shadow_def$x, shadow_def$y)) * scale
+    }
+
     leaflet::makeIcon(
       iconUrl = url,
       iconWidth = markerSize,
@@ -184,6 +219,11 @@ magicIcons <- function(
       # leaflet ignores anchors whose x is exactly 0, hence the tiny offsets
       iconAnchorX = nonzero(anchor[["x"]]),
       iconAnchorY = anchor[["y"]],
+      shadowUrl = shadow_url,
+      shadowWidth = shadow_width,
+      shadowHeight = shadow_height,
+      shadowAnchorX = if (!is.null(shadow_url)) nonzero(shadow_anchor[[1]]),
+      shadowAnchorY = if (!is.null(shadow_url)) shadow_anchor[[2]],
       popupAnchorX = nonzero(popup[["x"]]),
       popupAnchorY = popup[["y"]],
       className = className

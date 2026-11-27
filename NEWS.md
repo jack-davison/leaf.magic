@@ -12,6 +12,8 @@
 
 * New `markerShape()` function to define custom marker shapes using SVG, including where the icon sits, which point of the shape is anchored to the map location, and where popups open. Custom shapes can be passed to the `marker` argument of `magicIcons()`, either alone or in a list alongside other shapes and shape names.
 
+* `magicIcons()` markers now have shadows, which can be turned off with `shadow = FALSE` (#12). As with the default `{leaflet}` marker, pointed shapes such as `"marker"` cast a shadow up and to the right from their tip, while other shapes have a soft shadow beneath them. Shadows are generated from each shape, so work for custom shapes too; use the new `shadow` argument of `markerShape()` to choose the style. Shadows are drawn in the map's shadow pane, so never cover other markers.
+
 * `magicIcons()` gains several new built-in marker shapes: `"marker-square"` (a pin with a square head), `"callout"` (a speech bubble), `"triangle"` and `"hexagon"`.
 
 * `addIconLegend()` gains `pal`, `values`, `na.label` and `labFormat` arguments, allowing a legend to be generated automatically from an `iconFactor()`, `iconBin()` or `iconQuantile()` scale in the same way as `leaflet::addLegend()` (#10). Legend items, labels and missing value handling match `leaflet::addLegend()`, so icon and colour legends built from equivalent scales always agree. When `pal` is used, `colors` may also be a `{leaflet}` colour scale function, giving a legend of matched icon-colour pairs.
