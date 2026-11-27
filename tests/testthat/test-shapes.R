@@ -83,7 +83,10 @@ test_that("custom shapes are used by magicIcons()", {
   expect_length(icons, 3)
   # identical shapes share a cached marker
   expect_equal(icons[[1]]$iconUrl, icons[[3]]$iconUrl)
-  expect_length(grep("-shadow-", list.files(dir), invert = TRUE, value = TRUE), 2)
+  expect_length(
+    grep("-shadow-", list.files(dir), invert = TRUE, value = TRUE),
+    2
+  )
 
   svg <- xml2::read_xml(icons[[1]]$iconUrl)
   expect_equal(

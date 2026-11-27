@@ -414,7 +414,9 @@ addIconAttribution <-
     library <- check_library(library, check_installed = FALSE)
     if (library %in% c("text", "svg")) {
       rlang::abort(paste0(
-        "`library = \"", library, "\"` doesn't use an icon library, so needs no attribution."
+        "`library = \"",
+        library,
+        "\"` doesn't use an icon library, so needs no attribution."
       ))
     }
 

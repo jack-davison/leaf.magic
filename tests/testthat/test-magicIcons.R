@@ -85,7 +85,13 @@ test_that("Markers are cached by package version and temp files are removed", {
   expect_false(any(grepl("^(logo|pin)_", new_tmp)))
 
   # equivalent colours share a single cached marker
-  magicIcons("car", c("#FF0000", "#ff0000", "red"), "WHITE", dir = dir, shadow = FALSE)
+  magicIcons(
+    "car",
+    c("#FF0000", "#ff0000", "red"),
+    "WHITE",
+    dir = dir,
+    shadow = FALSE
+  )
   expect_length(list.files(dir), 1)
 
   # cache file names are always valid, whatever the icon name
@@ -355,13 +361,28 @@ test_that("iconColor = 'auto' picks the higher contrast of black or white", {
   # with no marker, the icon takes the marker colour
   expect_identical(
     icon_urls("car", c("navy", "yellow"), "auto", marker = c("none", "circle")),
-    icon_urls("car", c("navy", "yellow"), c("navy", "#000000"), marker = c("none", "circle"))
+    icon_urls(
+      "car",
+      c("navy", "yellow"),
+      c("navy", "#000000"),
+      marker = c("none", "circle")
+    )
   )
 })
 
 test_that("library = 'text' shows text in markers", {
-  icons <- magicIcons(c(1, 10, "A&B"), "navy", "white", library = "text", shadow = FALSE)
-  svgs <- vapply(icons, function(i) paste(readLines(i$iconUrl), collapse = ""), "")
+  icons <- magicIcons(
+    c(1, 10, "A&B"),
+    "navy",
+    "white",
+    library = "text",
+    shadow = FALSE
+  )
+  svgs <- vapply(
+    icons,
+    function(i) paste(readLines(i$iconUrl), collapse = ""),
+    ""
+  )
   expect_match(svgs[1], ">1</text>", fixed = TRUE)
   expect_match(svgs[2], ">10</text>", fixed = TRUE)
   # text is escaped
@@ -389,10 +410,18 @@ read_marker <- function(icon) paste(readLines(icon$iconUrl), collapse = "")
 test_that("outlineColor and outlineWidth style the marker outline", {
   skip_if_not_installed("fontawesome")
   default <- magicIcons("car", "red", shadow = FALSE)[[1]]
-  expect_match(read_marker(default), 'stroke="#CC0000" stroke-width="2"', fixed = TRUE)
+  expect_match(
+    read_marker(default),
+    'stroke="#CC0000" stroke-width="2"',
+    fixed = TRUE
+  )
 
   white <- magicIcons("car", "red", outlineColor = "white", shadow = FALSE)[[1]]
-  expect_match(read_marker(white), 'stroke="white" stroke-width="2"', fixed = TRUE)
+  expect_match(
+    read_marker(white),
+    'stroke="white" stroke-width="2"',
+    fixed = TRUE
+  )
   expect_equal(white$iconWidth, default$iconWidth)
 
   # a 3px outline on a 30px marker is 10 shape units, so the canvas is padded
@@ -406,9 +435,17 @@ test_that("outlineColor and outlineWidth style the marker outline", {
   expect_equal(wide$iconAnchorY, default$iconAnchorY + 1.2)
 
   # outlines can vary by marker, including via formulas
-  icons <- magicIcons("car", "red", outlineColor = c("white", "black"), shadow = FALSE)
+  icons <- magicIcons(
+    "car",
+    "red",
+    outlineColor = c("white", "black"),
+    shadow = FALSE
+  )
   expect_false(identical(icons[[1]]$iconUrl, icons[[2]]$iconUrl))
-  expect_s3_class(magicIcons("car", outlineColor = ~col), "leafmagic_icons_formula")
+  expect_s3_class(
+    magicIcons("car", outlineColor = ~col),
+    "leafmagic_icons_formula"
+  )
 
   expect_error(magicIcons("car", outlineWidth = "thick"), "number of pixels")
 })
@@ -417,13 +454,24 @@ test_that("library = 'svg' uses raw SVG markup as the icon", {
   with_viewbox <- '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="gold"/><circle cx="12" cy="12" r="5"/></svg>'
   no_viewbox <- '<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="16"><rect width="24" height="16"/></svg>'
 
-  svg <- read_marker(magicIcons(with_viewbox, "navy", "white", library = "svg", shadow = FALSE)[[1]])
+  svg <- read_marker(magicIcons(
+    with_viewbox,
+    "navy",
+    "white",
+    library = "svg",
+    shadow = FALSE
+  )[[1]])
   # hard-coded colours are kept, and unfilled parts take on iconColor
   expect_match(svg, 'fill="gold"', fixed = TRUE)
   expect_match(svg, 'viewBox="0 0 24 24"[^>]*fill="white"', perl = TRUE)
 
   # an SVG with only a width and height is given a viewBox so it scales
-  svg <- read_marker(magicIcons(no_viewbox, "navy", library = "svg", shadow = FALSE)[[1]])
+  svg <- read_marker(magicIcons(
+    no_viewbox,
+    "navy",
+    library = "svg",
+    shadow = FALSE
+  )[[1]])
   expect_match(svg, 'viewBox="0 0 24 16"', fixed = TRUE)
   expect_no_match(svg, 'width="24px"', fixed = TRUE)
 
