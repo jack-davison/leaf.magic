@@ -14,7 +14,13 @@ addIconLegend(
   position = c("topright", "bottomright", "bottomleft", "topleft"),
   layerId = NULL,
   className = "info legend",
-  data = leaflet::getMapData(map)
+  data = leaflet::getMapData(map),
+  pal,
+  values,
+  na.label = "NA",
+  labFormat = leaflet::labelFormat(),
+  opacity = 1,
+  group = NULL
 )
 }
 \arguments{
@@ -23,16 +29,23 @@ addIconLegend(
 \item{icons}{Name of the icons, from the icon library defined by \code{library}.
 A full list of available icons can be found using
 \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
-\url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}.}
+\url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}. Should not be
+provided if \code{pal} is used.}
 
 \item{labels}{Labels for each \code{icon}; should be the same length as \code{icons}.
 Labels are inserted as HTML, so may contain formatting such as
-\code{"PM<sub>2.5</sub>"}.}
+\code{"PM<sub>2.5</sub>"}. If \code{pal} is used, labels are generated using
+\code{labFormat}, but can be overridden by providing \code{labels}.}
 
 \item{colors}{Colours to use for each \code{icon}. If \code{length(colors) == 1L} it is
-recycled for all icons. Otherwise should be the same length as \code{icons}.}
+recycled for all icons. Otherwise should be the same length as \code{icons}. If
+\code{pal} is used, \code{colors} may also be a colour scale function, such as one
+created using \code{\link[leaflet:colorFactor]{leaflet::colorFactor()}}, \code{\link[leaflet:colorBin]{leaflet::colorBin()}} or
+\code{\link[leaflet:colorQuantile]{leaflet::colorQuantile()}}.}
 
-\item{title}{the legend title; optional.}
+\item{title}{the legend title; optional. If \code{pal} is used and \code{values} is a
+formula, the title defaults to the variable name in the formula, as in
+\code{\link[leaflet:addLegend]{leaflet::addLegend()}}.}
 
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
 \code{"lucide"} defining the icon library of interest. Defaults to
@@ -48,15 +61,68 @@ recycled for all icons. Otherwise should be the same length as \code{icons}.}
 \item{data}{the data object from which the argument values are derived; by
 default, it is the \code{data} object provided to \code{leaflet()}
 initially, but can be overridden}
+
+\item{pal}{An icon scale function created using \code{\link[=iconFactor]{iconFactor()}},
+\code{\link[=iconBin]{iconBin()}} or \code{\link[=iconQuantile]{iconQuantile()}}. If provided, \code{icons} should not be.}
+
+\item{values}{The values used to generate icons from \code{pal}. Either a vector
+or a formula to be evaluated against \code{data} (e.g., \code{~type}). May be
+omitted for scales with a fixed \code{domain} or \code{levels}, except for
+\code{\link[=iconQuantile]{iconQuantile()}} without a \code{domain}.}
+
+\item{na.label}{The legend label for missing \code{values}.}
+
+\item{labFormat}{A function to format the labels derived from \code{pal} and
+\code{values}. See \code{\link[leaflet:labelFormat]{leaflet::labelFormat()}}.}
+
+\item{opacity}{The opacity of the legend icons, between \code{0} and \code{1}. Note
+that this defaults to \code{1}, rather than the \code{0.5} of
+\code{\link[leaflet:addLegend]{leaflet::addLegend()}}, so that icons are shown in their true colours.}
+
+\item{group}{The group of a layer (e.g., the markers created using
+\code{\link[=magicIcons]{magicIcons()}}). If provided, the legend is shown/hidden alongside that
+group, e.g., using \code{\link[leaflet:addLayersControl]{leaflet::addLayersControl()}}. In Shiny, using \code{group}
+with \code{\link[leaflet:leafletProxy]{leaflet::leafletProxy()}} requires the original map to already
+contain a grouped icon legend.}
 }
 \value{
 a \link[leaflet:leaflet-package]{leaflet} widget
 }
 \description{
-Manually specify icons, labels, and colours to add an Icon legend to a map.
+Add an Icon legend to a map, either by manually specifying icons, labels,
+and colours, or by providing an icon scale function (from \code{\link[=iconFactor]{iconFactor()}},
+\code{\link[=iconBin]{iconBin()}} or \code{\link[=iconQuantile]{iconQuantile()}}) in the same way as \code{\link[leaflet:addLegend]{leaflet::addLegend()}}.
 Useful in conjunction with \code{\link[=magicIcons]{magicIcons()}} to communicate the meaning of
 icons/colours.
 }
+\section{Using icon scales}{
+ Like \code{\link[leaflet:addLegend]{leaflet::addLegend()}}, a legend can be
+generated automatically by passing an icon scale function to \code{pal}
+alongside the \code{values} used on the map. The icons and labels are then
+determined from the levels or bins of the scale, and labels are formatted
+using \code{labFormat}. For example, an \code{\link[=iconBin]{iconBin()}} scale would be shown as one
+icon per bin, labelled with the range of that bin.
+
+In this case \code{colors} may also be a colour scale function, such as one
+created using \code{\link[leaflet:colorBin]{leaflet::colorBin()}} with the same settings as the icon
+scale, giving a legend of matched icon-colour pairs.
+
+Legend items are derived exactly as in \code{\link[leaflet:addLegend]{leaflet::addLegend()}}: factor
+scales show the sorted unique \code{values}, bin scales show one item per bin,
+and quantile scales show one item per quantile of \code{values} (with the
+quantile values in a hover tooltip). An icon legend and a colour legend
+built from scales with the same settings will therefore always agree.
+Unlike \code{\link[leaflet:addLegend]{leaflet::addLegend()}}, \code{values} may be omitted when the scale has
+a fixed \code{domain}/\code{levels}, and \code{\link[=iconBin]{iconBin()}} scales with no \code{domain} are
+supported.
+
+If any \code{values} are missing, an extra legend item is added using the
+\code{na.icon} of the scale and labelled with \code{na.label}. As in
+\code{\link[leaflet:addLegend]{leaflet::addLegend()}}, this is skipped if \code{na.label} is already one of the
+labels, if \code{na.icon} is \code{NA}, or if \code{colors} is a colour scale with a
+transparent \code{na.color}.
+}
+
 \examples{
 library(leaflet)
 addIconLegend(
@@ -66,4 +132,19 @@ addIconLegend(
   colors = c("red", "blue"),
   title = "Student Hangout"
 )
+
+# use icon scales, as with leaflet::addLegend()
+icons <- c("temperature-low", "temperature-half", "temperature-high")
+iconPal <- iconBin(icons, domain = 0:30, bins = 3, pretty = FALSE)
+colorPal <- colorBin("RdYlBu", domain = 0:30, bins = 3, pretty = FALSE,
+                     reverse = TRUE)
+
+leaflet() |>
+  addIconLegend(
+    pal = iconPal,
+    values = c(2, 15, 28),
+    colors = colorPal,
+    title = "Temperature",
+    labFormat = labelFormat(suffix = "&deg;C")
+  )
 }

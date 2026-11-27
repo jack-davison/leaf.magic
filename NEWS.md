@@ -6,6 +6,10 @@
 
 ## New Features
 
+* `addIconLegend()` gains `pal`, `values`, `na.label` and `labFormat` arguments, allowing a legend to be generated automatically from an `iconFactor()`, `iconBin()` or `iconQuantile()` scale in the same way as `leaflet::addLegend()` (#10). Legend items, labels and missing value handling match `leaflet::addLegend()`, so icon and colour legends built from equivalent scales always agree. When `pal` is used, `colors` may also be a `{leaflet}` colour scale function, giving a legend of matched icon-colour pairs.
+
+* `addIconLegend()` gains `group` and `opacity` arguments, as in `leaflet::addLegend()`. `group` allows the legend to be shown and hidden alongside a layer group.
+
 * `iconFactor()` gains `levels`, `ordered` and `reverse` arguments; `iconBin()` gains `pretty` and `reverse`; and `iconQuantile()` gains `reverse`, all matching their `{leaflet}` equivalents. A `domain` of `NULL` is now also supported.
 
 ## Bug Fixes

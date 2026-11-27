@@ -15,12 +15,14 @@ Depends:
 Imports: 
     fontawesome,
     grDevices,
+    htmltools,
     leaflet,
     magick,
     purrr (>= 1.0.0),
     rlang,
     rsvg,
-    stats
+    stats,
+    utils
 Suggests: 
     bsicons,
     dplyr (>= 1.2.0),

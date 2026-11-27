@@ -96,7 +96,15 @@ iconFactor <- function(
   check_icon_count(icons, length(lvls))
   force(icons)
 
-  function(x) {
+  args <- list(
+    icons = icons,
+    levels = lvls,
+    ordered = ordered,
+    na.icon = na.icon,
+    reverse = reverse
+  )
+
+  with_icon_attr("factor", args, function(x) {
     if (length(x) == 0 || all(is.na(x))) {
       return(rep.int(na.icon, length(x)))
     }
@@ -114,7 +122,7 @@ iconFactor <- function(
     out <- icons[icon_index(ints, length(lvls), length(icons), reverse)]
     out[is.na(out)] <- na.icon
     out
-  }
+  })
 }
 
 #' @rdname icon-scales
@@ -145,7 +153,15 @@ iconBin <- function(
     reverse = reverse
   )
 
-  function(x) {
+  args <- list(
+    icons = icons,
+    bins = bins,
+    pretty = pretty,
+    na.icon = na.icon,
+    reverse = reverse
+  )
+
+  with_icon_attr("bin", args, function(x) {
     if (length(x) == 0 || all(is.na(x))) {
       return(rep.int(na.icon, length(x)))
     }
@@ -159,7 +175,7 @@ iconBin <- function(
     )
     warn_out_of_range(x, ints)
     icon_func(ints)
-  }
+  })
 }
 
 #' @rdname icon-scales
@@ -179,15 +195,21 @@ iconQuantile <- function(
     # leaflet::colorQuantile() does not pass `right` on to colorBin() when a
     # domain is supplied, so `right = FALSE` is always used here. This is
     # mirrored deliberately so icons and colours stay paired.
-    return(
-      iconBin(
-        icons,
-        domain = NULL,
-        bins = bins,
-        na.icon = na.icon,
-        reverse = reverse
-      )
+    bin_func <- iconBin(
+      icons,
+      domain = NULL,
+      bins = bins,
+      na.icon = na.icon,
+      reverse = reverse
     )
+    args <- list(
+      icons = icons,
+      probs = probs,
+      bins = bins,
+      na.icon = na.icon,
+      reverse = reverse
+    )
+    return(with_icon_attr("quantile", args, bin_func))
   }
 
   icon_func <- iconFactor(
@@ -197,7 +219,15 @@ iconQuantile <- function(
     reverse = reverse
   )
 
-  function(x) {
+  args <- list(
+    icons = icons,
+    probs = probs,
+    bins = NULL,
+    na.icon = na.icon,
+    reverse = reverse
+  )
+
+  with_icon_attr("quantile", args, function(x) {
     if (length(x) == 0 || all(is.na(x))) {
       return(rep.int(na.icon, length(x)))
     }
@@ -211,12 +241,22 @@ iconQuantile <- function(
     )
     warn_out_of_range(x, ints)
     icon_func(ints)
-  }
+  })
 }
 
 # Helpers -----------------------------------------------------------------
 # These mirror the internal helpers of leaflet's colour scales so that levels
 # and bins are calculated identically.
+
+#' Attach metadata to an icon scale, as leaflet:::withColorAttr()
+#'
+#' The `iconType` and `iconArgs` attributes allow [addIconLegend()] to
+#' reconstruct the levels/bins of an icon scale, in the same way that
+#' [leaflet::addLegend()] uses `colorType` and `colorArgs`.
+#' @noRd
+with_icon_attr <- function(type, args, fun) {
+  structure(fun, iconType = type, iconArgs = args)
+}
 
 #' Calculate factor levels, as leaflet:::getLevels()
 #' @noRd
