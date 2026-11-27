@@ -66,7 +66,9 @@ shape is set using the \code{shadow} argument of \code{\link[=markerShape]{marke
 }
 \value{
 a \code{\link[leaflet:iconList]{leaflet::iconList()}}, to be passed to the \code{icon} argument of
-\code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}
+\code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. If any argument is a formula, a formula which
+builds that \code{\link[leaflet:iconList]{leaflet::iconList()}} from the layer's data is returned
+instead.
 }
 \description{
 This function is intended as a more up-to-date implementation of
@@ -87,6 +89,17 @@ to use it: \code{{fontawesome}}, \code{{bsicons}} or \code{{lucidr}}. Ionicons a
 downloaded from \url{https://unpkg.com} the first time each icon is used in a
 session, so require an internet connection.
 }
+\section{Using formulas}{
+ As with \code{\link[leaflet:awesomeIcons]{leaflet::awesomeIcons()}}, \code{icon},
+\code{markerColor}, \code{iconColor}, \code{marker} and \code{markerSize} may be one-sided
+formulas (e.g., \code{~site_type}), which are evaluated against the data of the
+layer the markers are added to. Markers are then built when the layer is
+added, so \code{magicIcons()} must be passed directly to the \code{icon} argument of
+\code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. Formulas and constants can be mixed freely, and
+formulas may call other functions, such as an \code{\link[=iconFactor]{iconFactor()}} scale or a
+\code{\link[leaflet:colorFactor]{leaflet::colorFactor()}} palette (e.g., \code{markerColor = ~pal(site_type)}).
+}
+
 \examples{
 \dontshow{if (rlang::is_installed(c("fontawesome", "dplyr"))) withAutoprint(\{ # examplesIf}
 # create map
@@ -111,9 +124,9 @@ port_talbot |>
   leaflet() |>
   addProviderTiles("CartoDB.Voyager") |>
   addMarkers(
-    icon = ~ magicIcons(icon, color, "white"),
-    lat = ~ latitude,
-    lng = ~ longitude,
+    icon = magicIcons(icon = ~icon, markerColor = ~color, iconColor = "white"),
+    lat = ~latitude,
+    lng = ~longitude,
     popup = ~site
   )
 \dontshow{\}) # examplesIf}

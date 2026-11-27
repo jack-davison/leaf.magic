@@ -269,3 +269,66 @@ test_that("pins are anchored at their tip, other markers at their centre", {
   expect_equal(circle$iconHeight, 50)
   expect_equal(c(circle$iconAnchorX, circle$iconAnchorY), c(25, 25))
 })
+
+test_that("Formulas are evaluated against the layer's data", {
+  skip_if_not_installed("fontawesome")
+  df <- data.frame(
+    lng = c(0, 1, 2),
+    lat = c(0, 1, 2),
+    type = c("car", "city", "car"),
+    col = c("red", "blue", "red"),
+    size = c(20, 30, 40)
+  )
+
+  deferred <- magicIcons(~type, ~col, "white", markerSize = ~size)
+  expect_true(rlang::is_formula(deferred))
+  expect_output(print(deferred), "icon: ~type")
+
+  map <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(lng = ~lng, lat = ~lat, icon = deferred)
+  eager <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(
+      lng = ~lng,
+      lat = ~lat,
+      icon = magicIcons(df$type, df$col, "white", markerSize = df$size)
+    )
+  expect_identical(map$x$calls, eager$x$calls)
+
+  # data passed to the layer takes precedence over the map's data
+  sub <- df[2, ]
+  map <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(data = sub, lng = ~lng, lat = ~lat, icon = deferred)
+  eager <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(
+      data = sub,
+      lng = ~lng,
+      lat = ~lat,
+      icon = magicIcons("city", "blue", "white", markerSize = 30)
+    )
+  expect_identical(map$x$calls, eager$x$calls)
+})
+
+test_that("Formulas can use functions and variables from their environment", {
+  skip_if_not_installed("fontawesome")
+  df <- data.frame(lng = 0:1, lat = 0:1, type = c("a", "b"))
+  pal <- leaflet::colorFactor(c("red", "blue"), df$type)
+  iconPal <- iconFactor(c("car", "city"), df$type)
+
+  map <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(
+      icon = magicIcons(~ iconPal(type), ~ pal(type)),
+      lng = ~lng,
+      lat = ~lat
+    )
+  eager <- leaflet::leaflet(df) |>
+    leaflet::addMarkers(
+      icon = magicIcons(c("car", "city"), c("#FF0000", "#0000FF")),
+      lng = ~lng,
+      lat = ~lat
+    )
+  expect_identical(map$x$calls, eager$x$calls)
+})
+
+test_that("Two-sided formulas error", {
+  expect_error(magicIcons(type ~ col), "one-sided formula")
+})

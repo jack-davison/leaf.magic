@@ -13,6 +13,7 @@
 ## New features
 
 * Markers:
+  * `magicIcons()` now accepts formulas (e.g., `icon = ~site_type`), evaluated against the layer's data as in `leaflet::awesomeIcons()`.
   * `magicIcons()` markers now cast shadows like `{leaflet}`'s default marker; turn them off with `shadow = FALSE` (#12).
   * New marker shapes: `"marker-square"`, `"callout"`, `"triangle"` and `"hexagon"`.
   * New `markerShape()` defines custom SVG marker shapes, including icon position, anchor point, popup position and shadow style. Pass them to the `marker` argument of `magicIcons()`.

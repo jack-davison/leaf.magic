@@ -17,6 +17,15 @@
 #' downloaded from <https://unpkg.com> the first time each icon is used in a
 #' session, so require an internet connection.
 #'
+#' @section Using formulas: As with [leaflet::awesomeIcons()], `icon`,
+#'   `markerColor`, `iconColor`, `marker` and `markerSize` may be one-sided
+#'   formulas (e.g., `~site_type`), which are evaluated against the data of the
+#'   layer the markers are added to. Markers are then built when the layer is
+#'   added, so `magicIcons()` must be passed directly to the `icon` argument of
+#'   [leaflet::addMarkers()]. Formulas and constants can be mixed freely, and
+#'   formulas may call other functions, such as an [iconFactor()] scale or a
+#'   [leaflet::colorFactor()] palette (e.g., `markerColor = ~pal(site_type)`).
+#'
 #' @param icon Name of the icon. A full list of available icons can be found
 #'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
 #'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>, depending on
@@ -66,7 +75,9 @@
 #' @inheritParams leaflet::makeIcon
 #'
 #' @return a [leaflet::iconList()], to be passed to the `icon` argument of
-#'   [leaflet::addMarkers()]
+#'   [leaflet::addMarkers()]. If any argument is a formula, a formula which
+#'   builds that [leaflet::iconList()] from the layer's data is returned
+#'   instead.
 #'
 #' @export
 #'
@@ -98,9 +109,9 @@
 #'   leaflet() |>
 #'   addProviderTiles("CartoDB.Voyager") |>
 #'   addMarkers(
-#'     icon = ~ magicIcons(icon, color, "white"),
-#'     lat = ~ latitude,
-#'     lng = ~ longitude,
+#'     icon = magicIcons(icon = ~icon, markerColor = ~color, iconColor = "white"),
+#'     lat = ~latitude,
+#'     lng = ~longitude,
 #'     popup = ~site
 #'   )
 magicIcons <- function(
@@ -115,10 +126,25 @@ magicIcons <- function(
   shadow = TRUE
 ) {
   library <- check_library(library)
-  shapes <- as_marker_shapes(marker)
   if (!rlang::is_bool(shadow)) {
     rlang::abort("`shadow` must be `TRUE` or `FALSE`.")
   }
+
+  data_args <- list(
+    icon = icon,
+    markerColor = markerColor,
+    iconColor = iconColor,
+    marker = marker,
+    markerSize = markerSize
+  )
+  if (any(vapply(data_args, rlang::is_formula, logical(1)))) {
+    return(defer_magic_icons(
+      data_args,
+      list(library = library, className = className, dir = dir, shadow = shadow)
+    ))
+  }
+
+  shapes <- as_marker_shapes(marker)
 
   check_lengths(
     icon = icon,
@@ -233,6 +259,74 @@ magicIcons <- function(
   icons <- purrr::pmap(unique_combos, make_icon, .progress = TRUE)
 
   do.call(leaflet::iconList, icons[match(key, key[is_first])])
+}
+
+#' Defer building markers until a layer's data is known
+#'
+#' {leaflet} evaluates any formula passed to `addMarkers(icon = )` with the
+#' layer's data as a data mask, before it processes the icons. This returns a
+#' single formula which, when evaluated like that, captures the data mask with
+#' `environment()`, resolves each formula argument against it in that
+#' formula's own environment (as {leaflet} does), and then builds the markers.
+#' The helpers live in the formula's environment under dotted names so data
+#' columns are unlikely to mask them.
+#' @noRd
+defer_magic_icons <- function(data_args, other_args) {
+  for (nm in names(data_args)) {
+    f <- data_args[[nm]]
+    if (rlang::is_formula(f) && !rlang::is_formula(f, lhs = FALSE)) {
+      rlang::abort(c(
+        paste0("`", nm, "` must be a one-sided formula, e.g., `~column`."),
+        x = paste0("`", nm, "` is ", deparse1(f), ".")
+      ))
+    }
+  }
+
+  env <- rlang::env(
+    rlang::ns_env("leaf.magic"),
+    .leafmagic_args = data_args,
+    .leafmagic_other = other_args,
+    .leafmagic_resolve = resolve_magic_icons
+  )
+  f <- stats::as.formula(
+    quote(~ .leafmagic_resolve(
+      .leafmagic_args,
+      .leafmagic_other,
+      environment()
+    )),
+    env = env
+  )
+  structure(f, class = c("leafmagic_icons_formula", class(f)))
+}
+
+#' Resolve deferred formula arguments against a data mask, then build markers
+#' @noRd
+resolve_magic_icons <- function(data_args, other_args, mask) {
+  data <- as.list(mask, all.names = TRUE)
+  resolved <- lapply(data_args, function(x) {
+    if (rlang::is_formula(x)) eval(x[[2]], data, environment(x)) else x
+  })
+  do.call(magicIcons, c(resolved, other_args))
+}
+
+#' @export
+print.leafmagic_icons_formula <- function(x, ...) {
+  args <- environment(x)$.leafmagic_args
+  is_f <- vapply(args, rlang::is_formula, logical(1))
+  cat(
+    "<magicIcons() to be built from layer data>\n",
+    paste0(
+      "  ",
+      names(args)[is_f],
+      ": ",
+      vapply(args[is_f], deparse1, ""),
+      "\n",
+      collapse = ""
+    ),
+    "Pass to the `icon` argument of `leaflet::addMarkers()`.\n",
+    sep = ""
+  )
+  invisible(x)
 }
 
 #' Replace an exact 0 with a tiny number
