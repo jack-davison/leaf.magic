@@ -164,8 +164,13 @@ addIconLegend <- function(
 
   check_lengths(icons = icons, labels = labels, colors = colors)
 
-  if (!is.numeric(opacity) || length(opacity) != 1L || is.na(opacity) ||
-      opacity < 0 || opacity > 1) {
+  if (
+    !is.numeric(opacity) ||
+      length(opacity) != 1L ||
+      is.na(opacity) ||
+      opacity < 0 ||
+      opacity > 1
+  ) {
     rlang::abort("`opacity` must be a single number between 0 and 1.")
   }
 
@@ -325,14 +330,16 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
     na.color <- attr(colors, "colorArgs", exact = TRUE)$na.color
   }
   show_na <- has_values &&
-    any(is.na(values)) &&
+    anyNA(values) &&
     !is_invisible(args$na.icon) &&
     !is_invisible_color(na.color) &&
     !na.label %in% labels
 
   if (is.function(colors)) {
     colors <- colors(color_values)
-    if (!is.null(color_index)) colors <- colors[color_index]
+    if (!is.null(color_index)) {
+      colors <- colors[color_index]
+    }
     if (show_na) colors <- c(colors, na.color)
   } else if (show_na) {
     # as leaflet::addLegend(), the NA item always uses the NA colour, even
@@ -404,7 +411,7 @@ icon_legend_dependency <- function() {
 #'   addLayersControl(overlayGroups = "Sites")
 addIconAttribution <-
   function(map, library = "fontawesome", layerId = NULL, group = NULL) {
-    library <- check_library(library)
+    library <- check_library(library, check_installed = FALSE)
 
     attribution <- switch(
       library,

@@ -1,4 +1,5 @@
 test_that("Constants work", {
+  skip_if_not_installed("fontawesome")
   testthat::expect_no_error(
     magicIcons("circle", "blue", "white")
   )
@@ -12,6 +13,7 @@ test_that("Constants work (bootstrap)", {
 })
 
 test_that("Vectors work", {
+  skip_if_not_installed("fontawesome")
   testthat::expect_no_error(
     magicIcons(c("circle", "x"), "blue", "white")
   )
@@ -47,6 +49,7 @@ test_that("Vectors work (bootstrap)", {
 })
 
 test_that("Unequal vectors fail", {
+  skip_if_not_installed("fontawesome")
   testthat::expect_error(
     magicIcons(c("circle", "x"), c("red", "blue", "green"), "black"),
     "`icon` has length 2"
@@ -63,6 +66,7 @@ test_that("Unequal vectors fail", {
 })
 
 test_that("Markers are cached by package version and temp files are removed", {
+  skip_if_not_installed("fontawesome")
   dir <- tempfile("leafmagic-test-")
   on.exit(unlink(dir, recursive = TRUE))
 
@@ -85,7 +89,7 @@ test_that("Markers are cached by package version and temp files are removed", {
   expect_length(list.files(dir), 1)
 
   # cache file names are always valid, whatever the icon name
-  expect_match(files, "^leafmagic-[0-9.]+-[0-9a-f]+\\.png$")
+  expect_match(files, "^leafmagic-[0-9.]+-[0-9a-f]+\\.svg$")
 })
 
 test_that("Ionicons download failures give an informative error", {
@@ -107,6 +111,7 @@ test_that("Ionicons are cached within a session", {
 })
 
 test_that("addIconLegend uses non-breaking spaces and checks lengths", {
+  skip_if_not_installed("fontawesome")
   map <- addIconLegend(
     leaflet::leaflet(),
     icons = c("car", "house"),
@@ -142,6 +147,7 @@ test_that("addIconAttribution doesn't request any tiles", {
 })
 
 test_that("icon_svg returns a single SVG string for every library", {
+  skip_if_not_installed("fontawesome")
   expect_length(icon_svg("car", "red", "fontawesome"), 1)
   skip_if_not_installed("bsicons")
   expect_length(icon_svg("car-front", "red", "bootstrap"), 1)
@@ -149,13 +155,117 @@ test_that("icon_svg returns a single SVG string for every library", {
   expect_length(icon_svg("car", "red", "lucide"), 1)
 })
 
-test_that("icons from small-viewBox libraries are rendered at high resolution", {
-  skip_if_not_installed("bsicons")
-  skip_if_not_installed("lucidr")
-  for (lib in c("bootstrap", "lucide")) {
-    icon <- if (lib == "bootstrap") "car-front" else "car"
-    file <- tempfile(fileext = ".png")
-    svg_to_png(icon_svg(icon, "red", lib), file)
-    expect_equal(magick::image_info(magick::image_read(file))$height, 512)
+test_that("missing icon packages give an informative error", {
+  local_mocked_bindings(
+    check_installed = function(pkg, reason, ...) stop(pkg, " ", reason),
+    .package = "rlang"
+  )
+  expect_error(check_library("fontawesome"), "fontawesome.*library")
+  expect_error(check_library("bootstrap"), "bsicons")
+  expect_equal(check_library("ionicons"), "ionicons")
+  # attributions don't draw icons, so don't need the package
+  expect_no_error(addIconAttribution(leaflet::leaflet()))
+})
+
+test_that("nest_svg positions icons and strips conflicting styles", {
+  skip_if_not_installed("xml2")
+  svg <- paste0(
+    '<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" ',
+    'width="16" height="16" style="height:1em;fill:red" viewBox="0 0 24 24">',
+    '<path d="M0 0h24v24z" stroke="currentColor"/></svg>'
+  )
+  out <- nest_svg(svg, x = 10, y = 20, size = 30, color = "#123456")
+  root <- xml2::read_xml(out)
+  attrs <- xml2::xml_attrs(root)
+
+  expect_false("style" %in% names(attrs))
+  expect_equal(
+    unname(attrs[c("x", "y", "width", "height", "viewBox")]),
+    c("10", "20", "30", "30", "0 0 24 24")
+  )
+  # `color` sets currentColor; icons with no fill of their own are filled
+  expect_equal(unname(attrs[c("color", "fill")]), c("#123456", "#123456"))
+  expect_length(xml2::xml_children(root), 1)
+
+  # an existing fill (e.g., Lucide's fill="none") is kept
+  out <- nest_svg(
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M0 0"/></svg>',
+    0,
+    0,
+    10,
+    "red"
+  )
+  expect_equal(xml2::xml_attr(xml2::read_xml(out), "fill"), "none")
+
+  # outlines scale with the icon's viewBox
+  out <- nest_svg('<svg viewBox="0 0 512 512"></svg>', 0, 0, 10, "red", "black")
+  expect_equal(xml2::xml_attr(xml2::read_xml(out), "stroke-width"), "5.12")
+})
+
+test_that("markers are well-formed SVGs for every shape and library", {
+  skip_if_not_installed("xml2")
+  libraries <- list(
+    fontawesome = "car",
+    bootstrap = "car-front",
+    lucide = "car",
+    ionicons = "leafmagic-test-icon"
+  )
+  dir <- tempfile("leafmagic-test-")
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  for (lib in names(libraries)) {
+    pkg <- c(
+      fontawesome = "fontawesome",
+      bootstrap = "bsicons",
+      lucide = "lucidr"
+    )[lib]
+    if (!is.na(pkg) && !rlang::is_installed(pkg)) {
+      next
+    }
+    if (lib == "ionicons") {
+      ionicon_cache[["leafmagic-test-icon"]] <- paste0(
+        '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">',
+        '<path d="M80 224h352" fill="none" stroke="currentColor"/></svg>'
+      )
+      on.exit(rm("leafmagic-test-icon", envir = ionicon_cache), add = TRUE)
+    }
+
+    for (marker in names(marker_shapes)) {
+      icon <- magicIcons(
+        libraries[[lib]],
+        "red",
+        "white",
+        marker = marker,
+        library = lib,
+        dir = dir
+      )[[1]]
+      expect_match(icon$iconUrl, "\\.svg$")
+      svg <- xml2::read_xml(icon$iconUrl)
+      shape <- marker_shapes[[marker]]
+      expect_equal(
+        xml2::xml_attr(svg, "viewBox"),
+        paste("0 0", shape$width, shape$height)
+      )
+      # the icon is always the last element, and is a nested SVG
+      nested <- xml2::xml_children(svg)
+      expect_equal(xml2::xml_name(nested[[length(nested)]]), "svg")
+    }
   }
+})
+
+test_that("pins are anchored at their tip, other markers at their centre", {
+  skip_if_not_installed("fontawesome")
+  dir <- tempfile("leafmagic-test-")
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+
+  pin <- magicIcons("car", marker = "marker", markerSize = 50, dir = dir)[[1]]
+  expect_equal(pin$iconWidth, 50)
+  expect_equal(pin$iconHeight, 66)
+  expect_equal(pin$iconAnchorX, 25)
+  expect_equal(pin$iconAnchorY, 65)
+
+  circle <- magicIcons("car", marker = "circle", markerSize = 50, dir = dir)[[
+    1
+  ]]
+  expect_equal(circle$iconHeight, 50)
+  expect_equal(c(circle$iconAnchorX, circle$iconAnchorY), c(25, 25))
 })

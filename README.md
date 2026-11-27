@@ -6,7 +6,7 @@
 [![R-CMD-check](https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jack-davison/leaf.magic/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing markers on the fly using `{fontawesome}` or `{bsicons}` and `{magick}`. There are three issues `{leaf.magic}` sets out to overcome:
+The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" implementation in vanilla R `{leaflet}` by constructing SVG markers on the fly using modern icon libraries such as `{fontawesome}`, `{bsicons}` and `{lucidr}`. There are three issues `{leaf.magic}` sets out to overcome:
 
 * `leaflet::awesomeIcons()` is limited to Font Awesome 4 👎
 
@@ -20,7 +20,7 @@ The goal of `{leaf.magic}` is to overcome the somewhat outdated "Font Awesome" i
 
 * `magicIcons()` uses up-to-date versions of Font Awesome, Bootstrap, Lucide, and Ionicons Icons, powered by `{fontawesome}`, `{bsicons}` and `{lucidr}` ✅
 
-* `magicIcons()` uses `{fontawesome}` to grab a marker shape, and can therefore colour and resize it however the user desires ✅
+* `magicIcons()` draws its own vector marker shapes, so they can be coloured and resized however the user desires and stay sharp at any size ✅
 
 * `{leaf.magic}` exports functions like `iconBin()` and `addIconLegend()` to help developers communicate the meanings of icons to users ✅
 

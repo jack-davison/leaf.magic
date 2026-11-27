@@ -25,14 +25,26 @@ using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{ht
 
 \item{iconColor}{The color of the icon.}
 
-\item{marker}{Defaults to \code{"marker"}, which uses the standard teardrop shaped
-marker, similar to \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. Other options are \code{"circle"},
-\code{"square"}, \code{"star"}, \code{"heart"}, and \code{"diamond"}, which place the icon
-inside of the respective shape. Also available is \code{"none"}, which removes
-the marker entirely and places the icon directly on the map.}
+\item{marker}{The shape of the marker. Defaults to \code{"marker"}, which uses
+the standard teardrop shaped pin, similar to \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}. The
+other built-in shapes are:
+\itemize{
+\item Pointed shapes, which sit on their location with their tip:
+\code{"marker-square"} (a pin with a square head) and \code{"callout"} (a speech
+bubble).
+\item Shapes centred on their location: \code{"circle"}, \code{"square"}, \code{"diamond"},
+\code{"triangle"}, \code{"hexagon"}, \code{"star"} and \code{"heart"}.
+\item \code{"none"}, which removes the marker entirely and places the icon
+directly on the map.
+}
 
-\item{markerSize}{The size of the marker. Defaults to \code{30}, which is roughly
-the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}.}
+Custom shapes can be created using \code{\link[=markerShape]{markerShape()}}. \code{marker} may be a
+character vector of shape names, a single \code{\link[=markerShape]{markerShape()}}, or a list of
+\code{\link[=markerShape]{markerShape()}}s and/or shape names to use a different shape for each
+marker.}
+
+\item{markerSize}{The width of the marker in pixels. Defaults to \code{30}, which
+is roughly the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers()}}.}
 
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
 \code{"lucide"} defining the icon library of interest. Defaults to
@@ -56,15 +68,20 @@ Awesome, Bootstrap, Ionicons and Lucide icons, and allowing any colour to be
 used for the marker and icon.
 }
 \details{
-This function uses \code{\link[magick:image_composite]{magick::image_composite()}} to knit together the icon and
-marker symbol of choice, and saves it to \code{dir}. It is also intelligent enough
-to not try to recreate a marker that already exists, so you may find the use
-of \code{\link[=magicIcons]{magicIcons()}} speeds up the more you use it in a single session.
+Each marker is built as a single SVG image, with the icon nested inside of
+the marker shape, and saved to \code{dir}. As markers are vector images, they
+stay sharp at any \code{markerSize} and on high resolution screens. Markers are
+only built once for each combination of icon, colours, marker shape and
+library, so you may find the use of \code{\link[=magicIcons]{magicIcons()}} speeds up the more you use
+it in a single session.
 
-Ionicons are downloaded from \url{https://unpkg.com} the first time each icon is
-used in a session, so require an internet connection.
+Each icon library is provided by a separate package which must be installed
+to use it: \code{{fontawesome}}, \code{{bsicons}} or \code{{lucidr}}. Ionicons are
+downloaded from \url{https://unpkg.com} the first time each icon is used in a
+session, so require an internet connection.
 }
 \examples{
+\dontshow{if (rlang::is_installed(c("fontawesome", "dplyr"))) withAutoprint(\{ # examplesIf}
 # create map
 library(leaflet)
 port_talbot |>
@@ -92,9 +109,11 @@ port_talbot |>
     lng = ~ longitude,
     popup = ~site
   )
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=addIconLegend]{addIconLegend()}}, \code{\link[=iconFactor]{iconFactor()}}, \code{\link[=iconBin]{iconBin()}}, \code{\link[=iconQuantile]{iconQuantile()}}
+\code{\link[=markerShape]{markerShape()}}, \code{\link[=addIconLegend]{addIconLegend()}}, \code{\link[=iconFactor]{iconFactor()}}, \code{\link[=iconBin]{iconBin()}},
+\code{\link[=iconQuantile]{iconQuantile()}}
 }
 \author{
 Jack Davison

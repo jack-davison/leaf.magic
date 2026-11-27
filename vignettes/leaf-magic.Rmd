@@ -28,7 +28,7 @@ library(leaf.magic)
 
 The purpose of `{leaf.magic}` is to extend R `{leaflet}`'s capability to use modern icon sets. While `leaflet::addAwesomeMarkers()` exists, it has a few core disadvantages; markers are a fixed size, can only be one of 19 colours, and pull icons from significantly out of date icon sets.
 
-`{leaf.magic}` uses contemporary R packages - currently `{fontawesome}` and `{bsicons}` - to access up-to-date SVG icon sets, `{magick}` to knit them onto map markers, and then `leaflet::makeIcon()` to translate them into a `{leaflet}`-usable map marker.
+`{leaf.magic}` uses contemporary R packages - `{fontawesome}`, `{bsicons}` and `{lucidr}`, as well as Ionicons - to access up-to-date SVG icon sets, nests them inside its own SVG marker shapes, and then uses `leaflet::makeIcon()` to translate them into a `{leaflet}`-usable map marker.
 
 Some core advantages of `magicIcons()` over `leaflet::awesomeIcons()` are:
 

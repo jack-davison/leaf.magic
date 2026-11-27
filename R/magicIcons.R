@@ -5,13 +5,17 @@
 #' Awesome, Bootstrap, Ionicons and Lucide icons, and allowing any colour to be
 #' used for the marker and icon.
 #'
-#' This function uses [magick::image_composite()] to knit together the icon and
-#' marker symbol of choice, and saves it to `dir`. It is also intelligent enough
-#' to not try to recreate a marker that already exists, so you may find the use
-#' of [magicIcons()] speeds up the more you use it in a single session.
+#' Each marker is built as a single SVG image, with the icon nested inside of
+#' the marker shape, and saved to `dir`. As markers are vector images, they
+#' stay sharp at any `markerSize` and on high resolution screens. Markers are
+#' only built once for each combination of icon, colours, marker shape and
+#' library, so you may find the use of [magicIcons()] speeds up the more you use
+#' it in a single session.
 #'
-#' Ionicons are downloaded from <https://unpkg.com> the first time each icon is
-#' used in a session, so require an internet connection.
+#' Each icon library is provided by a separate package which must be installed
+#' to use it: `{fontawesome}`, `{bsicons}` or `{lucidr}`. Ionicons are
+#' downloaded from <https://unpkg.com> the first time each icon is used in a
+#' session, so require an internet connection.
 #'
 #' @param icon Name of the icon. A full list of available icons can be found
 #'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
@@ -22,14 +26,27 @@
 #'
 #' @param iconColor The color of the icon.
 #'
-#' @param marker Defaults to `"marker"`, which uses the standard teardrop shaped
-#'   marker, similar to [leaflet::addMarkers()]. Other options are `"circle"`,
-#'   `"square"`, `"star"`, `"heart"`, and `"diamond"`, which place the icon
-#'   inside of the respective shape. Also available is `"none"`, which removes
-#'   the marker entirely and places the icon directly on the map.
+#' @param marker The shape of the marker. Defaults to `"marker"`, which uses
+#'   the standard teardrop shaped pin, similar to [leaflet::addMarkers()]. The
+#'   other built-in shapes are:
 #'
-#' @param markerSize The size of the marker. Defaults to `30`, which is roughly
-#'   the same size as [leaflet::addMarkers()].
+#'   - Pointed shapes, which sit on their location with their tip:
+#'   `"marker-square"` (a pin with a square head) and `"callout"` (a speech
+#'   bubble).
+#'
+#'   - Shapes centred on their location: `"circle"`, `"square"`, `"diamond"`,
+#'   `"triangle"`, `"hexagon"`, `"star"` and `"heart"`.
+#'
+#'   - `"none"`, which removes the marker entirely and places the icon
+#'   directly on the map.
+#'
+#'   Custom shapes can be created using [markerShape()]. `marker` may be a
+#'   character vector of shape names, a single [markerShape()], or a list of
+#'   [markerShape()]s and/or shape names to use a different shape for each
+#'   marker.
+#'
+#' @param markerSize The width of the marker in pixels. Defaults to `30`, which
+#'   is roughly the same size as [leaflet::addMarkers()].
 #'
 #' @param library One of `"fontawesome"`, `"bootstrap"`, `"ionicons"`, or
 #'   `"lucide"` defining the icon library of interest. Defaults to
@@ -47,11 +64,12 @@
 #'
 #' @export
 #'
-#' @seealso [addIconLegend()], [iconFactor()], [iconBin()], [iconQuantile()]
+#' @seealso [markerShape()], [addIconLegend()], [iconFactor()], [iconBin()],
+#'   [iconQuantile()]
 #'
 #' @author Jack Davison
 #'
-#' @examples
+#' @examplesIf rlang::is_installed(c("fontawesome", "dplyr"))
 #' # create map
 #' library(leaflet)
 #' port_talbot |>
@@ -90,25 +108,13 @@ magicIcons <- function(
   dir = tempdir()
 ) {
   library <- check_library(library)
-
-  # user-facing marker names -> Font Awesome icon used to draw the marker
-  marker_shapes <- c(
-    marker = "location-pin",
-    circle = "fas fa-circle",
-    square = "fas fa-square",
-    star = "fas fa-star",
-    heart = "fas fa-heart",
-    diamond = "fas fa-diamond",
-    none = "none"
-  )
-  marker <- match.arg(marker, names(marker_shapes), several.ok = TRUE)
-  marker <- unname(marker_shapes[marker])
+  shapes <- as_marker_shapes(marker)
 
   check_lengths(
     icon = icon,
     markerColor = markerColor,
     iconColor = iconColor,
-    marker = marker,
+    marker = shapes,
     markerSize = markerSize
   )
 
@@ -116,25 +122,33 @@ magicIcons <- function(
     dir.create(dir, recursive = TRUE)
   }
 
+  # shapes are identified by a hash of their definition, so that identical
+  # shapes (built-in or custom) share cached markers
+  shape_keys <- vapply(shapes, function(s) rlang::hash(unclass(s)), "")
+  shapes <- shapes[!duplicated(shape_keys)]
+  names(shapes) <- unique(shape_keys)
+
   combinations <-
     data.frame(
       icon = icon,
       markerColor = markerColor,
       iconColor = iconColor,
-      marker = marker,
+      marker = shape_keys,
       markerSize = markerSize
     )
 
-  # only render each unique combination once
+  # only build each unique combination once
   key <- do.call(paste, c(combinations, sep = "\x1f"))
   is_first <- !duplicated(key)
   unique_combos <- combinations[is_first, , drop = FALSE]
 
-  make_fa_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
+  make_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
+    shape <- shapes[[marker]]
+
     # the package version is part of the cache key so that markers cached in a
-    # persistent `dir` are re-rendered when the rendering code changes. The
-    # rest of the key is hashed so that any icon name is a valid file name,
-    # and colours are normalised so that, e.g., "red", "#ff0000" and "#FF0000"
+    # persistent `dir` are rebuilt when the marker code changes. The rest of
+    # the key is hashed so that any icon name is a valid file name, and
+    # colours are normalised so that, e.g., "red", "#ff0000" and "#FF0000"
     # share a single cached marker.
     url <- file.path(
       dir,
@@ -144,102 +158,169 @@ magicIcons <- function(
         "-",
         rlang::hash(list(
           icon,
-          normalise_color(markerColor),
+          if (!is.null(shape$body)) normalise_color(markerColor),
           normalise_color(iconColor),
           marker,
           library
         )),
-        ".png"
+        ".svg"
       )
     )
 
     if (!file.exists(url)) {
-      t_logo <- tempfile(pattern = "logo_")
-      t_pin <- tempfile(pattern = "pin_")
-      on.exit(unlink(c(t_logo, t_pin)), add = TRUE)
-
-      svg_to_png(
-        icon_svg(
-          icon,
-          iconColor,
-          library,
-          stroke = darken_color(iconColor),
-          stroke_width = "5px"
-        ),
-        file = t_logo
-      )
-
-      logo <-
-        magick::image_scale(
-          magick::image_read(t_logo),
-          ifelse(
-            marker %in% c("location-pin", "fas fa-star"),
-            "x200",
-            "x250"
-          )
-        )
-
-      if (marker != "none") {
-        svg_to_png(
-          icon_svg(
-            marker,
-            markerColor,
-            "fontawesome",
-            stroke = darken_color(markerColor),
-            stroke_width = "5px"
-          ),
-          file = t_pin
-        )
-
-        pin <- magick::image_read(t_pin)
-
-        h_adj <- (magick::image_info(pin)$width -
-          magick::image_info(logo)$width) /
-          2
-
-        v_adj <- (magick::image_info(pin)$height -
-          magick::image_info(logo)$height) /
-          ifelse(
-            marker == "location-pin",
-            3.5,
-            ifelse(marker == "fas fa-star", 1.5, 2)
-          )
-
-        marker_img <-
-          magick::image_composite(
-            pin,
-            logo,
-            offset = paste0("+", h_adj, "+", v_adj)
-          )
-      } else {
-        marker_img <- logo
-      }
-
-      magick::image_write(marker_img, url)
+      svg <- marker_svg(shape, icon, markerColor, iconColor, library)
+      writeLines(enc2utf8(svg), url, useBytes = TRUE)
     }
 
-    imginfo <- magick::image_info(magick::image_read(url))
-    ratio <- imginfo$height / imginfo$width
+    # shape units -> pixels
+    scale <- markerSize / shape$width
+    anchor <- shape$anchor * scale
+    popup <- (shape$popup - shape$anchor) * scale
 
     leaflet::makeIcon(
       iconUrl = url,
       iconWidth = markerSize,
-      iconHeight = markerSize * ratio,
-      iconAnchorX = ifelse(marker == "location-pin", markerSize / 2, 0),
-      iconAnchorY = ifelse(marker == "location-pin", markerSize * ratio, 0),
-      popupAnchorX = ifelse(marker == "location-pin", .Machine$double.eps, 0),
-      popupAnchorY = ifelse(
-        marker == "location-pin",
-        -(markerSize * ratio) * 0.8,
-        0
-      ),
+      iconHeight = shape$height * scale,
+      # leaflet ignores anchors whose x is exactly 0, hence the tiny offsets
+      iconAnchorX = nonzero(anchor[["x"]]),
+      iconAnchorY = anchor[["y"]],
+      popupAnchorX = nonzero(popup[["x"]]),
+      popupAnchorY = popup[["y"]],
       className = className
     )
   }
 
-  icons <- purrr::pmap(unique_combos, make_fa_icon, .progress = TRUE)
+  icons <- purrr::pmap(unique_combos, make_icon, .progress = TRUE)
 
   do.call(leaflet::iconList, icons[match(key, key[is_first])])
+}
+
+#' Replace an exact 0 with a tiny number
+#'
+#' leaflet's JavaScript only uses an icon or popup anchor if its x-coordinate
+#' is truthy, so an x of exactly 0 would be silently ignored.
+#' @noRd
+nonzero <- function(x) {
+  if (x == 0) .Machine$double.eps else x
+}
+
+#' Build the SVG markup of a whole marker
+#'
+#' The marker shape is drawn with a slightly darker outline, and the icon's own
+#' SVG is nested inside it.
+#' @noRd
+marker_svg <- function(shape, icon, markerColor, iconColor, library) {
+  body <- NULL
+  if (!is.null(shape$body)) {
+    body <- paste0(
+      '<g fill="',
+      html_attr(markerColor),
+      '" stroke="',
+      darken_color(markerColor),
+      '" stroke-width="2" stroke-linejoin="round">',
+      shape$body,
+      "</g>"
+    )
+  }
+
+  size <- shape$icon[["size"]]
+  nested <- nest_svg(
+    icon_svg(icon, iconColor, library),
+    x = shape$icon[["x"]] - size / 2,
+    y = shape$icon[["y"]] - size / 2,
+    size = size,
+    color = iconColor,
+    # Font Awesome icons are given a subtle outline, as in previous versions
+    outline = if (library == "fontawesome") darken_color(iconColor)
+  )
+
+  paste0(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ',
+    shape$width,
+    " ",
+    shape$height,
+    '" width="',
+    shape$width,
+    '" height="',
+    shape$height,
+    '">',
+    body,
+    nested,
+    "</svg>"
+  )
+}
+
+#' Place an icon's SVG at a given position and size inside another SVG
+#'
+#' The icon's root `<svg>` tag is rewritten: its CSS styles and sizes (e.g.,
+#' `height:1em`) are removed, as these would override the position, and `x`,
+#' `y`, `width` and `height` attributes are set instead. The icon's `viewBox`
+#' is kept so that it is scaled to fit. `color` sets `currentColor`, which is
+#' how most libraries colour their icons, and is also used as the fill of icons
+#' with no fill of their own.
+#' @noRd
+nest_svg <- function(svg, x, y, size, color, outline = NULL) {
+  # drop anything before the root tag, e.g., an XML declaration or comment
+  svg <- sub("^.*?(<svg\\b)", "\\1", svg, perl = TRUE)
+  root <- regmatches(svg, regexpr("^<svg\\b[^>]*>", svg, perl = TRUE))
+  if (length(root) == 0L) {
+    rlang::abort("Icon is not valid SVG markup.", .internal = TRUE)
+  }
+
+  attrs <- sub(
+    "^<svg\\b",
+    "",
+    sub("\\s*/?>$", "", root, perl = TRUE),
+    perl = TRUE
+  )
+  attrs <- gsub(
+    "\\s(style|width|height|x|y|color)\\s*=\\s*(\"[^\"]*\"|'[^']*')",
+    "",
+    attrs,
+    perl = TRUE
+  )
+  has_fill <- grepl("\\sfill\\s*=", attrs, perl = TRUE)
+
+  color <- html_attr(color)
+  new_attrs <- paste0(
+    sprintf(
+      ' x="%s" y="%s" width="%s" height="%s" color="%s"',
+      format(x),
+      format(y),
+      format(size),
+      format(size),
+      color
+    ),
+    if (!has_fill) sprintf(' fill="%s"', color),
+    if (!is.null(outline)) {
+      sprintf(
+        ' stroke="%s" stroke-width="%s"',
+        outline,
+        format(svg_view_box_height(attrs) / 100)
+      )
+    }
+  )
+
+  paste0("<svg", attrs, new_attrs, ">", substring(svg, nchar(root) + 1L))
+}
+
+#' Height of an SVG viewBox, from the root tag's attributes
+#' @noRd
+svg_view_box_height <- function(attrs) {
+  vb <- regmatches(
+    attrs,
+    regexec("viewBox\\s*=\\s*[\"']([^\"']*)[\"']", attrs, perl = TRUE)
+  )[[1]]
+  if (length(vb) < 2L) {
+    return(100)
+  }
+  as.numeric(strsplit(trimws(vb[2]), "[\\s,]+", perl = TRUE)[[1]][4])
+}
+
+#' Escape a value for use in an XML attribute
+#' @noRd
+html_attr <- function(x) {
+  as.character(htmltools::htmlEscape(x, attribute = TRUE))
 }
 
 #' Build the SVG markup for an icon from any supported library
@@ -262,16 +343,6 @@ icon_svg <- function(icon, color, library, ...) {
     lucide = lucidr::lucide(icon, size = 16, color = color)
   )
   paste(as.character(svg), collapse = "\n")
-}
-
-#' Rasterise SVG markup to a PNG file
-#'
-#' SVGs are rendered at a fixed height so that every icon library has enough
-#' resolution to be scaled down cleanly; without a height, `{rsvg}` uses the
-#' SVG's own size, which is only 16-24px for Bootstrap and Lucide icons.
-#' @noRd
-svg_to_png <- function(svg, file, height = 512) {
-  rsvg::rsvg_png(charToRaw(svg), file = file, height = height)
 }
 
 #' Homebrew way to download from ionicons
@@ -366,19 +437,31 @@ normalise_color <- function(col) {
 }
 
 #' Check library is valid
+#'
+#' @param check_installed Check that the package providing the library is
+#'   installed? Not needed if no icons are drawn (e.g., for attributions).
 #' @noRd
-check_library <- function(library) {
+check_library <- function(library, check_installed = TRUE) {
   library <- rlang::arg_match(
     library,
     c("fontawesome", "bootstrap", "ionicons", "lucide")
   )
 
-  if (library == "bootstrap") {
-    rlang::check_installed("bsicons")
+  if (!check_installed) {
+    return(library)
   }
 
-  if (library == "lucide") {
-    rlang::check_installed("lucidr")
+  pkg <- switch(
+    library,
+    fontawesome = "fontawesome",
+    bootstrap = "bsicons",
+    lucide = "lucidr"
+  )
+  if (!is.null(pkg)) {
+    rlang::check_installed(
+      pkg,
+      reason = paste0("to use `library = \"", library, "\"`.")
+    )
   }
 
   library

@@ -1,8 +1,13 @@
 cols <- c("#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF")
 icns <- c("a", "b", "c", "d", "e")
 
-legend_items <- function(pal, values, colors = "black",
-                         labFormat = leaflet::labelFormat(), na.label = "NA") {
+legend_items <- function(
+  pal,
+  values,
+  colors = "black",
+  labFormat = leaflet::labelFormat(),
+  na.label = "NA"
+) {
   icon_legend_items(pal, values, colors, labFormat, na.label)
 }
 
@@ -51,40 +56,47 @@ test_that("factor legends match leaflet::addLegend()", {
   expect_legend_parity(
     iconFactor(icns[1:3], domain),
     leaflet::colorFactor(cols[1:3], domain),
-    values, 3
+    values,
+    3
   )
   expect_legend_parity(
     iconFactor(icns[1:3], domain, ordered = TRUE),
     leaflet::colorFactor(cols[1:3], domain, ordered = TRUE),
-    values, 3
+    values,
+    3
   )
   expect_legend_parity(
     iconFactor(icns[1:3], levels = c("fig", "pear", "apple")),
     leaflet::colorFactor(cols[1:3], levels = c("fig", "pear", "apple")),
-    values, 3
+    values,
+    3
   )
   expect_legend_parity(
     iconFactor(icns[1:2], NULL, reverse = TRUE),
     leaflet::colorFactor(cols[1:2], NULL, reverse = TRUE),
-    values, 2
+    values,
+    2
   )
   fvalues <- factor(values, levels = c("pear", "fig"))
   expect_legend_parity(
     iconFactor(icns[1:2], fvalues),
     leaflet::colorFactor(cols[1:2], fvalues),
-    fvalues, 2
+    fvalues,
+    2
   )
   # with missing values
   expect_legend_parity(
     iconFactor(icns[1:3], domain),
     leaflet::colorFactor(cols[1:3], domain),
-    c(values, NA), 3
+    c(values, NA),
+    3
   )
   # labFormat
   expect_legend_parity(
     iconFactor(icns[1:3], domain),
     leaflet::colorFactor(cols[1:3], domain),
-    values, 3,
+    values,
+    3,
     labFormat = leaflet::labelFormat(prefix = "<", suffix = ">")
   )
 })
@@ -95,23 +107,27 @@ test_that("bin legends match leaflet::addLegend()", {
   expect_legend_parity(
     iconBin(icns[1:3], 0:30, bins = 3, pretty = FALSE),
     leaflet::colorBin(cols[1:3], 0:30, bins = 3, pretty = FALSE),
-    values, 3
+    values,
+    3
   )
   # pretty = TRUE turns 4 requested bins into 0, 10, 20, 30
   expect_legend_parity(
     iconBin(icns[1:3], 0:30, bins = 4),
     leaflet::colorBin(cols[1:3], 0:30, bins = 4),
-    values, 3
+    values,
+    3
   )
   expect_legend_parity(
     iconBin(icns[1:3], NULL, bins = c(0, 10, 25, 30), reverse = TRUE),
     leaflet::colorBin(cols[1:3], NULL, bins = c(0, 10, 25, 30), reverse = TRUE),
-    c(values, NA), 3
+    c(values, NA),
+    3
   )
   expect_legend_parity(
     iconBin(icns[1:3], 0:30, bins = 3, pretty = FALSE),
     leaflet::colorBin(cols[1:3], 0:30, bins = 3, pretty = FALSE),
-    values, 3,
+    values,
+    3,
     labFormat = leaflet::labelFormat(suffix = "&deg;C", between = " to ")
   )
 })
@@ -123,17 +139,20 @@ test_that("quantile legends match leaflet::addLegend()", {
   expect_legend_parity(
     iconQuantile(icns[1:4], NULL),
     leaflet::colorQuantile(cols[1:4], NULL),
-    values, 4
+    values,
+    4
   )
   expect_legend_parity(
     iconQuantile(icns[1:3], values, probs = c(0, 0.2, 0.8, 1)),
     leaflet::colorQuantile(cols[1:3], values, probs = c(0, 0.2, 0.8, 1)),
-    c(values, NA), 3
+    c(values, NA),
+    3
   )
   expect_legend_parity(
     iconQuantile(icns[1:3], NULL, n = 3, reverse = TRUE),
     leaflet::colorQuantile(cols[1:3], NULL, n = 3, reverse = TRUE),
-    values, 3
+    values,
+    3
   )
 })
 
@@ -210,6 +229,7 @@ test_that("bin legends with no domain match the map when bins are empty", {
 })
 
 test_that("addIconLegend accepts pal and values", {
+  skip_if_not_installed("fontawesome")
   df <- data.frame(type = c("Pub", "University", "Pub"))
   ipal <- iconFactor(c("beer", "school"), df$type)
   map <- addIconLegend(
@@ -251,6 +271,7 @@ test_that("addIconLegend accepts pal and values", {
 })
 
 test_that("addIconLegend supports opacity and group", {
+  skip_if_not_installed("fontawesome")
   map <- addIconLegend(leaflet::leaflet(), "beer", "Pub", opacity = 0.5)
   expect_match(map$x$calls[[1]]$args[[1]], "opacity:0.5", fixed = TRUE)
   map <- addIconLegend(leaflet::leaflet(), "beer", "Pub")

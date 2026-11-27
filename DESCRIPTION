@@ -13,23 +13,22 @@ BugReports: https://github.com/jack-davison/leaf.magic/issues
 Depends: 
     R (>= 4.1)
 Imports: 
-    fontawesome,
     grDevices,
     htmltools,
     leaflet,
-    magick,
     purrr (>= 1.0.0),
     rlang (>= 1.0.0),
-    rsvg,
     stats,
     utils
 Suggests: 
     bsicons,
     dplyr (>= 1.2.0),
+    fontawesome,
     knitr,
     lucidr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    xml2
 VignetteBuilder: 
     knitr
 Config/roxygen2/version: 8.1.1
