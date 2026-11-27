@@ -64,7 +64,7 @@ port_talbot$popup <-
   )
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(popup = ~popup)
 ```
 
@@ -74,7 +74,7 @@ We can use the `magicIcons()` function to swap out the default markers for some 
 
 ```{r map-simple}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = magicIcons(
@@ -98,7 +98,7 @@ For example, here are some Lucide icons:
 
 ```{r map-library}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = magicIcons(
@@ -123,7 +123,7 @@ iconPal <- iconFactor(
 )
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -143,7 +143,7 @@ iconPalYr <- iconQuantile(
 )
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -160,7 +160,7 @@ leaflet(port_talbot) |>
 catPal <- colorFactor(c("#12436D", "#28A197", "#801650"), port_talbot$site_type)
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -182,7 +182,7 @@ As the markers themselves can be set to *any* colour, we can even use a continuo
 palNum <- colorNumeric("viridis", domain = port_talbot$open_year)
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -205,7 +205,7 @@ Unlike `leaflet::awesomeIcons()`, `magicIcons()` can be easily re-sized. Much li
 
 ```{r map-varsize}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -228,7 +228,7 @@ leaflet(port_talbot) |>
 
 ```{r map-iconlegend}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -254,7 +254,7 @@ Often, the colour of the marker (or icon) and the icon itself will align. In tha
 
 ```{r map-iconcollegend}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -282,7 +282,7 @@ colPalYr <- colorQuantile(
 )
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -303,7 +303,7 @@ Legends can also be built by hand with the `icons`, `labels` and `colors` argume
 
 ```{r map-iconlegend-manual}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -364,7 +364,7 @@ addQuickMarker <- function(map, marker) {
 }
 
 map <- leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron)
+  addTiles()
 
 for (shape in shapes) {
   map <- addQuickMarker(map, shape)
@@ -390,7 +390,7 @@ Note that `marker` can vary with some variable, allowing the marker shape itself
 markPal <- iconFactor(c("circle", "diamond", "square"), site_types)
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(icon = ~ magicIcons(
     marker = markPal(site_type),
     markerSize = ifelse(markPal(site_type) == "diamond", 35, 30)
@@ -429,7 +429,7 @@ A custom shape can be passed to `marker` just like a built-in one. To use a diff
 
 ```{r map-shape-custom}
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addMarkers(
     popup = ~popup,
     icon = ~ magicIcons(
@@ -469,7 +469,7 @@ addShadowMarkers <- function(map, shadow) {
 }
 
 leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
+  addTiles() |>
   addShadowMarkers(TRUE) |>
   addShadowMarkers(FALSE) |>
   addLayersControl(

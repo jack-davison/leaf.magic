@@ -125,7 +125,7 @@ port_talbot |>
     )
   ) |>
   leaflet() |>
-  addProviderTiles("CartoDB.Voyager") |>
+  addTiles() |>
   addMarkers(
     icon = magicIcons(icon = ~icon, markerColor = ~color, iconColor = "white"),
     lat = ~latitude,
