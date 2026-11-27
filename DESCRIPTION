@@ -1,11 +1,14 @@
 Package: leaf.magic
 Title: Customisable Icon Markers for 'leaflet'
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: 
     person("Jack", "Davison", , "davison.jack.jd@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2653-6615"))
-Description: Use modern Icon libraries to construct customisable leaflet
-    marker icons.
+Description: Build customisable markers for 'leaflet' maps using modern icon
+    libraries (Font Awesome, Bootstrap Icons, Lucide and Ionicons), text, or
+    your own SVG icons. Markers are drawn as SVG images in any colour, size or
+    shape, and icons can be mapped to data and explained with legends in the
+    same way as colours in 'leaflet'.
 License: MIT + file LICENSE
 URL: https://jack-davison.github.io/leaf.magic/,
     https://github.com/jack-davison/leaf.magic

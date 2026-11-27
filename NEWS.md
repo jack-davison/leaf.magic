@@ -1,8 +1,10 @@
-# leaf.magic (development version)
+# leaf.magic 0.3.0
 
 ## Breaking changes
 
 * `magicIcons()` now builds each marker as a single SVG rather than compositing PNGs, so markers are sharp at any size and icons are precisely centred. Marker shapes are now drawn by `{leaf.magic}` itself, so look slightly different.
+
+* `magicIcons()`'s `iconColor` now defaults to `"auto"`, which picks black or white icons depending on the marker colour, rather than always white. Use `iconColor = "white"` for the old behaviour.
 
 * `iconFactor()`, `iconBin()` and `iconQuantile()` now behave identically to their `leaflet::color*()` equivalents, so the same settings always give matching icon-colour pairs. This changes two defaults:
   * `iconFactor()` sorts levels alphabetically (or uses factor levels) rather than by order of appearance. Use `ordered = TRUE` for the old behaviour.
@@ -12,12 +14,15 @@
 
 ## New features
 
-* Markers:
-  * `magicIcons(library = "svg")` uses raw SVG markup as the icon, so any icon can be used.
-  * `magicIcons()` gains `outlineColor` and `outlineWidth` to style the outline around each marker, e.g., a white halo to stand out on busy basemaps.
+* `magicIcons()` now accepts formulas (e.g., `icon = ~site_type`), evaluated against the layer's data as in `leaflet::awesomeIcons()`.
+
+* Icons:
   * `magicIcons(library = "text")` shows text or numbers in markers instead of icons, e.g., for numbered stops.
-  * `magicIcons(iconColor = "auto")` picks black or white icons, whichever contrasts more with each marker. This is now the default.
-  * `magicIcons()` now accepts formulas (e.g., `icon = ~site_type`), evaluated against the layer's data as in `leaflet::awesomeIcons()`.
+  * `magicIcons(library = "svg")` uses raw SVG markup as the icon, so any icon can be used.
+
+* Markers:
+  * `magicIcons(iconColor = "auto")` picks black or white icons, whichever contrasts more with each marker.
+  * `magicIcons()` gains `outlineColor` and `outlineWidth` to style the outline around each marker, e.g., a white halo to stand out on busy basemaps.
   * `magicIcons()` markers now cast shadows like `{leaflet}`'s default marker; turn them off with `shadow = FALSE` (#12).
   * New marker shapes: `"marker-square"`, `"callout"`, `"triangle"` and `"hexagon"`.
   * New `markerShape()` defines custom SVG marker shapes, including icon position, anchor point, popup position and shadow style. Pass them to the `marker` argument of `magicIcons()`.
