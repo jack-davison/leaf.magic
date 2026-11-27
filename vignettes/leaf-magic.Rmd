@@ -5,7 +5,7 @@ vignette: >
   %\VignetteIndexEntry{Getting Started with {leaf.magic}}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -28,19 +28,23 @@ library(leaf.magic)
 
 The purpose of `{leaf.magic}` is to extend R `{leaflet}`'s capability to use modern icon sets. While `leaflet::addAwesomeMarkers()` exists, it has a few core disadvantages; markers are a fixed size, can only be one of 19 colours, and pull icons from significantly out of date icon sets.
 
-`{leaf.magic}` uses contemporary R packages - `{fontawesome}`, `{bsicons}` and `{lucidr}`, as well as Ionicons - to access up-to-date SVG icon sets, nests them inside its own SVG marker shapes, and then uses `leaflet::makeIcon()` to translate them into a `{leaflet}`-usable map marker.
+`{leaf.magic}` takes icons from up-to-date icon libraries - Font Awesome, Bootstrap, Lucide and Ionicons - and nests them inside its own SVG marker shapes, which `leaflet::makeIcon()` then turns into `{leaflet}`-usable map markers.
 
 Some core advantages of `magicIcons()` over `leaflet::awesomeIcons()` are:
 
 * Markers pull from up-to-date, larger icon sets.
 
-* Markers and icons can be any colour, and can be resized. 
+* Markers and icons can be any colour, and can be resized. As markers are vector images, they stay sharp at any size and on high resolution screens.
 
-One *disadvantage* is that `magicIcons()` may be slower initially to create large numbers of different icons. However, once a marker has been created in an R session, it will be significantly quicker to redraw, closing the gap between `awesomeIcons()` and `magicIcons()`.
+* Markers come in a range of shapes - and you can design your own.
+
+* Icons can be mapped to data with `iconFactor()`, `iconBin()` and `iconQuantile()`, and explained with `addIconLegend()`, just like colours in `{leaflet}`.
+
+Each marker is only built once per R session, so maps with many repeated markers are quick to draw.
 
 # Example Data
 
-In this document we'll use the in-built `port_talbot` dataset, which details the location of some air quality measurement stations around the town of Port Talbot, Wales, UK, some of which are open and some of which have closed. 
+In this document we'll use the in-built `port_talbot` dataset, which details the location of some air quality measurement stations around the town of Port Talbot, Wales, UK, some of which are open and some of which have closed.
 
 We can give this data a look using vanilla `{leaflet}`:
 
@@ -75,6 +79,31 @@ leaflet(port_talbot) |>
     popup = ~popup,
     icon = magicIcons(
       icon = "cloud"
+    )
+  )
+```
+
+# Icon Libraries
+
+By default, `magicIcons()` uses Font Awesome icons, but the `library` argument lets you choose from four icon libraries. Each is provided by a different package, which you'll need to have installed to use it:
+
+| `library` | Icons | Package |
+|---|---|---|
+| `"fontawesome"` | <https://fontawesome.com/search?ic=free> | `{fontawesome}` |
+| `"bootstrap"` | <https://icons.getbootstrap.com/> | `{bsicons}` |
+| `"lucide"` | <https://lucide.dev/icons/> | `{lucidr}` |
+| `"ionicons"` | <https://ionic.io/ionicons> | None - icons are downloaded when first used, so require an internet connection |
+
+For example, here are some Lucide icons:
+
+```{r map-library}
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addMarkers(
+    popup = ~popup,
+    icon = magicIcons(
+      icon = "factory",
+      library = "lucide"
     )
   )
 ```
@@ -125,7 +154,7 @@ leaflet(port_talbot) |>
 
 # Varying Colours
 
-`magicIcons()` has two arguments related to colour; `markerColor` which colours the tear-drop-shaped marker, and `iconColor` which colours the icon. Any hex-code can be supplied to these arguments - either a constant value or colour values mapped to a column using `leaflet::colorFactor()`.
+`magicIcons()` has two arguments related to colour; `markerColor` which colours the marker, and `iconColor` which colours the icon. Any colour can be supplied to these arguments - either a constant value or colour values mapped to a column using, for example, `leaflet::colorFactor()`.
 
 ```{r map-varcol-fct}
 catPal <- colorFactor(c("#12436D", "#28A197", "#801650"), port_talbot$site_type)
@@ -172,7 +201,7 @@ leaflet(port_talbot) |>
 
 # Varying Size
 
-Unlike `leaflet::awesomeIcons()`, `magicIcons()` can be easily re-sized. Much like in `leaflet::addCircleMarkers()`, this can vary with another variable; let's make the closed sites a bit smaller than the open ones with `markerSize`. Note the default is `30L`, which is roughly the same size as the default `leaflet::addMarkers()` marker.
+Unlike `leaflet::awesomeIcons()`, `magicIcons()` can be easily re-sized. Much like in `leaflet::addCircleMarkers()`, this can vary with another variable; let's make the closed sites a bit smaller than the open ones with `markerSize`, which sets the width of the marker in pixels. Note the default is `30L`, which is roughly the same size as the default `leaflet::addMarkers()` marker.
 
 ```{r map-varsize}
 leaflet(port_talbot) |>
@@ -195,7 +224,7 @@ leaflet(port_talbot) |>
 
 # Icon Legends
 
-`{leaf.magic}` provides the `addIconLegend()` function to help construct an icon legend, similar to `leaflet::addLegend()` constructs colour legends.
+`{leaf.magic}` provides the `addIconLegend()` function to construct icon legends. It works just like `leaflet::addLegend()`: give it an icon scale as `pal` along with the `values` used on the map, and it works out the icons and labels for you.
 
 ```{r map-iconlegend}
 leaflet(port_talbot) |>
@@ -215,13 +244,13 @@ leaflet(port_talbot) |>
     labFormat = labelFormat(big.mark = "")
   ) |>
   addIconLegend(
-    icons = c("industry", "car", "house"),
-    labels = site_types,
+    pal = iconPal,
+    values = ~site_type,
     title = "Site Type"
   )
 ```
 
-Often, the colour of the marker (or icon) and the icon itself will align. In that case, the `colors` argument of `addIconLegend()` can be used to create an efficient, combined legend.
+Often, the colour of the marker (or icon) and the icon itself will align. In that case, a colour scale can be passed to the `colors` argument of `addIconLegend()` to create an efficient, combined legend. As long as the icon and colour scales share the same settings, every icon is paired with the right colour.
 
 ```{r map-iconcollegend}
 leaflet(port_talbot) |>
@@ -235,18 +264,86 @@ leaflet(port_talbot) |>
     )
   ) |>
   addIconLegend(
-    icons = iconPal(site_types),
-    labels = site_types,
-    colors = catPal(site_types),
+    pal = iconPal,
+    values = ~site_type,
+    colors = catPal,
     title = "Site Type"
   )
 ```
 
-# Alternative Marker Types
+This also works for numeric scales; for example, an `iconQuantile()` scale gives one legend item per quantile.
 
-While the default marker type, the "tear-drop" marker, is useful in most instances, you may find other markers types of interest. These include circle, square, diamond, heart, and star-shaped markers. Additionally, users can specify `"none"` and remove the marker entirely, placing the icon directly on the map itself.
+```{r map-iconlegend-q}
+# colorQuantile() defaults to n = 4, so match the 3 icons of iconPalYr
+colPalYr <- colorQuantile(
+  c("#12436D", "#28A197", "#801650"),
+  domain = port_talbot$open_year,
+  n = 3
+)
 
-```{r}
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = iconPalYr(open_year),
+      iconColor = "white",
+      markerColor = colPalYr(open_year)
+    )
+  ) |>
+  addIconLegend(
+    pal = iconPalYr,
+    values = ~open_year,
+    colors = colPalYr,
+    title = "Opening Year"
+  )
+```
+
+Legends can also be built by hand with the `icons`, `labels` and `colors` arguments, and - like `leaflet::addLegend()` - shown and hidden alongside a layer using `group`.
+
+```{r map-iconlegend-manual}
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = iconPal(site_type),
+      iconColor = "white",
+      markerColor = catPal(site_type)
+    ),
+    group = "Sites"
+  ) |>
+  addIconLegend(
+    icons = c("industry", "car", "house"),
+    labels = c("Industrial", "Traffic", "Background"),
+    colors = c("#28A197", "#801650", "#12436D"),
+    title = "Site Type",
+    group = "Sites"
+  ) |>
+  addLayersControl(
+    overlayGroups = "Sites",
+    options = layersControlOptions(FALSE)
+  )
+```
+
+# Marker Shapes
+
+While the default marker type, the "tear-drop" marker, is useful in most instances, you may find other marker shapes of interest. These are:
+
+* **Pointed shapes**, which sit on their location with their tip, like the default marker: `"marker"`, `"marker-square"` (a pin with a square head) and `"callout"` (a speech bubble).
+
+* **Centred shapes**, which sit centred on their location: `"circle"`, `"square"`, `"diamond"`, `"triangle"`, `"hexagon"`, `"star"` and `"heart"`.
+
+* `"none"`, which removes the marker entirely and places the icon directly on the map itself.
+
+Use the layer control in the map below to try them out.
+
+```{r map-shapes}
+shapes <- c(
+  "marker", "marker-square", "callout", "circle", "square", "diamond",
+  "triangle", "hexagon", "star", "heart", "none"
+)
+
 addQuickMarker <- function(map, marker) {
   iconColor <- "white"
   markerColor <- catPal(port_talbot$site_type)
@@ -266,30 +363,30 @@ addQuickMarker <- function(map, marker) {
     )
 }
 
-leaflet(port_talbot) |>
-  addProviderTiles(providers$CartoDB.Positron) |>
-  addQuickMarker("circle") |>
-  addQuickMarker("square") |>
-  addQuickMarker("diamond") |>
-  addQuickMarker("heart") |>
-  addQuickMarker("star") |>
-  addQuickMarker("none") |>
+map <- leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron)
+
+for (shape in shapes) {
+  map <- addQuickMarker(map, shape)
+}
+
+map |>
   addLayersControl(
-    baseGroups = c("circle", "square", "diamond", "heart", "star", "none"),
+    baseGroups = shapes,
     options = layersControlOptions(FALSE)
   ) |>
   addIconLegend(
     position = "bottomleft",
-    icons = iconPal(site_types),
-    labels = site_types,
-    colors = catPal(site_types),
+    pal = iconPal,
+    values = ~site_type,
+    colors = catPal,
     title = "Site Type"
   )
 ```
 
-Note that `marker` can vary with some variable, allowing the marker style itself to encode extra information.
+Note that `marker` can vary with some variable, allowing the marker shape itself to encode extra information. As marker shapes are just names, `iconFactor()` can map data to them.
 
-```{r}
+```{r map-shapes-vary}
 markPal <- iconFactor(c("circle", "diamond", "square"), site_types)
 
 leaflet(port_talbot) |>
@@ -299,12 +396,87 @@ leaflet(port_talbot) |>
     markerSize = ifelse(markPal(site_type) == "diamond", 35, 30)
   )) |>
   addIconLegend(
-    title = "Site Type",
-    icons = markPal(site_types),
-    labels = site_types
+    pal = markPal,
+    values = ~site_type,
+    title = "Site Type"
   )
 ```
 
+## Custom Shapes
+
+If none of the built-in shapes suit, you can design your own with `markerShape()`. A shape is drawn with SVG in its own coordinate system - by default, 100 units wide and 100 units tall - and you tell `markerShape()`:
+
+* `path`: the outline of the shape, as SVG path data or SVG markup.
+* `icon`: the centre (`x`, `y`) and `size` of the square the icon is drawn in.
+* `anchor`: the point of the shape that sits on the marker's location.
+* `popup`: where popups open from.
+
+The shape is filled with `markerColor` and given a darker outline for you. For example, here's a downward-pointing arrow, anchored at its tip:
+
+```{r shape-arrow}
+arrow <- markerShape(
+  path = "M2 2h96L50 98z",
+  icon = c(x = 50, y = 34, size = 36),
+  anchor = c(x = 50, y = 98),
+  popup = c(x = 50, y = 10),
+  shadow = "cast"
+)
+
+arrow
+```
+
+A custom shape can be passed to `marker` just like a built-in one. To use a different shape for each marker, give `marker` a list of shapes and/or shape names. Here, open sites use the arrow and closed sites use a circle.
+
+```{r map-shape-custom}
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = iconPal(site_type),
+      iconColor = "white",
+      markerColor = catPal(site_type),
+      marker = lapply(open, \(x) if (x) arrow else "circle")
+    )
+  ) |>
+  addIconLegend(
+    pal = iconPal,
+    values = ~site_type,
+    colors = catPal,
+    title = "Site Type"
+  )
+```
+
+# Shadows
+
+Like the default `{leaflet}` marker, `{leaf.magic}` markers have shadows. Pointed shapes cast a shadow up and to the right from their tip, as if they were standing on the map, while other shapes have a soft shadow just beneath them. Shadows are drawn underneath *all* of the markers, so a marker's shadow never covers another marker.
+
+Shadows can be turned off with `shadow = FALSE`. Use the layer control below to compare. For custom shapes, the `shadow` argument of `markerShape()` chooses between a `"cast"` shadow, a `"drop"` shadow, or `"none"`.
+
+```{r map-shadows}
+addShadowMarkers <- function(map, shadow) {
+  map |>
+    addMarkers(
+      popup = ~popup,
+      icon = ~ magicIcons(
+        icon = iconPal(site_type),
+        iconColor = "white",
+        markerColor = catPal(site_type),
+        shadow = shadow
+      ),
+      group = if (shadow) "With Shadows" else "Without Shadows"
+    )
+}
+
+leaflet(port_talbot) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addShadowMarkers(TRUE) |>
+  addShadowMarkers(FALSE) |>
+  addLayersControl(
+    baseGroups = c("With Shadows", "Without Shadows"),
+    options = layersControlOptions(FALSE)
+  )
+```
 
 # Other Utilities
 
@@ -341,9 +513,9 @@ leaflet(breweries91) |>
   )
 ```
 
-If you use `{leaf.magic}`, you may want to add an attribution to Font Awesome or one of the other icon providers. `addIconAttribution()` is a convenient way to do this, and even comes with its own `group` and `layerId` options for precise "layer" control. Try toggling the breweries on and off in the example below.
+If you use `{leaf.magic}`, you may want to add an attribution to Font Awesome or one of the other icon providers (set using `library`). `addIconAttribution()` is a convenient way to do this, and even comes with its own `group` and `layerId` options for precise "layer" control. Try toggling the breweries on and off in the example below.
 
-```{r}
+```{r attribution}
 leaflet(breweries91) |>
   addTiles() |>
   addMarkers(icon = magicIcons("beer", "red", "white"), group = "Breweries") |>
@@ -351,3 +523,5 @@ leaflet(breweries91) |>
   addLayersControl(overlayGroups = "Breweries",
                    options = leaflet::layersControlOptions(FALSE))
 ```
+
+Finally, markers are saved to a temporary directory by default, which is cleared at the end of each R session. If you build the same markers often (for example, in a Shiny app), the `dir` argument of `magicIcons()` can point to a permanent directory so that markers are only ever built once.

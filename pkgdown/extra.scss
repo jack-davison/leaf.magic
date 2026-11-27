@@ -1,0 +1,82 @@
+// leaf.magic theme touches, layered on top of cosmo + bslib variables
+$logo-blue: #46b1e1;
+$deep-blue: #1D6F99;
+$navy: #0E3A52;
+
+// a stripe of the logo's blue under a deep navy navbar
+// (cosmo forces .bg-primary on the navbar, so override it here)
+.navbar {
+  background-color: $navy !important;
+  border-bottom: 4px solid $logo-blue;
+}
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.navbar .nav-link.active,
+.navbar .nav-item.active > .nav-link {
+  background-color: transparent !important;
+  color: #fff !important;
+  box-shadow: inset 0 -3px 0 $logo-blue;
+}
+.navbar input[type="search"] {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+// headings: weightier, with an accent rule under page titles
+h1, h2, h3, h4 {
+  font-weight: 700;
+  color: $navy;
+}
+// (a pseudo-element bar, so the h1 keeps its normal block flow beside the
+// floated logo and the "Source:" line stays underneath)
+.page-header h1::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+  background-color: $logo-blue;
+}
+
+// links: underline only on hover
+main a:not(.btn):not(.anchor),
+aside a:not(.btn):not(.nav-link) {
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba($deep-blue, 0.3);
+  &:hover { border-bottom-color: $deep-blue; }
+}
+main pre a, main code a, a:has(> img), a:has(> svg) { border-bottom: none !important; }
+
+// code blocks: tinted with a blue accent edge
+pre {
+  background-color: #F2F7FA;
+  border: none;
+  border-left: 4px solid $logo-blue;
+  border-radius: 0 6px 6px 0;
+}
+:not(pre) > code {
+  color: $navy;
+  background-color: rgba($logo-blue, 0.12);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+}
+
+// sidebar: small-caps section labels
+aside h2, aside h3, #toc > h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $deep-blue;
+}
+
+// reference index: give each section a bit of air
+.template-reference-index h2 {
+  margin-top: 2.5rem;
+}
+
+footer {
+  border-top: 4px solid $logo-blue;
+}

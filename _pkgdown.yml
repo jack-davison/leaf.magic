@@ -3,7 +3,8 @@ template:
   bootstrap: 5
   bslib:
     bootswatch: cosmo
-    primary: "#46b1e1"
+    # a deeper shade of the logo's blue, readable as link text on white
+    primary: "#1D6F99"
     base_font: {google: "Montserrat"}
     heading_font: {google: "Montserrat"}
     code_font: {google: "JetBrains Mono"}

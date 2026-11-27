@@ -1,86 +1,78 @@
 # leaf.magic (development version)
 
-## Breaking Changes
+## Breaking changes
 
-* `iconFactor()`, `iconBin()` and `iconQuantile()` have been rewritten to behave identically to `leaflet::colorFactor()`, `leaflet::colorBin()` and `leaflet::colorQuantile()`. Given the same settings, each level/bin now receives a consistent icon-colour pair. In particular, `iconFactor()` now sorts character domains alphabetically (or uses factor levels) rather than using the order of appearance; use `ordered = TRUE` for the old behaviour. Similarly, `iconBin()` now uses `pretty = TRUE` by default, as `colorBin()` does, which may produce a different number of bins than icons; use `pretty = FALSE` for the old behaviour.
+* `magicIcons()` now builds each marker as a single SVG rather than compositing PNGs, so markers are sharp at any size and icons are precisely centred. Marker shapes are now drawn by `{leaf.magic}` itself, so look slightly different.
 
-* `magicIcons()` now builds each marker as a single SVG image, rather than compositing PNG images. Markers are therefore sharp at any `markerSize` and on high resolution screens, and icons are centred precisely within each marker shape. Marker shapes are now drawn by `{leaf.magic}` itself rather than borrowed from Font Awesome, so look slightly different to before.
+* `iconFactor()`, `iconBin()` and `iconQuantile()` now behave identically to their `leaflet::color*()` equivalents, so the same settings always give matching icon-colour pairs. This changes two defaults:
+  * `iconFactor()` sorts levels alphabetically (or uses factor levels) rather than by order of appearance. Use `ordered = TRUE` for the old behaviour.
+  * `iconBin()` uses `pretty = TRUE`, which may change the number of bins. Use `pretty = FALSE` for the old behaviour.
 
-* `{fontawesome}` has moved from Imports to Suggests, so every icon library is now optional; install `{fontawesome}`, `{bsicons}` or `{lucidr}` to use the respective library. `{magick}` and `{rsvg}` are no longer required.
+* All icon libraries are now optional: `{fontawesome}` has moved to Suggests alongside `{bsicons}` and `{lucidr}`. `{magick}` and `{rsvg}` are no longer needed.
 
-## New Features
+## New features
 
-* New `markerShape()` function to define custom marker shapes using SVG, including where the icon sits, which point of the shape is anchored to the map location, and where popups open. Custom shapes can be passed to the `marker` argument of `magicIcons()`, either alone or in a list alongside other shapes and shape names.
+* Markers:
+  * `magicIcons()` markers now cast shadows like `{leaflet}`'s default marker; turn them off with `shadow = FALSE` (#12).
+  * New marker shapes: `"marker-square"`, `"callout"`, `"triangle"` and `"hexagon"`.
+  * New `markerShape()` defines custom SVG marker shapes, including icon position, anchor point, popup position and shadow style. Pass them to the `marker` argument of `magicIcons()`.
 
-* `magicIcons()` markers now have shadows, which can be turned off with `shadow = FALSE` (#12). As with the default `{leaflet}` marker, pointed shapes such as `"marker"` cast a shadow up and to the right from their tip, while other shapes have a soft shadow beneath them. Shadows are generated from each shape, so work for custom shapes too; use the new `shadow` argument of `markerShape()` to choose the style. Shadows are drawn in the map's shadow pane, so never cover other markers.
+* Legends:
+  * `addIconLegend()` can now be built directly from an icon scale using `pal` and `values`, like `leaflet::addLegend()` (#10). `colors` may also be a `{leaflet}` colour scale.
+  * `addIconLegend()` gains `na.label`, `labFormat`, `group` and `opacity` arguments, as in `leaflet::addLegend()`.
 
-* `magicIcons()` gains several new built-in marker shapes: `"marker-square"` (a pin with a square head), `"callout"` (a speech bubble), `"triangle"` and `"hexagon"`.
+* Icon scales:
+  * `iconFactor()` gains `levels`, `ordered` and `reverse`; `iconBin()` gains `pretty` and `reverse`; `iconQuantile()` gains `reverse`.
+  * All three now accept `domain = NULL`.
 
-* `addIconLegend()` gains `pal`, `values`, `na.label` and `labFormat` arguments, allowing a legend to be generated automatically from an `iconFactor()`, `iconBin()` or `iconQuantile()` scale in the same way as `leaflet::addLegend()` (#10). Legend items, labels and missing value handling match `leaflet::addLegend()`, so icon and colour legends built from equivalent scales always agree. When `pal` is used, `colors` may also be a `{leaflet}` colour scale function, giving a legend of matched icon-colour pairs.
+## Bug fixes
 
-* `addIconLegend()` gains `group` and `opacity` arguments, as in `leaflet::addLegend()`. `group` allows the legend to be shown and hidden alongside a layer group.
+* `magicIcons()`:
+  * Outlined Ionicons (e.g., `"car-outline"`) now use `iconColor` rather than always being black.
+  * Cached markers are now invalidated when `{leaf.magic}` is upgraded, work with any icon name, and are shared between equivalent colours (e.g., `"red"` and `"#FF0000"`).
+  * `dir` is created if it doesn't exist.
 
-* `iconFactor()` gains `levels`, `ordered` and `reverse` arguments; `iconBin()` gains `pretty` and `reverse`; and `iconQuantile()` gains `reverse`, all matching their `{leaflet}` equivalents. A `domain` of `NULL` is now also supported.
+* `addIconLegend()`:
+  * Icons and labels are now spaced correctly.
+  * Legends for `iconBin()` scales without a `domain` now always match the map.
+  * The missing value item is now grey, as in `{leaflet}`, when `colors` is a single colour.
 
-## Bug Fixes
+* Icon scales:
+  * `iconBin()` and `iconQuantile()` no longer assign icons to the wrong bins when `domain` is unsorted or a bin is empty.
+  * `iconBin()` now accepts a vector of break points for `bins`.
+  * `iconFactor()` now matches factors by label rather than integer code, and allows the same icon for multiple levels.
 
-* Outlined Ionicons (e.g., `"car-outline"`) are now drawn in `iconColor` in `magicIcons()`; previously they were always black.
-
-* `magicIcons()` no longer produces pixelated icons when `library = "bootstrap"` or `library = "lucide"`. Icons are now rendered at a high resolution before being scaled down. Note that markers previously cached in a persistent `dir` will need to be deleted to benefit from this fix.
-
-* `magicIcons()` now includes the package version in the file names of cached markers, so markers saved in a persistent `dir` are re-rendered after upgrading `{leaf.magic}`.
-
-* `magicIcons()` now creates `dir` if it does not already exist, and cleans up its intermediate temporary files.
-
-* `magicIcons()` and `addIconLegend()` now error informatively if their vector arguments are not length 1 or a common length. Previously, lengths that divided evenly (e.g., 2 icons and 4 colours) were silently recycled.
-
-* Ionicons are now downloaded once per session rather than every time they are used, and a failed download (e.g., a misspelled icon name, or no internet connection) now gives an informative error.
+* Ionicons are now downloaded once per session, and failed downloads give an informative error.
 
 * `addIconAttribution()` no longer makes a network request for every map tile.
 
-* `addIconLegend()` now correctly spaces icons and labels; previously the intended spacing was collapsed by HTML into a single space.
+* `magicIcons()` and `addIconLegend()` now error informatively on mismatched argument lengths, rather than silently recycling. `addIconLegend()` also errors informatively if `icons` or `labels` is missing.
 
-* `addIconLegend()` legends for `iconBin()` scales with no `domain` now always match the map. Previously, if some bins contained no `values`, the legend could show different icons and colours from the markers. Only occupied bins are now shown.
+## Dependencies
 
-* `addIconLegend()` now uses grey (`"#808080"`, as in `{leaflet}`) for the missing value item when `colors` is a single colour, rather than the colour used for every other item.
+* `{htmltools}`, `{grDevices}` and `{stats}` are now imported.
 
-* `addIconLegend()` now gives an informative error if `icons` or `labels` is missing and `pal` is not used.
-
-* `magicIcons()` now hashes the cache file names of markers, so any icon name gives a valid file name, and equivalent colours (e.g., `"red"`, `"#ff0000"` and `"#FF0000"`) share one cached marker.
-
-## Dependency Changes
-
-* `{purrr}` now requires version 1.0.0 or later, and `{dplyr}` (used in examples) version 1.2.0 or later.
-
-* `{grDevices}` and `{stats}` are now explicitly imported.
-
-* `iconBin()` and `iconQuantile()` no longer assign icons to the wrong bins when `domain` is unsorted or a bin is empty.
-
-* `iconFactor()` now matches factor inputs by label rather than by their underlying integer codes.
-
-* `iconFactor()` now allows the same icon to be used for multiple levels.
-
-* `iconBin()` now works when `bins` is a vector of break points.
+* `{purrr}` now requires 1.0.0 or later, `{rlang}` 1.0.0 or later, and `{dplyr}` (used in examples) 1.2.0 or later.
 
 # leaf.magic 0.2.0
 
-## Dependency Changes
+## Dependencies
 
 * `{rlang}` is now directly imported.
 
 * `{bsicons}` and `{lucidr}` are now suggested packages.
 
-## New Features
+## New features
 
 * Added Lucide (<https://lucide.dev/>) icons, powered by `{lucidr}`.
 
 # leaf.magic 0.1.0
 
-## New Features
+## New features
 
 * `magicIcons()` allows users to use any up-to-date Font Awesome, Bootstrap, or Ionicons icon.
 
-* `addIconLegend()` add a legend layer to a `{leaflet}` map with Font Awesome, Bootstrap, or Ionicons icons. 
+* `addIconLegend()` adds a legend layer to a `{leaflet}` map with Font Awesome, Bootstrap, or Ionicons icons.
 
 * `iconFactor()`, `iconBin()`, and `iconQuantile()` exist as analogues to `leaflet::colorFactor()`, `leaflet::colorBin()` and `leaflet::colorQuantile()`.
 
