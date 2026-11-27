@@ -158,7 +158,8 @@ iconBin <- function(
     bins = bins,
     pretty = pretty,
     na.icon = na.icon,
-    reverse = reverse
+    reverse = reverse,
+    right = right
   )
 
   with_icon_attr("bin", args, function(x) {

@@ -24,10 +24,15 @@
 #'   built from scales with the same settings will therefore always agree.
 #'   Unlike [leaflet::addLegend()], `values` may be omitted when the scale has
 #'   a fixed `domain`/`levels`, and [iconBin()] scales with no `domain` are
-#'   supported.
+#'   supported. For the latter, the legend shows only the bins that contain
+#'   `values`, with the same icons (and colours, if `colors` is a colour scale)
+#'   as the map. Like [leaflet::colorBin()], such a scale assigns icons based on
+#'   which bins are occupied, so empty bins have no icon to show.
 #'
 #'   If any `values` are missing, an extra legend item is added using the
-#'   `na.icon` of the scale and labelled with `na.label`. As in
+#'   `na.icon` of the scale and labelled with `na.label`. Its colour is the
+#'   `na.color` of `colors` if it is a colour scale, and otherwise grey
+#'   (`"#808080"`, the default `na.color` in `{leaflet}`). As in
 #'   [leaflet::addLegend()], this is skipped if `na.label` is already one of the
 #'   labels, if `na.icon` is `NA`, or if `colors` is a colour scale with a
 #'   transparent `na.color`.
@@ -135,8 +140,16 @@ addIconLegend <- function(
     if (missing(labels)) {
       labels <- legend$labels
     }
-  } else if (is.function(colors)) {
-    rlang::abort("`colors` can only be a function if `pal` is provided.")
+  } else {
+    if (is.function(colors)) {
+      rlang::abort("`colors` can only be a function if `pal` is provided.")
+    }
+    if (missing(icons) || missing(labels)) {
+      rlang::abort(c(
+        "Both `icons` and `labels` must be provided when `pal` is not used.",
+        i = "Alternatively, use `pal` and `values` to build the legend from an icon scale."
+      ))
+    }
   }
 
   # format title
@@ -228,6 +241,7 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
   }
 
   has_values <- !is.null(values) && !all(is.na(values))
+  color_index <- NULL
   needs_values <- function() {
     if (!has_values) {
       rlang::abort(
@@ -253,20 +267,35 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
     cuts <- args$bins
     autobin <- length(cuts) == 1
     if (autobin) {
-      # leaflet::addLegend() can't handle colorBin(domain = NULL, bins = n)
+      # leaflet::addLegend() draws an empty legend for
+      # colorBin(domain = NULL, bins = n), so there is nothing to mirror.
+      # Instead, show exactly what the map shows: the scale only assigns icons
+      # (and colours) to occupied bins, and which icon a bin gets depends on
+      # which other bins are occupied, so evaluate `pal()` on `values` itself
+      # and take one representative value per occupied bin. Calling `pal()` on
+      # bin midpoints would recalculate the bins from the midpoints.
       needs_values()
       cuts <- get_bins(NULL, values, cuts, args$pretty)
-    }
-    n <- length(cuts)
-    mids <- (cuts[-1] + cuts[-n]) / 2
-    icons <- if (autobin) {
-      # calling `pal()` on the midpoints would recalculate the bins from them
-      args$icons[icon_index(seq_len(n - 1), n - 1, length(args$icons), args$reverse)]
+      ints <- cut(
+        values,
+        cuts,
+        labels = FALSE,
+        include.lowest = TRUE,
+        right = isTRUE(args$right)
+      )
+      occupied <- sort(unique(stats::na.omit(ints)))
+      first <- match(occupied, ints)
+      icons <- pal(values)[first]
+      color_values <- values
+      color_index <- first
+      labels <- labFormat(type = "bin", cuts)[occupied]
     } else {
-      pal(mids)
+      n <- length(cuts)
+      mids <- (cuts[-1] + cuts[-n]) / 2
+      icons <- pal(mids)
+      color_values <- mids
+      labels <- labFormat(type = "bin", cuts)
     }
-    color_values <- mids
-    labels <- labFormat(type = "bin", cuts)
   } else if (type == "quantile") {
     p <- args$probs
     n <- length(p)
@@ -303,9 +332,12 @@ icon_legend_items <- function(pal, values, colors, labFormat, na.label) {
 
   if (is.function(colors)) {
     colors <- colors(color_values)
+    if (!is.null(color_index)) colors <- colors[color_index]
     if (show_na) colors <- c(colors, na.color)
-  } else if (show_na && length(colors) > 1L) {
-    colors <- c(colors, na.color)
+  } else if (show_na) {
+    # as leaflet::addLegend(), the NA item always uses the NA colour, even
+    # when a single colour is used for every other item
+    colors <- c(rep_len(colors, length(icons)), na.color)
   }
 
   if (show_na) {

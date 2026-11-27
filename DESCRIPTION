@@ -19,7 +19,7 @@ Imports:
     leaflet,
     magick,
     purrr (>= 1.0.0),
-    rlang,
+    rlang (>= 1.0.0),
     rsvg,
     stats,
     utils

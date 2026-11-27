@@ -28,6 +28,14 @@
 
 * `addIconLegend()` now correctly spaces icons and labels; previously the intended spacing was collapsed by HTML into a single space.
 
+* `addIconLegend()` legends for `iconBin()` scales with no `domain` now always match the map. Previously, if some bins contained no `values`, the legend could show different icons and colours from the markers. Only occupied bins are now shown.
+
+* `addIconLegend()` now uses grey (`"#808080"`, as in `{leaflet}`) for the missing value item when `colors` is a single colour, rather than the colour used for every other item.
+
+* `addIconLegend()` now gives an informative error if `icons` or `labels` is missing and `pal` is not used.
+
+* `magicIcons()` now hashes the cache file names of markers, so any icon name gives a valid file name, and equivalent colours (e.g., `"red"`, `"#ff0000"` and `"#FF0000"`) share one cached marker.
+
 ## Dependency Changes
 
 * `{purrr}` now requires version 1.0.0 or later, and `{dplyr}` (used in examples) version 1.2.0 or later.

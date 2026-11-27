@@ -114,10 +114,15 @@ quantile values in a hover tooltip). An icon legend and a colour legend
 built from scales with the same settings will therefore always agree.
 Unlike \code{\link[leaflet:addLegend]{leaflet::addLegend()}}, \code{values} may be omitted when the scale has
 a fixed \code{domain}/\code{levels}, and \code{\link[=iconBin]{iconBin()}} scales with no \code{domain} are
-supported.
+supported. For the latter, the legend shows only the bins that contain
+\code{values}, with the same icons (and colours, if \code{colors} is a colour scale)
+as the map. Like \code{\link[leaflet:colorBin]{leaflet::colorBin()}}, such a scale assigns icons based on
+which bins are occupied, so empty bins have no icon to show.
 
 If any \code{values} are missing, an extra legend item is added using the
-\code{na.icon} of the scale and labelled with \code{na.label}. As in
+\code{na.icon} of the scale and labelled with \code{na.label}. Its colour is the
+\code{na.color} of \code{colors} if it is a colour scale, and otherwise grey
+(\code{"#808080"}, the default \code{na.color} in \code{{leaflet}}). As in
 \code{\link[leaflet:addLegend]{leaflet::addLegend()}}, this is skipped if \code{na.label} is already one of the
 labels, if \code{na.icon} is \code{NA}, or if \code{colors} is a colour scale with a
 transparent \code{na.color}.

@@ -132,22 +132,23 @@ magicIcons <- function(
 
   make_fa_icon <- function(icon, markerColor, iconColor, marker, markerSize) {
     # the package version is part of the cache key so that markers cached in a
-    # persistent `dir` are re-rendered when the rendering code changes
+    # persistent `dir` are re-rendered when the rendering code changes. The
+    # rest of the key is hashed so that any icon name is a valid file name,
+    # and colours are normalised so that, e.g., "red", "#ff0000" and "#FF0000"
+    # share a single cached marker.
     url <- file.path(
       dir,
       paste0(
         "leafmagic-",
         getNamespaceVersion("leaf.magic"),
         "-",
-        icon,
-        "_",
-        markerColor,
-        "_",
-        iconColor,
-        "_",
-        marker,
-        "_",
-        library,
+        rlang::hash(list(
+          icon,
+          normalise_color(markerColor),
+          normalise_color(iconColor),
+          marker,
+          library
+        )),
         ".png"
       )
     )
@@ -349,6 +350,19 @@ darken_color <- function(col, factor = 0.8) {
   col <- grDevices::col2rgb(col)
   col <- col * factor
   grDevices::rgb(col[1], col[2], col[3], maxColorValue = 255)
+}
+
+#' Normalise a colour to an uppercase "#RRGGBBAA" hex code
+#' @noRd
+normalise_color <- function(col) {
+  rgba <- grDevices::col2rgb(col, alpha = TRUE)
+  grDevices::rgb(
+    rgba[1],
+    rgba[2],
+    rgba[3],
+    rgba[4],
+    maxColorValue = 255
+  )
 }
 
 #' Check library is valid

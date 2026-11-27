@@ -79,6 +79,13 @@ test_that("Markers are cached by package version and temp files are removed", {
   # intermediate logo/pin PNGs are cleaned up
   new_tmp <- setdiff(list.files(tempdir()), before)
   expect_false(any(grepl("^(logo|pin)_", new_tmp)))
+
+  # equivalent colours share a single cached marker
+  magicIcons("car", c("#FF0000", "#ff0000", "red"), "WHITE", dir = dir)
+  expect_length(list.files(dir), 1)
+
+  # cache file names are always valid, whatever the icon name
+  expect_match(files, "^leafmagic-[0-9.]+-[0-9a-f]+\\.png$")
 })
 
 test_that("Ionicons download failures give an informative error", {
@@ -115,6 +122,14 @@ test_that("addIconLegend uses non-breaking spaces and checks lengths", {
       labels = c("a", "b", "c", "d")
     ),
     "`icons` has length 2"
+  )
+  expect_error(
+    addIconLegend(leaflet::leaflet(), icons = c("car", "house")),
+    "Both `icons` and `labels` must be provided"
+  )
+  expect_error(
+    addIconLegend(leaflet::leaflet(), labels = c("Car", "House")),
+    "Both `icons` and `labels` must be provided"
   )
 })
 

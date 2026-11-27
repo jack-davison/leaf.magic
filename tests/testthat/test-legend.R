@@ -156,6 +156,9 @@ test_that("NA legend items follow leaflet::addLegend() rules", {
   expect_length(legend_items(ipal_na, c("x", NA), "black")$icons, 1)
   # na.label already in labels -> no NA item
   expect_length(legend_items(ipal, c("x", NA), na.label = "x")$icons, 1)
+  # a single colour is recycled, but the NA item is grey, as in leaflet
+  out <- legend_items(ipal, c("x", "y", NA), "red")
+  expect_equal(out$colors, c("red", "red", "#808080"))
 })
 
 test_that("values can be omitted for scales with a fixed domain", {
@@ -176,12 +179,34 @@ test_that("values can be omitted for scales with a fixed domain", {
 })
 
 test_that("bin scales with no domain are supported", {
-  # leaflet::addLegend() can't draw this, so check the icons are consistent
+  # leaflet::addLegend() draws an empty legend here, so check the legend
+  # matches the map instead
   ipal <- iconBin(icns[1:2], NULL, bins = 2, pretty = FALSE)
   out <- legend_items(ipal, c(0, 10))
   expect_equal(out$labels, c("0 &ndash; 5", "5 &ndash; 10"))
   expect_equal(out$icons, ipal(c(0, 10)))
   expect_error(legend_items(ipal, NULL), "`values` must be provided")
+})
+
+test_that("bin legends with no domain match the map when bins are empty", {
+  ipal <- iconBin(icns[1:4], NULL, bins = 4, pretty = FALSE)
+  cpal <- leaflet::colorBin(cols[1:4], NULL, bins = 4, pretty = FALSE)
+  # cuts are 3, 4.75, 6.5, 8.25, 10, so bin 3 is empty
+  values <- c(3, 4, 6, 10)
+  out <- legend_items(ipal, values, cpal)
+
+  expect_equal(
+    out$labels,
+    c("3.00 &ndash; 4.75", "4.75 &ndash; 6.50", "8.25 &ndash; 10.00")
+  )
+  # each item shows the icon and colour that the map uses for that bin
+  expect_equal(out$icons, unique(ipal(values)))
+  expect_equal(out$colors, unique(cpal(values)))
+
+  # `right` is respected when assigning values to bins
+  ipal_r <- iconBin(icns[1:2], NULL, bins = 2, pretty = FALSE, right = TRUE)
+  out_r <- legend_items(ipal_r, c(0, 5, 5, 10))
+  expect_equal(out_r$icons, unique(ipal_r(c(0, 5, 5, 10))))
 })
 
 test_that("addIconLegend accepts pal and values", {
