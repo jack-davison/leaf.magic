@@ -105,6 +105,14 @@
     [`iconQuantile()`](https://jack-davison.github.io/leaf.magic/reference/icon-scales.md)
     gains `reverse`.
   - All three now accept `domain = NULL`.
+  - `na.icon` now defaults to `"auto"`, which
+    [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+    and
+    [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
+    draw as a question mark from whichever icon library is in use
+    (previously always the Font Awesome `"question"` icon, which failed
+    in other libraries). When a scale maps to marker shapes, `"auto"` is
+    drawn as `"none"`.
 
 ### Bug fixes
 

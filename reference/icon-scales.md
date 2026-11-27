@@ -26,7 +26,7 @@ iconFactor(
   domain,
   levels = NULL,
   ordered = FALSE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE
 )
 
@@ -35,7 +35,7 @@ iconBin(
   domain,
   bins = length(icons),
   pretty = TRUE,
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 )
@@ -45,7 +45,7 @@ iconQuantile(
   domain,
   n = length(icons),
   probs = seq(0, 1, length.out = n + 1),
-  na.icon = "question",
+  na.icon = "auto",
   reverse = FALSE,
   right = FALSE
 )
@@ -80,7 +80,15 @@ iconQuantile(
 
 - na.icon:
 
-  The icon to return for missing or out-of-scope values.
+  The icon to return for missing or out-of-scope values. The default,
+  `"auto"`, is drawn by
+  [`magicIcons()`](https://jack-davison.github.io/leaf.magic/reference/magicIcons.md)
+  and
+  [`addIconLegend()`](https://jack-davison.github.io/leaf.magic/reference/addIconLegend.md)
+  as a question mark from whichever `library` they use. If the scale
+  maps values to marker shapes instead, `"auto"` is drawn as `"none"`
+  (the icon alone). `NA` draws no icon (or, for shapes, no marker) and
+  leaves missing values out of legends.
 
 - reverse:
 

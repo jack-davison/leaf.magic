@@ -89,6 +89,8 @@
 <ul><li>
 <code><a href="../reference/icon-scales.html">iconFactor()</a></code> gains <code>levels</code>, <code>ordered</code> and <code>reverse</code>; <code><a href="../reference/icon-scales.html">iconBin()</a></code> gains <code>pretty</code> and <code>reverse</code>; <code><a href="../reference/icon-scales.html">iconQuantile()</a></code> gains <code>reverse</code>.</li>
 <li>All three now accept <code>domain = NULL</code>.</li>
+<li>
+<code>na.icon</code> now defaults to <code>"auto"</code>, which <code><a href="../reference/magicIcons.html">magicIcons()</a></code> and <code><a href="../reference/addIconLegend.html">addIconLegend()</a></code> draw as a question mark from whichever icon library is in use (previously always the Font Awesome <code>"question"</code> icon, which failed in other libraries). When a scale maps to marker shapes, <code>"auto"</code> is drawn as <code>"none"</code>.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
