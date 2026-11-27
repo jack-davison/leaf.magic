@@ -199,6 +199,35 @@ leaflet(port_talbot) |>
   )
 ```
 
+When markers vary in colour like this, a single `iconColor` won't suit them all - white is hard to read on the yellow end of viridis. Setting `iconColor = "auto"` picks black or white for each marker, whichever contrasts more with its `markerColor`.
+
+# Text Markers
+
+Sometimes the best "icon" is a short piece of text, like a number or a letter. Setting `library = "text"` shows `icon` as text inside the marker. Text shrinks to fit as it gets longer, so it works best with up to around three characters.
+
+For example, we can label each site with the last two digits of the year it opened:
+
+```{r map-text}
+leaflet(port_talbot) |>
+  addTiles() |>
+  addMarkers(
+    popup = ~popup,
+    icon = ~ magicIcons(
+      icon = format(start_date, "%y"),
+      markerColor = palNum(open_year),
+      iconColor = "auto",
+      marker = "circle",
+      library = "text"
+    )
+  ) |>
+  addLegend(
+    pal = palNum,
+    values = port_talbot$open_year,
+    title = "Opening Year",
+    labFormat = labelFormat(big.mark = "")
+  )
+```
+
 # Varying Size
 
 Unlike `leaflet::awesomeIcons()`, `magicIcons()` can be easily re-sized. Much like in `leaflet::addCircleMarkers()`, this can vary with another variable; let's make the closed sites a bit smaller than the open ones with `markerSize`, which sets the width of the marker in pixels. Note the default is `30L`, which is roughly the same size as the default `leaflet::addMarkers()` marker.

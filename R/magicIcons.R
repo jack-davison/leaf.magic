@@ -29,7 +29,8 @@
 #' @param icon Name of the icon. A full list of available icons can be found
 #'   using [fontawesome::fa_metadata()], <https://icons.getbootstrap.com/>,
 #'   <https://ionic.io/ionicons> or <https://lucide.dev/icons/>, depending on
-#'   `library`.
+#'   `library`. When `library = "text"`, the text (or numbers) to show in each
+#'   marker instead.
 #'
 #' @param markerColor The color of the marker. Not used when `marker = "none"`.
 #'
@@ -62,7 +63,9 @@
 #'
 #' @param library One of `"fontawesome"`, `"bootstrap"`, `"ionicons"`, or
 #'   `"lucide"` defining the icon library of interest. Defaults to
-#'   `"fontawesome"`.
+#'   `"fontawesome"`. Alternatively, `"text"` shows `icon` as text, which is
+#'   useful for numbered or lettered markers (e.g., `icon = 1:10`). Text is
+#'   bold and shrinks to fit, so is best kept to around three characters.
 #'
 #' @param dir The directory in which markers are saved. By default this is
 #'   [tempdir()], which is deleted at the end of each R session. Providing an
@@ -497,9 +500,33 @@ icon_svg <- function(icon, color, library, ...) {
       as.character(bsicons::bs_icon(icon, size = "1em"))
     ),
     ionicons = read_ionicon(icon, color = color),
-    lucide = lucidr::lucide(icon, size = 16, color = color)
+    lucide = lucidr::lucide(icon, size = 16, color = color),
+    text = text_svg(icon, color)
   )
   paste(as.character(svg), collapse = "\n")
+}
+
+#' Build an SVG showing a short piece of text, in the same form as an icon
+#'
+#' The text is bold, centred, and shrinks to fit the (square) icon area as it
+#' gets longer. Markers are shown as images, which can't load web fonts, so a
+#' common system font stack is used.
+#' @noRd
+text_svg <- function(text, color) {
+  text <- as.character(text)
+  # bold digits and capitals are roughly 0.6em wide; allow text to overhang the
+  # icon area slightly, as marker shapes have some room around it
+  n <- max(nchar(text, type = "width"), 1L)
+  font_size <- min(90, 120 / (0.6 * n))
+  paste0(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" ',
+    'overflow="visible" style="vertical-align:-0.125em;height:1em;width:1em">',
+    '<text x="50" y="50" dy="0.35em" text-anchor="middle" ',
+    'font-family="Helvetica, Arial, sans-serif" font-weight="bold" ',
+    'font-size="', format(round(font_size, 2)), '" fill="', html_attr(color), '">',
+    htmltools::htmlEscape(text),
+    "</text></svg>"
+  )
 }
 
 #' Homebrew way to download from ionicons
@@ -615,7 +642,7 @@ normalise_color <- function(col) {
 check_library <- function(library, check_installed = TRUE) {
   library <- rlang::arg_match(
     library,
-    c("fontawesome", "bootstrap", "ionicons", "lucide")
+    c("fontawesome", "bootstrap", "ionicons", "lucide", "text")
   )
 
   if (!check_installed) {

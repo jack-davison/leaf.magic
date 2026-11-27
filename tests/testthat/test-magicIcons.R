@@ -340,7 +340,9 @@ test_that("iconColor = 'auto' picks the higher contrast of black or white", {
     c("#FFFFFF", "#000000", "#FFFFFF", "#000000")
   )
 
-  icon_urls <- function(...) magicIcons(..., shadow = FALSE)$iconUrl
+  icon_urls <- function(...) {
+    vapply(magicIcons(..., shadow = FALSE), function(i) i$iconUrl, "")
+  }
   expect_identical(
     icon_urls("car", c("navy", "yellow"), "auto"),
     icon_urls("car", c("navy", "yellow"), c("#FFFFFF", "#000000"))
@@ -354,5 +356,30 @@ test_that("iconColor = 'auto' picks the higher contrast of black or white", {
   expect_identical(
     icon_urls("car", c("navy", "yellow"), "auto", marker = c("none", "circle")),
     icon_urls("car", c("navy", "yellow"), c("navy", "#000000"), marker = c("none", "circle"))
+  )
+})
+
+test_that("library = 'text' shows text in markers", {
+  icons <- magicIcons(c(1, 10, "A&B"), "navy", "white", library = "text", shadow = FALSE)
+  svgs <- vapply(icons, function(i) paste(readLines(i$iconUrl), collapse = ""), "")
+  expect_match(svgs[1], ">1</text>", fixed = TRUE)
+  expect_match(svgs[2], ">10</text>", fixed = TRUE)
+  # text is escaped
+  expect_match(svgs[3], ">A&amp;B</text>", fixed = TRUE)
+  # text is allowed to overhang the icon area rather than being clipped
+  expect_match(svgs[1], 'overflow="visible"', fixed = TRUE)
+
+  # longer text is smaller
+  sizes <- as.numeric(sub('.*font-size="([0-9.]+)".*', "\\1", svgs))
+  expect_true(sizes[2] <= sizes[1] && sizes[3] < sizes[2])
+
+  # text legends work, but text needs no attribution
+  expect_no_error(
+    leaflet::leaflet() |>
+      addIconLegend(icons = 1:2, labels = c("a", "b"), library = "text")
+  )
+  expect_error(
+    leaflet::leaflet() |> addIconAttribution("text"),
+    "no attribution"
   )
 })

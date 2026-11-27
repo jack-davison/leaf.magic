@@ -20,7 +20,8 @@ magicIcons(
 \item{icon}{Name of the icon. A full list of available icons can be found
 using \code{\link[fontawesome:fa_metadata]{fontawesome::fa_metadata()}}, \url{https://icons.getbootstrap.com/},
 \url{https://ionic.io/ionicons} or \url{https://lucide.dev/icons/}, depending on
-\code{library}.}
+\code{library}. When \code{library = "text"}, the text (or numbers) to show in each
+marker instead.}
 
 \item{markerColor}{The color of the marker. Not used when \code{marker = "none"}.}
 
@@ -52,7 +53,9 @@ is roughly the same size as \code{\link[leaflet:addMarkers]{leaflet::addMarkers(
 
 \item{library}{One of \code{"fontawesome"}, \code{"bootstrap"}, \code{"ionicons"}, or
 \code{"lucide"} defining the icon library of interest. Defaults to
-\code{"fontawesome"}.}
+\code{"fontawesome"}. Alternatively, \code{"text"} shows \code{icon} as text, which is
+useful for numbered or lettered markers (e.g., \code{icon = 1:10}). Text is
+bold and shrinks to fit, so is best kept to around three characters.}
 
 \item{className}{a custom class name to assign to both icon and shadow images}
 
